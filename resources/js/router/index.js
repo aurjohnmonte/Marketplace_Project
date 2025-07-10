@@ -8,6 +8,9 @@ const routes = [
         path: "/seller/dashboard",
         name: Dashboard,
         component: Dashboard
+    },
+    {
+        path: "/seller/profile/1"
     }
 ]
 
