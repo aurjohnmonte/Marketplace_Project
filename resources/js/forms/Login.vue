@@ -32,7 +32,11 @@ export default {
             requiredInfo: [
                 { id: 'username', label: 'Username', type: 'text' },
                 { id: 'password', label: 'Password', type: 'password' }
-            ]
+            ],
+            data: {
+                username: '',
+                password: ''
+            }
         }
     }
 }
