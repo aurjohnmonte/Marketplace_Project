@@ -26,8 +26,8 @@
 
 <script>
 // Importing the Components
-import Login from './components/Login.vue';
-import Signup from './components/Signup.vue';
+import Login from './forms/Login.vue';
+import Signup from './forms/Signup.vue';
 import '../css/app.css';
 
 export default {
