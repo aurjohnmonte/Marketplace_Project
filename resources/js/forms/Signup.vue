@@ -1,13 +1,13 @@
 <template>
     <!-- Display if signup is clicked -->
-    <div class="user-type"> <!-- Buttons for determining the userType -->
+    <div v-if="currentStep === 'user'" class="user-type"> <!-- Buttons for determining the userType -->
         <button
             @click="userType = 'seller'"
             class="typebox"
             id="seller"
             :class="{
-                active: userType === 'seller',  /* for active class if seller button is clicked */
-                inactive: userType && userType !== 'seller'  /* for inactive class if seller button is  not clicked */
+            active: userType === 'seller',
+            inactive: userType && userType !== 'seller'
             }"
         >Seller</button>
         <button
@@ -15,80 +15,99 @@
             class="typebox"
             id="buyer"
             :class="{
-                active: userType === 'buyer',  /* for active class if buyer button is clicked */
-                inactive: userType && userType !== 'buyer'  /* for inactive class if buyer button is not clicked */
+            active: userType === 'buyer',
+            inactive: userType && userType !== 'buyer'
             }"
         >Buyer</button>
     </div>
 
-    <form method="POST" class="form-content" v-if="userType">
-        <div class="form-header">
-            <h1>Sign up</h1>
-            <p>Sign up as a <strong>{{ userType }}</strong></p>
-        </div>
-        <div
-            v-for="(pair, idx) in inputPairs"
-            :key="idx"
-            class="input-row"
-        >
+    <!-- User Signup Form -->
+    <form @submit.prevent="handleNext" class="form-content" v-if="userType && currentStep === 'user'">
+        <h1>Sign up</h1>
             <div
-                v-for="info in pair"
-                :key="info.id"
-                class="input-box"
+                v-for="(pair, idx) in inputPairs"
+                :key="idx"
+                class="input-row"
             >
-                <template v-if="info.type === 'select'">
-                    <select
-                        :name="info.name"
-                        :id="info.id"
-                        v-model="genderValue"
-                        required
-                    >
-                        <option v-for="option in info.options"
-                            :key="option.value"
-                            :value="option.value"
-                        >{{ option.text }}</option>
-                    </select>
-                    <label :for="info.id"
-                        :class="{ floated: genderValue }"
-                    >{{ info.label }}</label>
-                </template>
-                <template v-else>
-                    <input
-                        :type="info.type"
-                        :name="info.name"
-                        :id="info.id"
-                        required
-                    />
-                    <label :for="info.id">{{ info.label }}</label>
-                </template>
+                <div
+                    v-for="info in pair"
+                    :key="info.id"
+                    class="input-box"
+                >
+                    <template v-if="info.type === 'select'">
+                        <select
+                            :name="info.name"
+                            :id="info.id"
+                            v-model="formData[info.name]"
+                            required
+                        >
+                            <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
+                        </select>
+                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                    </template>
+                    <template v-else>
+                        <input
+                            :type="info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            v-model="formData[info.name]"
+                            required
+                        />
+                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                    </template>
+                </div>
             </div>
-        </div>
-        <button class="form-btn">SignUp</button>
+
+            <button v-if="userType==='buyer'" class="form-btn" type="submit">Sign Up</button>
+            <button v-if="userType==='seller'" class="form-btn" type="submit">Next</button>
     </form>
+
+    <!-- Shop Signup Form -->
+    <ShopSignup v-if="currentStep === 'shop'" :userType="userType" :userData="formData" />
+
+    <Login v-if="currentStep === 'login'" :userType="userType" :userData="formData" />
 
 </template>
 
 <script>
+import ShopSignup from '../forms/ShopSignup.vue';
+import Login from '../forms/Login.vue';
+
 export default {
+    components: {
+        ShopSignup,
+        Login
+    },
     data() {
         return {
-            action: 'login',
+            action: 'signup',
             userType: null,
-            genderValue: '',
+            currentStep: 'user', // 'user' or 'shop'
+            formData: {
+                firstname: '',
+                m_initial: '',
+                lastname: '',
+                gender: '',
+                birthday: '',
+                age: '',
+                email: '',
+                contact_no: '',
+                username: '',
+                password: ''
+            },
             requiredInfo: [
-            { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname' },
-            { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial' },
-            { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname' },
-            { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
-            { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday' },
-            { label: 'Age', type: 'number', name: 'age', id: 'age' },
-            { label: 'Email', type: 'email', name: 'email', id: 'email' },
-            { label: 'Contact Number', type: 'number', name: 'contact_no', id: 'contact_no' },
-            { label: 'Address', type: 'text', name: 'current_address', id: 'current_address' },
-            { label: 'Username', type: 'text', name: 'username', id: 'username'},
-            { label: 'Password', type: 'password', name: 'password', id: 'password'},
-            { label: 'Confirm Password', type: 'password', name: 'confirm_password', id: 'confirm_password'}
-          ]
+                { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname' },
+                { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial' },
+                { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname' },
+                { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
+                { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday' },
+                { label: 'Age', type: 'number', name: 'age', id: 'age' },
+                { label: 'Email', type: 'email', name: 'email', id: 'email' },
+                { label: 'Contact Number', type: 'tel', name: 'contact_no', id: 'contact_no' },
+                { label: 'Username', type: 'text', name: 'username', id: 'username'},
+                { label: 'Password', type: 'password', name: 'password', id: 'password'},
+                { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'}
+            ]
         }
     },
     computed: {
@@ -98,6 +117,32 @@ export default {
                 pairs.push(this.requiredInfo.slice(i, i + 2));
             }
             return pairs;
+        },
+        isFormValid() {
+            return Object.values(this.formData).every(value => value !== '');
+        }
+    },
+    methods: {
+        handleNext(event) {
+            event.preventDefault(); // Prevent form submission
+
+            if (!this.isFormValid) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (this.userType === 'seller') {
+                // For sellers, go to shop signup
+                this.currentStep = 'shop';
+            } else {
+                // For buyers, submit the form
+                this.submitBuyerForm();
+            }
+        },
+        submitBuyerForm() {
+            // send the data to the backend
+            console.log('Buyer signup data:', this.formData);
+            this.currentStep = 'login'
         }
     }
 }
@@ -236,6 +281,7 @@ export default {
   transition: 0.2s ease all;
 }
 
+/* input and label animation */
 .input-box label.floated {
   top: -8px;
   left: 10px;
@@ -247,7 +293,7 @@ export default {
   border-radius: 10px;
   color: #ffffff;
 }
-/* input and label animation */
+
 .input-box input:focus + label,
 .input-box input.has-content + label {
   top: -8px;
@@ -260,9 +306,6 @@ export default {
   border-radius: 10px;
   color: #ffffff;
 }
-
-/* --- Custom styles for radio and date input boxes --- */
-
 
 /* input type="date" */
   .input-box input:focus + label,
@@ -283,7 +326,7 @@ export default {
   }
 
 
-/* button */
+/* submit/next button */
 .form-btn {
   padding: 8px;
   border-radius: 10px;
