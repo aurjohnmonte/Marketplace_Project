@@ -278,7 +278,7 @@ export default {
             });
         },
         checkAllCaps() {
-            // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms)
+            // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms, password)
             const skipFields = ['gender', 'birthday', 'age', 'contact_no', 'location_access', 'terms', 'password', 'confirm_password'];
             this.allCapsFields = [];
             for (const key in this.formData) {
