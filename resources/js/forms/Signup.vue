@@ -2,7 +2,7 @@
     <!-- Display if signup is clicked -->
     <div v-if="currentStep === 'user'" class="user-type"> <!-- Buttons for determining the userType -->
         <button
-            @click="userType = 'seller'"
+            @click="changeType('seller')"
             class="typebox"
             id="seller"
             :class="{
@@ -11,7 +11,7 @@
             }"
         >Seller</button>
         <button
-            @click="userType = 'buyer'"
+            @click="changeType('buyer')"
             class="typebox"
             id="buyer"
             :class="{
@@ -23,17 +23,21 @@
 
     <!-- User Signup Form -->
     <form @submit.prevent="handleNext" class="form-content" v-if="userType && currentStep === 'user'">
-        <h1>Sign up</h1>
-            <div
-                v-for="(pair, idx) in inputPairs"
-                :key="idx"
-                class="input-row"
-            >
-                <div
-                    v-for="info in pair"
-                    :key="info.id"
-                    class="input-box"
-                >
+        <div class="form-header">
+            <h1>Sign up</h1>
+            <p>Sign up as a <strong>{{ userType }}</strong></p>
+        </div>
+
+        <div v-if="allCapsError" class="error-message" style="color: red; margin-bottom: 1rem;">
+            Please avoid using ALL CAPS in the following fields: {{ allCapsFields.join(', ') }}
+        </div>
+
+        <!-- Personal Information Section -->
+        <div class="section-header"><strong>Personal Information</strong></div>
+        <div>
+            <div v-for="(pair, idx) in personalInfoPairs" :key="'personal-row-' + idx" class="input-row">
+                <div v-for="info in pair" :key="info.id" class="input-box">
+                    <!-- template for select type input with options-->
                     <template v-if="info.type === 'select'">
                         <select
                             :name="info.name"
@@ -45,6 +49,21 @@
                         </select>
                         <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
                     </template>
+
+                    <!-- for tel type inputs like contact numbers -->
+                    <template v-else-if="info.type === 'tel'">
+                        <input
+                            :type="info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            :pattern="info.pattern"
+                            v-model="formData[info.name]"
+                            required
+                        />
+                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                    </template>
+
+                    <!-- for other input types that is not mentioned above -->
                     <template v-else>
                         <input
                             :type="info.type"
@@ -57,14 +76,46 @@
                     </template>
                 </div>
             </div>
+        </div>
 
-            <button v-if="userType==='buyer'" class="form-btn" type="submit">Sign Up</button>
-            <button v-if="userType==='seller'" class="form-btn" type="submit">Next</button>
+        <!-- Account Information Section -->
+        <div class="section-header"><strong>Account Information</strong></div>
+        <div>
+            <div v-for="(pair, idx) in accountInfoPairs" :key="'account-row-' + idx" class="input-row">
+                <div v-for="info in pair" :key="info.id" class="input-box">
+                    <input
+                        :type="info.name === 'confirm_password' ? 'password' : info.type"
+                        :name="info.name"
+                        :id="info.id"
+                        v-model="formData[info.name]"
+                        required
+                    />
+                    <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="terms" v-if="userType === 'buyer'">
+            <div class="checkbox">
+                <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
+                <label for="location_access">Allow location access to the nearest shop.</label>
+            </div>
+
+            <div class="checkbox">
+                <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
+                <label for="terms">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+            </div>
+        </div>
+
+        <button v-if="userType==='buyer'" class="form-btn" type="submit">Sign Up</button>
+        <button v-if="userType==='seller'" class="form-btn" type="submit">Next</button>
     </form>
 
     <!-- Shop Signup Form -->
     <ShopSignup v-if="currentStep === 'shop'" :userType="userType" :userData="formData" />
 
+    <!-- Buyer Signup Form -->
     <Login v-if="currentStep === 'login'" :userType="userType" :userData="formData" />
 
 </template>
@@ -72,6 +123,14 @@
 <script>
 import ShopSignup from '../forms/ShopSignup.vue';
 import Login from '../forms/Login.vue';
+
+function groupInPairs(arr) {
+    const pairs = [];
+    for (let i = 0; i < arr.length; i += 2) {
+        pairs.push(arr.slice(i, i + 2));
+    }
+    return pairs;
+}
 
 export default {
     components: {
@@ -93,38 +152,71 @@ export default {
                 email: '',
                 contact_no: '',
                 username: '',
-                password: ''
+                password: '',
+                location_access: '',
+                terms: ''
             },
-            requiredInfo: [
-                { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname' },
-                { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial' },
-                { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname' },
-                { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
-                { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday' },
-                { label: 'Age', type: 'number', name: 'age', id: 'age' },
-                { label: 'Email', type: 'email', name: 'email', id: 'email' },
-                { label: 'Contact Number', type: 'tel', name: 'contact_no', id: 'contact_no' },
-                { label: 'Username', type: 'text', name: 'username', id: 'username'},
-                { label: 'Password', type: 'password', name: 'password', id: 'password'},
-                { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'}
-            ]
+            requiredInfo: {
+                personalInformation: [
+                    { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname' },
+                    { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial' },
+                    { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname' },
+                    { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
+                    { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday' },
+                    { label: 'Age', type: 'number', name: 'age', id: 'age' },
+                    { label: 'Email', type: 'email', name: 'email', id: 'email' },
+                    { label: 'Contact Number', type: 'tel', name: 'contact_no', id: 'contact_no', pattern: '[0-9]{11}' },
+                ],
+                accountInformation: [
+                    { label: 'Username', type: 'text', name: 'username', id: 'username'},
+                    { label: 'Password', type: 'password', name: 'password', id: 'password'},
+                    { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'}
+                ]
+            },
+            allCapsError: false,
+            allCapsFields: []
         }
     },
     computed: {
-        inputPairs() {
-            const pairs = [];
-            for (let i = 0; i < this.requiredInfo.length; i += 2) {
-                pairs.push(this.requiredInfo.slice(i, i + 2));
-            }
-            return pairs;
-        },
         isFormValid() {
-            return Object.values(this.formData).every(value => value !== '');
+            // Only check required fields for the current userType
+            const requiredFields = [
+                'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age', 'email', 'contact_no',
+                'username', 'password', 'confirm_password'
+            ];
+            /* this checks if all input fields are filled */
+            for (const field of requiredFields) {
+                if (!this.formData[field]) return false;
+            }
+            if (this.userType === 'buyer') {
+                if (!this.formData.location_access) return false;
+                if (!this.formData.terms) return false;
+            }
+            // Passwords must match
+            if (this.formData.password !== this.formData.confirm_password) return false;
+            // Check for all caps error
+            if (this.allCapsError) return false;
+            return true;
+        },
+        allCapitalData() {
+
+        },
+        personalInfoPairs() {
+            return groupInPairs(this.requiredInfo.personalInformation);
+        },
+        accountInfoPairs() {
+            return groupInPairs(this.requiredInfo.accountInformation);
         }
     },
     methods: {
         handleNext(event) {
             event.preventDefault(); // Prevent form submission
+
+            this.checkAllCaps();
+            if (this.allCapsError) {
+                alert('Please avoid using ALL CAPS in the following fields: ' + this.allCapsFields.join(', '));
+                return;
+            }
 
             if (!this.isFormValid) {
                 alert('Please fill in all required fields');
@@ -143,6 +235,26 @@ export default {
             // send the data to the backend
             console.log('Buyer signup data:', this.formData);
             this.currentStep = 'login'
+        },
+        changeType(newType) {
+            this.userType = newType;
+            // Reset all form fields
+            Object.keys(this.formData).forEach(key => {
+                this.formData[key] = '';
+            });
+        },
+        checkAllCaps() {
+            // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms)
+            const skipFields = ['gender', 'birthday', 'age', 'contact_no', 'location_access', 'terms', 'password', 'confirm_password'];
+            this.allCapsFields = [];
+            for (const key in this.formData) {
+                if (skipFields.includes(key)) continue;
+                const value = this.formData[key];
+                if (value && value === value.toUpperCase() && /[A-Z]/.test(value) && value !== value.toLowerCase()) {
+                    this.allCapsFields.push(key.replace('_', ' '));
+                }
+            }
+            this.allCapsError = this.allCapsFields.length > 1;
         }
     }
 }
@@ -154,9 +266,9 @@ export default {
   background-color:	#F5F5DC;
   display: flex;
   flex-direction: column;
-  align-items: center;
   width: 40%;
   border: 1px solid #000;
+  border-radius: 10px;
   border-radius: 10px;
 }
 
@@ -181,7 +293,6 @@ export default {
 }
 .typebox#seller{
   border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
 }
 
 /* for active and inactive button designs */
@@ -245,8 +356,6 @@ export default {
 .input-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 3rem;
-  margin-bottom: 1rem;
 }
 
 /* for the input */
@@ -331,4 +440,65 @@ export default {
   padding: 8px;
   border-radius: 10px;
 }
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .signup-container {
+    width: 70%;
+    min-width: 280px;
+    border-radius: 8px;
+  }
+  .form-content {
+    padding: 1.5rem 0.5rem;
+  }
+  .input-row {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .signup-container {
+    width: 100%;
+    min-width: 0;
+    border-radius: 0;
+    border-width: 1px 0 1px 0;
+    box-sizing: border-box;
+  }
+  .form-content {
+    padding: 1rem 0.2rem;
+  }
+  .form-header h1 {
+    font-size: 1.2rem;
+  }
+  .form-header p {
+    padding-left: 0;
+    font-size: 0.95rem;
+  }
+  .input-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  .input-box input,
+  .input-box select {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .input-box label {
+    font-size: 11px;
+    padding-left: 8px;
+  }
+  .form-btn {
+    font-size: 0.95rem;
+    padding: 7px;
+  }
+  .user-type {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .typebox {
+    padding: 0.7rem 0;
+    font-size: 0.98rem;
+  }
+}
+
 </style>
