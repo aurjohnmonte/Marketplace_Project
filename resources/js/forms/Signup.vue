@@ -3,7 +3,7 @@
     <div v-if="currentStep === 'user'" class="user-type"> <!-- Buttons for determining the userType -->
         <button
             @click="changeType('seller')"
-            class="typebox"
+            class="typebox style"
             id="seller"
             :class="{
             active: userType === 'seller',
@@ -12,7 +12,7 @@
         >Seller</button>
         <button
             @click="changeType('buyer')"
-            class="typebox"
+            class="typebox style"
             id="buyer"
             :class="{
             active: userType === 'buyer',
@@ -83,15 +83,46 @@
         <div>
             <div v-for="(pair, idx) in accountInfoPairs" :key="'account-row-' + idx" class="input-row">
                 <div v-for="info in pair" :key="info.id" class="input-box">
-                    <input
-                        :type="info.name === 'confirm_password' ? 'password' : info.type"
-                        :name="info.name"
-                        :id="info.id"
-                        v-model="formData[info.name]"
-                        required
-                    />
-                    <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
-
+                    <template v-if="info.type === 'file'">
+                        <input
+                            :type="info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            :accept="info.accept"
+                            @change="handleFileUpload($event, info.name)"
+                            :ref="'fileInput_' + info.name"
+                            style="display: none;"
+                        />
+                        <label
+                            :for="info.id"
+                            class="custom-file-label"
+                            :class="{ floated: formData[info.name] }"
+                            tabindex="0"
+                        >
+                            {{ info.label }}
+                        </label>
+                        <button
+                            type="button"
+                            class="img-btn"
+                            @click="triggerFileInput(info.name)"
+                            style="margin-top: 5px;"
+                        >
+                            Upload Image
+                        </button>
+                        <span v-if="formData[info.name]" class="file-name">
+                            {{ formData[info.name]?.name }}
+                        </span>
+                    </template>
+                    <template v-else>
+                        <input
+                            :type="info.name === 'confirm_password' ? 'password' : info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            v-model="formData[info.name]"
+                            required
+                        />
+                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                    </template>
                 </div>
             </div>
         </div>
@@ -108,8 +139,8 @@
             </div>
         </div>
 
-        <button v-if="userType==='buyer'" class="form-btn" type="submit">Sign Up</button>
-        <button v-if="userType==='seller'" class="form-btn" type="submit">Next</button>
+        <button v-if="userType==='buyer'" class="form-btn style" type="submit">Sign Up</button>
+        <button v-if="userType==='seller'" class="form-btn style" type="submit">Next</button>
     </form>
 
     <!-- Shop Signup Form -->
@@ -153,6 +184,8 @@ export default {
                 contact_no: '',
                 username: '',
                 password: '',
+                confirm_password: '',
+                profile_image: null,
                 location_access: '',
                 terms: ''
             },
@@ -170,7 +203,8 @@ export default {
                 accountInformation: [
                     { label: 'Username', type: 'text', name: 'username', id: 'username'},
                     { label: 'Password', type: 'password', name: 'password', id: 'password'},
-                    { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'}
+                    { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'},
+                    { label: 'Profile Image', type: 'file', name: 'profile_image', id: 'profile_image', accept: 'image/*' } // Added image upload
                 ]
             },
             allCapsError: false,
@@ -255,6 +289,25 @@ export default {
                 }
             }
             this.allCapsError = this.allCapsFields.length > 1;
+        },
+        triggerFileInput(name) {
+            let fileInput = this.$refs['fileInput_' + name];
+            // If it's an array (can happen with v-for), get the first element
+            if (Array.isArray(fileInput)) {
+                fileInput = fileInput[0];
+            }
+            if (fileInput) {
+                fileInput.click();
+            } else {
+                console.error(`File input with ref 'fileInput_${name}' not found.`);
+            }
+        },
+        handleFileUpload(event, name) {
+            const file = event.target.files[0];
+            if (file) {
+                // Update your formData or perform other actions with the file
+                this.formData[name] = file;
+            }
         }
     }
 }
@@ -441,6 +494,36 @@ export default {
   border-radius: 10px;
 }
 
+.img-btn {
+    width: 100%;
+  padding:  10px;
+  font-size: 12px;
+  border: 1px solid #9e363a;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #000000;
+  box-sizing: border-box;
+}
+
+.custom-file-label {
+  display: inline-block;
+  background-color: #091f36;
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  margin-bottom: 4px;
+  width: fit-content;
+}
+
+.file-name {
+  display: block;
+  font-size: 12px;
+  color: #333;
+  margin-top: 4px;
+}
+
 /* Responsive Design */
 @media (max-width: 900px) {
   .signup-container {
@@ -502,3 +585,4 @@ export default {
 }
 
 </style>
+
