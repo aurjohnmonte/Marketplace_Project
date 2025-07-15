@@ -49,8 +49,8 @@ export default {
             if (field === 'username') {
                 if (!this.data.username) {
                     this.errors.username = 'Username is required.';
-                } else if (this.data.username.length < 3) {
-                    this.errors.username = 'Username must be at least 3 characters.';
+                } else if (this.data.username.length < 4) {
+                    this.errors.username = 'Username must be at least 4 characters.';
                 } else {
                     delete this.errors.username;
                 }
@@ -58,8 +58,8 @@ export default {
             if (field === 'password') {
                 if (!this.data.password) {
                     this.errors.password = 'Password is required.';
-                } else if (this.data.password.length < 6) {
-                    this.errors.password = 'Password must be at least 6 characters.';
+                } else if (this.data.password.length < 8) {
+                    this.errors.password = 'Password must be at least 8 characters.';
                 } else {
                     delete this.errors.password;
                 }
