@@ -72,7 +72,16 @@
                             :name="info.name"
                             :id="info.id"
                             v-model="formData[info.name]"
-                            v-bind:required="info.name !== 'm_initial'"
+                            v-if="info.name !== 'm_initial'"
+                            :required="info.name"
+                            @input="validateField(info.name)"
+                        />
+                        <input
+                            :type="info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            v-model="formData[info.name]"
+                            v-else
                             @input="validateField(info.name)"
                         />
                         <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
@@ -252,9 +261,19 @@ export default {
     },
     computed: {
         isFormValid() {
-            // All fields must be valid (no errors and not null)
-            return Object.keys(this.validationMessages).every(
-                key => this.validationMessages[key].length === 0 && this.fieldStatus[key] === true
+            // List of required fields for each user type
+            const requiredFields = this.userType === 'buyer'
+                ? [
+                    'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age',
+                    'email', 'contact_no', 'username', 'password', 'confirm_password', 'profile_image',
+                    'location_access', 'terms'
+                ]
+                : [
+                    'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age',
+                    'email', 'contact_no', 'username', 'password', 'confirm_password', 'profile_image'
+                ];
+            return requiredFields.every(
+                key => (this.validationMessages[key]?.length === 0) && (this.fieldStatus[key] === true)
             ) && this.userType && (this.userType !== 'buyer' || (this.formData.location_access && this.formData.terms));
         },
         allCapitalData() {
@@ -280,7 +299,7 @@ export default {
                     v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
                 ],
                 m_initial: [
-                    v => v === '' || /^[A-Z]\.$/.test(v) || 'Middle initial must be a single uppercase letter.'
+                    v => v === '' || /^[A-Z]\.?$/.test(v) || 'Middle initial must be a single uppercase letter (optionally with a dot).'
                 ],
                 lastname: [
                     v => v.trim().length >= 2 || 'Lastname must be at least 2 characters.',
@@ -299,8 +318,7 @@ export default {
                 ],
                 age: [
                     v => v !== '' && !isNaN(v) || 'Age is required.',
-                    v => v >= 0 && v <= 120 || 'Age must be between 0 and 120.',
-                    v => v >= 18 || 'You must be at least 18 years old.'
+                    v => v >= 18 && v <= 120 || 'Invalid age.',
                 ],
                 email: [
                     v => /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v) || 'Invalid email format.',
@@ -331,11 +349,19 @@ export default {
         },
         // --- Main Validation Method ---
         validateField(field) {
+            // Only validate terms/location_access for buyers
+            if ((field === 'terms' || field === 'location_access') && this.userType !== 'buyer') {
+                this.validationMessages[field] = [];
+                this.fieldStatus[field] = null;
+                return;
+            }
             let value = this.formData[field];
-            // Sanitize
-            if (field === 'email') value = value.trim().toLowerCase();
-            else value = value.trim();
-            this.formData[field] = value;
+            // Only trim if value is a string
+            if (typeof value === 'string') {
+                if (field === 'email') value = value.trim().toLowerCase();
+                else value = value.trim();
+                this.formData[field] = value;
+            }
 
             // If the field is empty, clear errors and status
             if (!value) {
@@ -422,7 +448,26 @@ export default {
             // Validate all fields before submit
             Object.keys(this.formData).forEach(f => this.validateField(f));
             if (!this.isFormValid) {
-                alert('Please fix the errors in the form.');
+                // Collect invalid fields for better feedback
+                const invalidFields = Object.keys(this.validationMessages)
+                    .filter(key => {
+                        // Only require location_access and terms for buyers
+                        if ((key === 'location_access' || key === 'terms') && this.userType !== 'buyer') return false;
+                        return this.validationMessages[key].length > 0 || this.fieldStatus[key] !== true;
+                    })
+                    .map(key => {
+                        // Convert snake_case to readable label
+                        return this.requiredInfo.personalInformation.concat(this.requiredInfo.accountInformation)
+                            .find(info => info.name === key)?.label || key.replace(/_/g, ' ');
+                    });
+                let alertMsg = 'Please fix the errors in the form.';
+                if (invalidFields.length) {
+                    alertMsg += '\nInvalid or missing: ' + invalidFields.join(', ');
+                }
+                if (this.userType === 'buyer' && (!this.formData.location_access || !this.formData.terms)) {
+                    alertMsg += '\nYou must agree to location access and terms.';
+                }
+                alert(alertMsg);
                 return;
             }
             // Sanitize all fields
@@ -586,7 +631,7 @@ export default {
     margin-bottom: 1rem;
     text-align: left;
     width: 100%;
-    padding-left: 28%;
+    padding-left: 18%;
 }
 
 .form-content form{
