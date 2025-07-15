@@ -47,10 +47,12 @@ export default {
 .container {
   width: 100%;
   min-width: 320px;
-  height: 100vh;
+  min-height: 100vh;
+  height: auto;
   margin: 0;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
 .navbar {
@@ -76,15 +78,15 @@ export default {
 /* for the content div (logo and form)) */
 .content {
   display: flex;
-  flex: 1;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
-  padding: 0 2rem;
+  padding: 2rem;
   overflow: auto;
   position: relative;
   z-index: 1;
   font-family: 'Roboto-Reg';
-  gap: 10em;
+  gap: 10rem;
 }
 
 /* Responsive Design */
