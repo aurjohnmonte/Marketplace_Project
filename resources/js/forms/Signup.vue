@@ -28,10 +28,6 @@
             <p>Sign up as a <strong>{{ userType }}</strong></p>
         </div>
 
-        <div v-if="allCapsError" class="error-message" style="color: red; margin-bottom: 1rem;">
-            Please avoid using ALL CAPS in the following fields: {{ allCapsFields.join(', ') }}
-        </div>
-
         <!-- Personal Information Section -->
         <div class="section-header"><strong>Personal Information</strong></div>
         <div>
@@ -59,8 +55,14 @@
                             :pattern="info.pattern"
                             v-model="formData[info.name]"
                             required
+                            @input="validateField(info.name)"
                         />
                         <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
+                            <ul style="padding-left: 1.2em; margin: 0;">
+                                <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
+                            </ul>
+                        </span>
                     </template>
 
                     <!-- for other input types that is not mentioned above -->
@@ -70,9 +72,15 @@
                             :name="info.name"
                             :id="info.id"
                             v-model="formData[info.name]"
-                            required
+                            v-bind:required="info.name !== 'm_initial'"
+                            @input="validateField(info.name)"
                         />
                         <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
+                            <ul style="padding-left: 1.2em; margin: 0;">
+                                <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
+                            </ul>
+                        </span>
                     </template>
                 </div>
             </div>
@@ -120,8 +128,10 @@
                             :id="info.id"
                             v-model="formData[info.name]"
                             required
+                            @input="validateField(info.name)"
                         />
                         <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <span v-if="validationMessages[info.name]" class="error-message" >{{ validationMessages[info.name].join(', ') }}</span>
                     </template>
                 </div>
             </div>
@@ -204,33 +214,48 @@ export default {
                     { label: 'Username', type: 'text', name: 'username', id: 'username'},
                     { label: 'Password', type: 'password', name: 'password', id: 'password'},
                     { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'},
-                    { label: 'Profile Image', type: 'file', name: 'profile_image', id: 'profile_image', accept: 'image/*' } // Added image upload
+                    { label: 'Profile Image', type: 'file', name: 'profile_image', id: 'profile_image', accept: 'image/*' }
                 ]
             },
             allCapsError: false,
-            allCapsFields: []
+            allCapsFields: [],
+            validationMessages: {
+                firstname: [],
+                m_initial: [],
+                lastname: [],
+                birthday: [],
+                age: [],
+                email: [],
+                contact_no: [],
+                username: [],
+                password: [],
+                confirm_password: []
+            },
+            fieldStatus: {
+                firstname: null,
+                m_initial: null,
+                lastname: null,
+                birthday: null,
+                age: null,
+                email: null,
+                contact_no: null,
+                username: null,
+                password: null,
+                confirm_password: null
+            },
+            debounceTimers: {},
+            // Simulated existing data for async checks
+            existingEmails: ['test@example.com'],
+            existingUsernames: ['user1'],
+            commonPasswords: ['password', '12345678', 'qwerty']
         }
     },
     computed: {
         isFormValid() {
-            // Only check required fields for the current userType
-            const requiredFields = [
-                'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age', 'email', 'contact_no',
-                'username', 'password', 'confirm_password'
-            ];
-            /* this checks if all input fields are filled */
-            for (const field of requiredFields) {
-                if (!this.formData[field]) return false;
-            }
-            if (this.userType === 'buyer') {
-                if (!this.formData.location_access) return false;
-                if (!this.formData.terms) return false;
-            }
-            // Passwords must match
-            if (this.formData.password !== this.formData.confirm_password) return false;
-            // Check for all caps error
-            if (this.allCapsError) return false;
-            return true;
+            // All fields must be valid (no errors and not null)
+            return Object.keys(this.validationMessages).every(
+                key => this.validationMessages[key].length === 0 && this.fieldStatus[key] === true
+            ) && this.userType && (this.userType !== 'buyer' || (this.formData.location_access && this.formData.terms));
         },
         allCapitalData() {
 
@@ -243,25 +268,173 @@ export default {
         }
     },
     methods: {
+        // --- Validation Rules Config ---
+        validationRules(field, value) {
+            const rules = {
+                firstname: [
+                    v => v.trim().length >= 2 || 'Firstname must be at least 2 characters',
+                    v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces',
+                    v => !/[0-9]/.test(v) || 'No numbers allowed',
+                    v => !/[^a-zA-Z\s]/.test(v) || 'No symbols allowed.',
+                    v => v.split(/\s+/).length === new Set(v.split(/\s+/)).size || 'No repeated words.',
+                    v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
+                ],
+                m_initial: [
+                    v => v === '' || /^[A-Z]\.$/.test(v) || 'Middle initial must be a single uppercase letter.'
+                ],
+                lastname: [
+                    v => v.trim().length >= 2 || 'Lastname must be at least 2 characters.',
+                    v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces.',
+                    v => !/[0-9]/.test(v) || 'No numbers allowed.',
+                    v => !/[^a-zA-Z\s]/.test(v) || 'No symbols allowed.',
+                    v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
+                ],
+                birthday: [
+                    v => !!v || 'Birthday is required.',
+                    v => new Date(v) <= new Date() || 'Birthday cannot be in the future.',
+                    v => {
+                        const age = this.calculateAge(v);
+                        return (age >= 0 && age <= 120) || 'Age must be between 0 and 120.';
+                    }
+                ],
+                age: [
+                    v => v !== '' && !isNaN(v) || 'Age is required.',
+                    v => v >= 0 && v <= 120 || 'Age must be between 0 and 120.',
+                    v => v >= 18 || 'You must be at least 18 years old.'
+                ],
+                email: [
+                    v => /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v) || 'Invalid email format.',
+                    v => !/@(mailinator|tempmail|10minutemail)\./.test(v) || 'Disposable emails are not allowed.'
+                ],
+                contact_no: [
+                    v => /^09[0-9]{9}$/.test(v) || 'Contact number must start with 09 and be 11 digits.'
+                ],
+                username: [
+                    v => v.length >= 4 || 'Username must be at least 4 characters.',
+                    v => v.length <= 20 || 'Username must be at most 20 characters.',
+                    v => /^[a-zA-Z0-9_]+$/.test(v) || 'Only letters, numbers, and underscores allowed.'
+                ],
+                password: [
+                    v => v.length >= 8 || 'Must be at least 8 characters.',
+                    v => /[A-Z]/.test(v) || 'Must contain an uppercase letter.',
+                    v => /[a-z]/.test(v) || 'Must contain a lowercase letter.',
+                    v => /[0-9]/.test(v) || 'Must contain a number.',
+                    v => /[^a-zA-Z0-9]/.test(v) || 'Must contain a special character.',
+                    v => !/\s/.test(v) || 'No spaces allowed.',
+                    v => !this.commonPasswords.includes(v) || 'Password is too common.'
+                ],
+                confirm_password: [
+                    v => v === this.formData.password || 'Passwords do not match.'
+                ]
+            };
+            return rules[field] || [];
+        },
+        // --- Main Validation Method ---
+        validateField(field) {
+            let value = this.formData[field];
+            // Sanitize
+            if (field === 'email') value = value.trim().toLowerCase();
+            else value = value.trim();
+            this.formData[field] = value;
+
+            // If the field is empty, clear errors and status
+            if (!value) {
+                this.validationMessages[field] = [];
+                this.fieldStatus[field] = null;
+            } else {
+                // Run all rules
+                const errors = this.validationRules(field, value).map(rule => typeof rule === 'function' ? rule(value) : true).filter(msg => msg !== true);
+                this.validationMessages[field] = errors;
+                this.fieldStatus[field] = errors.length === 0;
+            }
+            // Async checks (debounced)
+            if (['email', 'username'].includes(field) && value) {
+                clearTimeout(this.debounceTimers[field]);
+                this.debounceTimers[field] = setTimeout(() => {
+                    if (field === 'email' && this.existingEmails.includes(value)) {
+                        this.validationMessages.email = ['This email is not available.'];
+                        this.fieldStatus.email = false;
+                    }
+                    if (field === 'username' && this.existingUsernames.includes(value)) {
+                        this.validationMessages.username = ['This username is not available.'];
+                        this.fieldStatus.username = false;
+                    }
+                }, 400);
+            }
+            // Age auto-calc
+            if (field === 'birthday') {
+                const age = this.calculateAge(value);
+                this.formData.age = isNaN(age) || age < 0 ? '' : age;
+                this.validateField('age');
+            }
+            if (field === 'password') {
+                this.validateField('confirm_password');
+            }
+        },
+        calculateAge(dob) {
+            if (!dob) return '';
+            const dobDate = new Date(dob);
+            const today = new Date();
+            let age = today.getFullYear() - dobDate.getFullYear();
+            const m = today.getMonth() - dobDate.getMonth();
+            if (m < 0 || (m === 0 && today.getDate() < dobDate.getDate())) {
+                age--;
+            }
+            return age;
+        },
+        // --- Validation Functions from register.js ---
+        wordsCapitalized(value) {
+            const words = value.trim().split(/\s+/);
+            for (let word of words) {
+                if (word.length > 0 && word[0] !== word[0].toUpperCase()) {
+                    return false;
+                }
+            }
+            return true;
+        },
+        allCaps(value) {
+            return value && value === value.toUpperCase() && /[A-Z]/.test(value);
+        },
+        containsNum(value) {
+            const numregex = /[0-9]/;
+            return numregex.test(value);
+        },
+        containsSymbol(value) {
+            const symbolRegex = /[^a-zA-Z0-9\s]/;
+            return symbolRegex.test(value);
+        },
+        hasThreeConsecutiveSpaces(value) {
+            return /\s{3,}/.test(value);
+        },
+        hasThreeSameConsecutiveLetters(value) {
+            return /([a-zA-Z])\1\1/.test(value);
+        },
+        dotAlphaAllowed(value) {
+            const dotAlphaRegex = /^[a-zA-Z.]+$/;
+            return value.length > 0 && !dotAlphaRegex.test(value);
+        },
+        allowsDotNumAlpha(value) {
+            const dotAlphaNum = /^[a-zA-Z0-9.]+$/;
+            return value.length > 0 && !dotAlphaNum.test(value);
+        },
         handleNext(event) {
-            event.preventDefault(); // Prevent form submission
-
-            this.checkAllCaps();
-            if (this.allCapsError) {
-                alert('Please avoid using ALL CAPS in the following fields: ' + this.allCapsFields.join(', '));
-                return;
-            }
-
+            event.preventDefault();
+            // Validate all fields before submit
+            Object.keys(this.formData).forEach(f => this.validateField(f));
             if (!this.isFormValid) {
-                alert('Please fill in all required fields');
+                alert('Please fix the errors in the form.');
                 return;
             }
-
+            // Sanitize all fields
+            Object.keys(this.formData).forEach(f => {
+                if (typeof this.formData[f] === 'string') {
+                    this.formData[f] = this.formData[f].trim();
+                    if (f === 'email') this.formData[f] = this.formData[f].toLowerCase();
+                }
+            });
             if (this.userType === 'seller') {
-                // For sellers, go to shop signup
                 this.currentStep = 'shop';
             } else {
-                // For buyers, submit the form
                 this.submitBuyerForm();
             }
         },
@@ -276,10 +449,17 @@ export default {
             Object.keys(this.formData).forEach(key => {
                 this.formData[key] = '';
             });
+            // Clear all validation messages and statuses
+            Object.keys(this.validationMessages).forEach(key => {
+                this.validationMessages[key] = [];
+            });
+            Object.keys(this.fieldStatus).forEach(key => {
+                this.fieldStatus[key] = null;
+            });
         },
         checkAllCaps() {
-            // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms, password)
-            const skipFields = ['gender', 'birthday', 'age', 'contact_no', 'location_access', 'terms', 'password', 'confirm_password'];
+            // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms)
+            const skipFields = ['gender', 'birthday', 'age', 'contact_no', 'location_access', 'terms' ];
             this.allCapsFields = [];
             for (const key in this.formData) {
                 if (skipFields.includes(key)) continue;
@@ -320,9 +500,14 @@ export default {
   display: flex;
   flex-direction: column;
   width: 40%;
+  min-width: 320px;
+  max-width: 600px;
+  margin: 0 auto;
+  height: auto;
   border: 1px solid #000;
   border-radius: 10px;
   border-radius: 10px;
+  box-sizing: border-box;
 }
 
 /* conteiner containing the buttons */
@@ -371,31 +556,37 @@ export default {
 .form-content{
   flex: 1;
   width: 100%;
-  height: 100%;
-  padding: 2rem 0;
+  height: auto;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 }
 
 .form-header{
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     text-align: left;
     width: 100%;
+    text-align: center;
 }
 
 .form-header h1{
     text-transform: uppercase;
-    text-align: center;
     margin-bottom: 1rem;
 }
 
-.form-header p {
-    padding-left: 15%;
-}
 .form-header strong {
     text-transform: uppercase;
+}
+
+/* section header */
+.section-header {
+    margin-bottom: 1rem;
+    text-align: left;
+    width: 100%;
+    padding-left: 28%;
 }
 
 .form-content form{
@@ -487,15 +678,9 @@ export default {
     cursor: pointer;
   }
 
-
-/* submit/next button */
-.form-btn {
-  padding: 8px;
-  border-radius: 10px;
-}
-
+/* img upload btn */
 .img-btn {
-    width: 100%;
+  width: 100%;
   padding:  10px;
   font-size: 12px;
   border: 1px solid #9e363a;
@@ -522,6 +707,36 @@ export default {
   font-size: 12px;
   color: #333;
   margin-top: 4px;
+}
+
+/* error message design */
+.error-message {
+    color: red;
+    font-size: 12px;
+    width: 100%;
+}
+
+.input-box .error-message {
+  display: block;
+  margin-top: 4px;
+  margin-bottom: 2px;
+  width: 100%;
+}
+
+.input-box.has-error {
+  margin-bottom: 28px; /* Adjust as needed */
+}
+
+.checkbox input {
+    margin-right: 1rem;
+}
+
+/* submit/next button */
+.form-btn {
+  margin-top: 1rem;
+  padding: 8px;
+  border-radius: 10px;
+  background-color: #fc9c70;
 }
 
 /* Responsive Design */
