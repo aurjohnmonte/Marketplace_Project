@@ -42,7 +42,7 @@
                         >
                             <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
                         </select>
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
                     </template>
 
                     <!-- for tel type inputs like contact numbers -->
@@ -56,7 +56,7 @@
                             @input="validateField(info.name)"
                             required
                         />
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <label :for="info.id" class="label" >{{ info.label }}</label>
                         <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
                             <ul style="padding-left: 1.2em; margin: 0;">
                                 <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
@@ -74,7 +74,7 @@
                             @input="validateField(info.name)"
                             required
                         />
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <label :for="info.id" class="label" >{{ info.label }}</label>
                         <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
                             <ul style="padding-left: 1.2em; margin: 0;">
                                 <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
@@ -103,8 +103,7 @@
                         />
                         <label
                             :for="info.id"
-                            class="custom-file-label"
-                            :class="{ floated: formData[info.name] }"
+                            class="label"
                             tabindex="0"
                         >
                             {{ info.label }}
@@ -130,7 +129,7 @@
                             required
                             @input="validateField(info.name)"
                         />
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <label :for="info.id" class="label" >{{ info.label }}</label>
                         <span v-if="validationMessages[info.name]" class="error-message" >{{ validationMessages[info.name].join(', ') }}</span>
                     </template>
                 </div>
@@ -622,7 +621,6 @@ export default {
     margin-bottom: 1rem;
     text-align: left;
     width: 100%;
-    padding-left: 18%;
 }
 
 .form-content form{
@@ -657,7 +655,7 @@ export default {
   box-sizing: border-box;
 }
 /* for the label */
-.input-box label {
+.input-box .label {
   position: absolute;
   top: 12px;
   padding-left: 12px;
@@ -671,7 +669,7 @@ export default {
 }
 
 /* input and label animation */
-.input-box label.floated {
+.input-box .label.floated {
   top: -8px;
   left: 10px;
   width: fit-content;
@@ -683,8 +681,8 @@ export default {
   color: #ffffff;
 }
 
-.input-box input:focus + label,
-.input-box input.has-content + label {
+.input-box input:focus + .label,
+.input-box input.has-content + .label {
   top: -8px;
   left: 10px;
   width: fit-content;
@@ -697,8 +695,8 @@ export default {
 }
 
 /* input type="date" */
-  .input-box input:focus + label,
-  .input-box input:valid + label {
+  .input-box input:focus + .label,
+  .input-box input:valid + .label {
     top: -8px;
     left: 10px;
     width: fit-content;
@@ -724,18 +722,6 @@ export default {
   background-color: #ffffff;
   color: #000000;
   box-sizing: border-box;
-}
-
-.custom-file-label {
-  display: inline-block;
-  background-color: #091f36;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 13px;
-  margin-bottom: 4px;
-  width: fit-content;
 }
 
 .file-name {
