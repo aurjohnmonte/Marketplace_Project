@@ -18,7 +18,7 @@
 
             </div>
         </div>
-        <button class="form-btn style" id="next-btn">Next</button>
+        <button class="form-btn style" id="next-btn">Sign Up</button>
     </form>
 </template>
 
