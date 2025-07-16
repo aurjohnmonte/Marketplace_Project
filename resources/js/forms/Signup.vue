@@ -39,18 +39,10 @@
                             :name="info.name"
                             :id="info.id"
                             v-model="formData[info.name]"
-<<<<<<< HEAD
                         >
                             <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
                         </select>
                         <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
-=======
-                            required
-                        >
-                            <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
-                        </select>
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                     </template>
 
                     <!-- for tel type inputs like contact numbers -->
@@ -61,17 +53,10 @@
                             :id="info.id"
                             :pattern="info.pattern"
                             v-model="formData[info.name]"
-<<<<<<< HEAD
                             @input="validateField(info.name)"
                             required
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-=======
-                            required
-                            @input="validateField(info.name)"
-                        />
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                         <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
                             <ul style="padding-left: 1.2em; margin: 0;">
                                 <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
@@ -86,26 +71,10 @@
                             :name="info.name"
                             :id="info.id"
                             v-model="formData[info.name]"
-<<<<<<< HEAD
                             @input="validateField(info.name)"
                             required
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-=======
-                            v-if="info.name !== 'm_initial'"
-                            :required="info.name"
-                            @input="validateField(info.name)"
-                        />
-                        <input
-                            :type="info.type"
-                            :name="info.name"
-                            :id="info.id"
-                            v-model="formData[info.name]"
-                            v-else
-                            @input="validateField(info.name)"
-                        />
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                         <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
                             <ul style="padding-left: 1.2em; margin: 0;">
                                 <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
@@ -130,19 +99,11 @@
                             @change="handleFileUpload($event, info.name)"
                             :ref="'fileInput_' + info.name"
                             style="display: none;"
-<<<<<<< HEAD
                             required
                         />
                         <label
                             :for="info.id"
                             class="label"
-=======
-                        />
-                        <label
-                            :for="info.id"
-                            class="custom-file-label"
-                            :class="{ floated: formData[info.name] }"
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                             tabindex="0"
                         >
                             {{ info.label }}
@@ -168,11 +129,7 @@
                             required
                             @input="validateField(info.name)"
                         />
-<<<<<<< HEAD
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-=======
-                        <label :for="info.id" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                         <span v-if="validationMessages[info.name]" class="error-message" >{{ validationMessages[info.name].join(', ') }}</span>
                     </template>
                 </div>
@@ -254,15 +211,9 @@ export default {
                 ],
                 accountInformation: [
                     { label: 'Username', type: 'text', name: 'username', id: 'username'},
-<<<<<<< HEAD
                     { label: 'Profile Image', type: 'file', name: 'profile_image', id: 'profile_image', accept: 'image/*' },
                     { label: 'Password', type: 'password', name: 'password', id: 'password'},
                     { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'}
-=======
-                    { label: 'Password', type: 'password', name: 'password', id: 'password'},
-                    { label: 'Confirm Password', type: 'confirm_password', name: 'confirm_password', id: 'confirm_password'},
-                    { label: 'Profile Image', type: 'file', name: 'profile_image', id: 'profile_image', accept: 'image/*' }
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
                 ]
             },
             allCapsError: false,
@@ -670,10 +621,6 @@ export default {
     margin-bottom: 1rem;
     text-align: left;
     width: 100%;
-<<<<<<< HEAD
-=======
-    padding-left: 18%;
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
 }
 
 .form-content form{
@@ -708,11 +655,7 @@ export default {
   box-sizing: border-box;
 }
 /* for the label */
-<<<<<<< HEAD
 .input-box .label {
-=======
-.input-box label {
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
   position: absolute;
   top: 12px;
   padding-left: 12px;
@@ -726,11 +669,7 @@ export default {
 }
 
 /* input and label animation */
-<<<<<<< HEAD
 .input-box .label.floated {
-=======
-.input-box label.floated {
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
   top: -8px;
   left: 10px;
   width: fit-content;
@@ -742,13 +681,8 @@ export default {
   color: #ffffff;
 }
 
-<<<<<<< HEAD
 .input-box input:focus + .label,
 .input-box input.has-content + .label {
-=======
-.input-box input:focus + label,
-.input-box input.has-content + label {
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
   top: -8px;
   left: 10px;
   width: fit-content;
@@ -761,13 +695,8 @@ export default {
 }
 
 /* input type="date" */
-<<<<<<< HEAD
   .input-box input:focus + .label,
   .input-box input:valid + .label {
-=======
-  .input-box input:focus + label,
-  .input-box input:valid + label {
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
     top: -8px;
     left: 10px;
     width: fit-content;
@@ -795,21 +724,6 @@ export default {
   box-sizing: border-box;
 }
 
-<<<<<<< HEAD
-=======
-.custom-file-label {
-  display: inline-block;
-  background-color: #091f36;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 13px;
-  margin-bottom: 4px;
-  width: fit-content;
-}
-
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
 .file-name {
   display: block;
   font-size: 12px;
