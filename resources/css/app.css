@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 @font-face {
   font-family:'Decoy-Med';
   src: url(../fonts/fonnts.com-Decoy-Medium.otf);
@@ -58,64 +57,4 @@ a {
   border-radius: 15px;
 }
 
-=======
-@font-face {
-  font-family:'Decoy-Med';
-  src: url(../fonts/fonnts.com-Decoy-Medium.otf);
-}
 
-@font-face {
-    font-family: 'Bebas-Nue';
-    src: url(../fonts/BebasNeue-Regular.ttf);
-}
-
-@font-face {
-    font-family: 'Montserrat-Reg';
-    src: url(../fonts/Montserrat/Montserrat-Regular.ttf);
-}
-
-@font-face {
-    font-family: 'Roboto-Reg';
-    src: url(../fonts/Roboto/Roboto_SemiCondensed-Regular.ttf);
-}
-
-*{
-    margin: 0;
-    padding: 0;
-}
-
-html, body {
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    overflow-x: hidden;
-    background-color: #D8D2C2;
-  }
-
-a {
-  text-decoration: none;
-  color: black;
-  transition: 0.4s;
-  padding: 3px;
-}
-
-.style {
-  font-family: 'Decoy-Med', "Roboto", sans-serif;
-  font-optical-sizing: auto;
-  font-weight: 400;
-  font-style: normal;
-  font-variation-settings:
-    "wdth" 100;
-  text-transform: uppercase;
-}
-
-.btn {
-  background-color: #B17457;
-  color: #D2B48C;
-  padding: 10px;
-  border-radius: 15px;
-}
-
->>>>>>> 21c821384668262126a482d95605030b27cd17d0
