@@ -1,4 +1,12 @@
 <template>
+    <div>
+        <!--THIS IS JUST AN EXAMPLE. YOU CAN REALLY CHANGE THIS IF YOU WANT BAI-->
+        <form method="GET" action="/seller/logout">
+            <button type="submit">Logout</button>
+        </form>
+        <h1>HELLO THIS IS THE SELLER SIDE</h1>
+        <!--THIS IS THE ANCHOR TAG WHEN USER CLICK TO NAVIGATE-->
+        <router-link to="/seller/dashboard">CLICK TO NAVIGATE DASHBOARD</router-link>
     <div class="seller-container">
         <nav class="navbar navbar-light bg-light justify-content-between">
             <img src="../images/Minimal_Logo.svg" alt="Logo" class="logo">
