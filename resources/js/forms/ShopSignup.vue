@@ -1,5 +1,8 @@
 <template>
-    <form method="POST" class="form-content">
+    <form @submit.prevent="goSubmit" class="form-content">
+        <teleport to="body">
+            <PermissionInfo v-if="show_permission" @goCancel="goCancel" @goAllow="goAllow"/>
+        </teleport>
         <div class="form-header">
             <h1>Sign up</h1>
             <p>Shop Details</p>
@@ -35,7 +38,7 @@
                         </div>
 
                         <div class="location-btn">
-                            <button>Share Location</button>
+                            <button @click="getLocation()" type="button">Share Location</button>
                         </div>
                     </div>
                 </template>
@@ -62,7 +65,7 @@
                                         type="checkbox"
                                         :id="details.id + '_' + option.value"
                                         :value="option.value"
-                                        v-model="shopData.shop_category"
+                                        @change="addcategory($event, option.value)"
                                     />
                                     <label :for="details.id + '_' + option.value" style="margin-left: 6px;">{{ option.label }}</label>
                                 </div>
@@ -88,15 +91,34 @@
                     </span>
                 </template>
             </div>
+        <div class="terms">
+            <div class="checkbox">
+                <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
+                <label @click="show_permission = true">Allow location access to the nearest shop.</label>
+            </div>
+
+            <div class="checkbox">
+                <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
+                <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+            </div>
         </div>
-        <button class="form-btn style" id="next-btn">Sign Up</button>
+        </div>
+        <button class="form-btn style" id="next-btn" type="submit">Sign Up</button>
     </form>
 </template>
 
 <script>
+import PermissionInfo from './PermissionInfo.vue';
 export default {
+    props: [
+        'formData'
+    ],
+    components: {
+        PermissionInfo
+    },
     data() {
         return {
+            show_permission: false,
             shopInfo: [
                 {label: 'Shop Name', type: 'text', name: 'shop_name', id: 'shop_name' },
                 {label: 'Shop Address', type: 'text', name: 'shop_address', id: 'shop_address' },
@@ -122,28 +144,64 @@ export default {
                 shop_address: '',
                 shop_description: '',
                 shop_profile: '',
-                shop_category: []
+                shop_category: [],
+                latitude: null,
+                longitude: null,
             },
             validationMessages: {},
-            formData: {
-                firstname: '',
-                m_initial: '',
-                lastname: '',
-                gender: '',
-                birthday: '',
-                age: '',
-                email: '',
-                contact_no: '',
-                username: '',
-                password: '',
-                confirm_password: '',
-                profile_image: null,
-                location_access: '',
-                terms: ''
-            }
         }
     },
     methods: {
+        goAllow(){
+            const arr = ['terms','location_access'];
+
+            arr.forEach(element => {
+                document.getElementById(element).checked = true;
+            })
+            this.goCancel();
+        },
+
+        addcategory(e,value){
+            if(e.target.checked){
+                this.shopData.shop_category.push(value);
+            }
+            else{
+                this.shopData.shop_category = this.shopData.shop_category.filter(e => e !== value);
+            }
+            console.log('category: ', this.shopData.shop_category);
+        },
+        async goSubmit(){
+
+            if(this.shopData.latitude === null || this.shopData.longitude === null){
+                window.alert("Please click the share location to proceed on registration. You can read the terms and condition.")
+                return;
+            }
+            console.log('shopdata: ', this.shopData);
+
+            this.$emit('goloading', true);
+
+            const data = new FormData();
+            data.append('data', JSON.stringify(this.formData));
+            data.append('shopdata', JSON.stringify(this.shopData));
+            data.append('image', this.formData.profile_image);
+            data.append('shopimage', this.shopData.shop_profile);
+            data.append('role', 'seller');
+
+            const response = await axios.post('/user/register', data);
+
+            console.log(response.data.message);
+
+            if(response.data.message === 'exist'){
+                window.alert("Email/Username have already used.");
+                this.$emit('goloading', false);
+                return;
+            }
+
+            this.$emit('shopinfosubmit');
+        },
+        goCancel(){
+            this.show_permission = false;
+        },  
         handleFileUpload(event, name) {
             const file = event.target.files[0];
             if (file) {
@@ -165,13 +223,33 @@ export default {
         },
         validateField(name) {
 
-        }
+        },
+        getLocation() {
+            if (!navigator.geolocation) {
+                alert("Geolocation is not supported by your browser.")
+                return
+            }
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                this.shopData.latitude = position.coords.latitude
+                this.shopData.longitude = position.coords.longitude
+                },
+                (error) => {
+                alert("Unable to retrieve your location. You may have denied permission.")
+                console.error(error)
+                }
+            )
+        },
+    },
+    mounted(){
+        console.log('user: ', this.formData);
     }
 }
 </script>
 
 
-<style>
+<style scoped>
 
 .form-content {
     max-width: 400px;
@@ -302,5 +380,19 @@ export default {
 .shop-desc:focus {
     border-color: #9e363a;
     outline: none;
+}
+.checkbox{
+    margin-top: 10px;
+}
+.checkbox label{
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.loading-overlay{
+    background-color: rgba(0, 0, 0, 0.712);
+    height: 100%;
+    width: 100%;
+    position: relative;
 }
 </style>

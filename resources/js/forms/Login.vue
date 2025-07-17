@@ -1,5 +1,7 @@
 <template>
     <div class="form-content">
+        <!-- !!!!!!!!!!!!!!!! this is the message when user successfully registered. You can design it if you want.-->
+        <label style="color: green; font-weight: bolder;">{{ this.message }}</label>
         <form method="POST" @submit.prevent="handleSubmit">
             <h1>LOGIN</h1>
             <div
@@ -29,7 +31,11 @@
 </template>
 
 <script>
+import axios from 'axios';
 export default {
+    props: [
+        'message',
+    ],
     data() {
         return {
             action: 'login',
@@ -70,9 +76,24 @@ export default {
             this.validateField('password');
             return Object.keys(this.errors).length === 0;
         },
-        handleSubmit() {
+        async handleSubmit() {
             if (this.validateForm()) {
-                alert('Login successful! (Validation passed)');
+                
+                const formdata = new FormData();
+                formdata.append('username', this.data.username);
+                formdata.append('password', this.data.password);
+
+                const res = await axios.post('/user/login', formdata);
+
+                if(res.data.message === 'successful'){
+                    window.location.href = "/seller";
+                }
+                else if(res.data.message === 'user not found'){
+                    window.alert('USER NOT FOUND');
+                }
+                else{
+                    window.alert("PASSWORD INCORRECT");
+                }
             }
         }
     }

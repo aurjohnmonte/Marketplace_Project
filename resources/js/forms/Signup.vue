@@ -1,6 +1,33 @@
 <template>
-    <!-- Display if signup is clicked -->
-    <div v-if="currentStep === 'user'" class="user-type"> <!-- Buttons for determining the userType -->
+     <teleport to="body">
+        <div class="loading-overlay" v-if="is_loading">
+            <img src="../../images/kOnzy.gif" style="width: 100px; height: 100px;" v-if="!show_otpContainer">
+
+            <div class="otp-container" v-if="show_otpContainer">
+                <form @submit.prevent="gosubmit()">
+                    <div class="otp-box">
+                        <h2 class="otp-title">Verify Your Email</h2>
+                        <p class="otp-instructions">
+                            Please check your gmail <label style="text-decoration: underline;">{{ this.formData.email }}</label> for the 6-digit verification code we just sent to continue register. <br><br>
+                            <strong style="font-size: 20px;">Do not reload this page</strong> to avoid returned back to start.<br>
+                            <label style="color: red; font-size: 12px;">If failed to verify the OTP. You will be returned to the beginning of the process.</label>
+                        </p>
+                        <label style="color: red; font-weight: bolder;">{{errormessage_otp}}</label>
+                        <input
+                            v-model="otpCode"
+                            class="otp-input"
+                            type="text"
+                            maxlength="6"
+                            placeholder="Enter OTP code"
+                            required
+                        />
+                        <button class="otp-submit" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+     </teleport>
+    <div v-if="currentStep === 'user'" class="user-type">
         <button
             @click="changeType('seller')"
             class="typebox style"
@@ -23,6 +50,12 @@
 
     <!-- User Signup Form -->
     <form @submit.prevent="handleNext" class="form-content" v-if="userType && currentStep === 'user'">
+        <div>
+
+        </div>
+        <teleport to="body">
+            <PermissionInfo v-if="show_permission" @goCancel="goCancel" @goAllow="goAllow"/>
+        </teleport>
         <div class="form-header">
             <h1>Sign up</h1>
             <p>Sign up as a <strong>{{ userType }}</strong></p>
@@ -70,8 +103,9 @@
                             :type="info.type"
                             :name="info.name"
                             :id="info.id"
+                            :maxlength="info.max > 0 ? info.max : null"
                             v-model="formData[info.name]"
-                            @input="validateField(info.name)"
+                            @input="validateField(info.name, (info.name === 'age' ? true : false))"
                             required
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
@@ -139,12 +173,12 @@
         <div class="terms" v-if="userType === 'buyer'">
             <div class="checkbox">
                 <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
-                <label for="location_access">Allow location access to the nearest shop.</label>
+                <label @click="show_permission = true">Allow location access to the nearest shop.</label>
             </div>
 
             <div class="checkbox">
                 <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
-                <label for="terms">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+                <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
             </div>
         </div>
 
@@ -153,16 +187,19 @@
     </form>
 
     <!-- Shop Signup Form -->
-    <ShopSignup v-if="currentStep === 'shop'" :userType="userType" :userData="formData" />
+    <ShopSignup v-if="currentStep === 'shop'" :userType="userType" :formData="formData" @shopinfosubmit="shopinfosubmit" @goloading="goloading"/>
 
     <!-- Buyer Signup Form -->
-    <Login v-if="currentStep === 'login'" :userType="userType" :userData="formData" />
+    <Login v-if="currentStep === 'login'" :userType="userType" :userData="formData" :message="message"/>
 
 </template>
 
 <script>
 import ShopSignup from '../forms/ShopSignup.vue';
 import Login from '../forms/Login.vue';
+import PermissionInfo from './PermissionInfo.vue';
+
+import axios from 'axios';
 
 function groupInPairs(arr) {
     const pairs = [];
@@ -175,10 +212,17 @@ function groupInPairs(arr) {
 export default {
     components: {
         ShopSignup,
-        Login
+        Login,
+        PermissionInfo
     },
     data() {
         return {
+            message: '',
+            errormessage_otp: "",
+            otpCode: null,
+            show_otpContainer: false,
+            show_permission: false,
+            is_loading: false,
             action: 'signup',
             userType: null,
             currentStep: 'user', // 'user' or 'shop'
@@ -200,14 +244,14 @@ export default {
             },
             requiredInfo: {
                 personalInformation: [
-                    { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname' },
-                    { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial' },
-                    { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname' },
+                    { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname'},
+                    { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial', max: 1},
+                    { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname'},
                     { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
-                    { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday' },
-                    { label: 'Age', type: 'number', name: 'age', id: 'age' },
-                    { label: 'Email', type: 'email', name: 'email', id: 'email' },
-                    { label: 'Contact Number', type: 'tel', name: 'contact_no', id: 'contact_no', pattern: '[0-9]{11}' },
+                    { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday',},
+                    { label: 'Age', type: 'number', name: 'age', id: 'age', value: null,},
+                    { label: 'Email', type: 'email', name: 'email', id: 'email'},
+                    { label: 'Contact Number', type: 'tel', name: 'contact_no', id: 'contact_no', pattern: '[0-9]{11}'},
                 ],
                 accountInformation: [
                     { label: 'Username', type: 'text', name: 'username', id: 'username'},
@@ -262,9 +306,17 @@ export default {
                     'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age',
                     'email', 'contact_no', 'username', 'password', 'confirm_password', 'profile_image'
                 ];
-            return requiredFields.every(
-                key => (this.validationMessages[key]?.length === 0) && (this.fieldStatus[key] === true)
-            ) && this.userType && (this.userType !== 'buyer' || (this.formData.location_access && this.formData.terms));
+
+            if(this.userType === "buyer"){
+                return requiredFields.every(
+                                        key => (this.validationMessages[key]?.length === 0) && (this.fieldStatus[key] === true)
+                                    ) && this.userType && (this.userType === 'buyer' || (this.formData.location_access && this.formData.terms));
+            }
+            else{
+                return requiredFields.every(
+                        key => (this.validationMessages[key]?.length === 0) && (this.fieldStatus[key] === true)
+                    );   
+            }
         },
         allCapitalData() {
 
@@ -276,7 +328,55 @@ export default {
             return groupInPairs(this.requiredInfo.accountInformation);
         }
     },
+
     methods: {
+
+        goAllow(){
+            const arr = ['terms','location_access'];
+
+            arr.forEach(element => {
+                document.getElementById(element).checked = true;
+            })
+            this.goCancel();
+        },
+
+        goloading(status){
+            if(status){
+                this.is_loading = true;
+            }
+            else{
+                this.is_loading = false;
+            }
+        },
+
+        shopinfosubmit(){
+            this.show_otpContainer = true;
+        },
+
+        async gosubmit(){
+            this.errormessage_otp = "";
+            const data = new FormData();
+            this.show_otpContainer = false;
+            data.append('code', this.otpCode);
+
+            const res = await axios.post('/send/otp', data);
+            console.log('message: ', res.data.message);
+            this.show_otpContainer = true;
+            if(res.data.message === 'successful'){
+                this.errormessage_otp = "";
+                this.is_loading = false;
+                this.show_otpContainer = false;
+                this.message = "You have successfully created an account. Please log in.";
+                this.currentStep = 'login';
+            }
+            else{
+                this.errormessage_otp = "Code not exist. Please check and try again.";
+            }
+        },
+
+        goCancel(){
+            this.show_permission = false;
+        }, 
         // --- Validation Rules Config ---
         validationRules(field, value) {
             const rules = {
@@ -308,7 +408,6 @@ export default {
                 ],
                 age: [
                     v => v !== '' && !isNaN(v) || 'Age is required.',
-                    v => v >= 18 && v <= 120 || 'Invalid age.',
                 ],
                 email: [
                     v => /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v) || 'Invalid email format.',
@@ -338,14 +437,42 @@ export default {
             return rules[field] || [];
         },
         // --- Main Validation Method ---
-        validateField(field) {
+        validateField(field, isage=false) {
+
+            //empty birthday if age is inputted manually
+            if(isage){
+                this.requiredInfo.personalInformation[4].value = null;
+                this.formData['birthday'] = null;
+            }
+
+            console.log('isage: ', isage);
+            console.log(field);
             // Only validate terms/location_access for buyers
             if ((field === 'terms' || field === 'location_access') && this.userType !== 'buyer') {
                 this.validationMessages[field] = [];
                 this.fieldStatus[field] = null;
                 return;
             }
+
             let value = this.formData[field];
+            console.log("value: ", value);
+
+            if(field === 'age'){
+                if(value <= 0){
+                    window.alert("The age should be not 0.")
+                    this.requiredInfo.personalInformation[5].value = null;
+                    this.requiredInfo.personalInformation[4].value = null;
+                    this.formData[field] = null;
+                    this.formData['birthday'] = null;
+                    this.fieldStatus.age = false;
+                    return;
+                }
+                console.log('neh agi')
+                this.requiredInfo.personalInformation[5].value = value;
+                this.fieldStatus.age = true;
+                return;
+            }
+
             // Only trim if value is a string
             if (typeof value === 'string') {
                 if (field === 'email') value = value.trim().toLowerCase();
@@ -379,8 +506,12 @@ export default {
             }
             // Age auto-calc
             if (field === 'birthday') {
+
+                this.requiredInfo.personalInformation[4].value = value;
+
                 const age = this.calculateAge(value);
                 this.formData.age = isNaN(age) || age < 0 ? '' : age;
+                console.log('formdata: ', this.formData);
                 this.validateField('age');
             }
             if (field === 'password') {
@@ -437,6 +568,8 @@ export default {
             event.preventDefault();
             // Validate all fields before submit
             Object.keys(this.formData).forEach(f => this.validateField(f));
+            console.log(this.validationMessages);
+            console.log('field status: ', this.fieldStatus);
             if (!this.isFormValid) {
                 // Collect invalid fields for better feedback
                 const invalidFields = Object.keys(this.validationMessages)
@@ -473,10 +606,35 @@ export default {
                 this.submitBuyerForm();
             }
         },
-        submitBuyerForm() {
-            // send the data to the backend
-            console.log('Buyer signup data:', this.formData);
-            this.currentStep = 'login'
+        async submitBuyerForm() {
+            try{
+                this.is_loading = true;
+
+                console.log('Buyer signup data:', this.formData);
+
+                const data = new FormData();
+                data.append('data', JSON.stringify(this.formData));
+                data.append('image', this.formData.profile_image);
+                data.append('role', 'buyer');
+
+                const response = await axios.post('/user/register', data);
+
+                console.log(response.data.message);
+
+                if(response.data.message === 'exist'){
+                    window.alert("Email/Username have already used. Please try again.");
+                    this.is_loading = false;
+                    return;
+                }
+
+                this.show_otpContainer = true;
+
+
+                return;
+            }
+            catch(error){
+                console.log(error);
+            }
         },
         changeType(newType) {
             this.userType = newType;
@@ -820,6 +978,81 @@ export default {
     font-size: 0.98rem;
   }
 }
+.checkbox label{
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+}
+.loading-overlay{
+    background-color: rgba(0, 0, 0, 0.596);
+    z-index: 300;
+    height: 100vh;
+    width: 100vw;
+    top: 0;
+    position: absolute;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+.otp-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
 
+.otp-box {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  width: 500px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.otp-title {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #222;
+}
+
+.otp-instructions {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+}
+
+.otp-input {
+  width: 90%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+}
+
+.otp-submit {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  background-color: #0069d9;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.otp-submit:hover {
+  background-color: #0056b3;
+}
 </style>
 
