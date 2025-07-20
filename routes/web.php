@@ -60,6 +60,6 @@ Route::middleware('usercheck')->group(function() {
     Route::get('/seller/{p}', function(){
 
         return view('seller_pages.seller_home');
-    })->whereIn("p", ['dashboard', 'home', 'profile']);//put all the components in the 2nd parameter in whereIn
+    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products']);//put all the components in the 2nd parameter in whereIn
 });
 
