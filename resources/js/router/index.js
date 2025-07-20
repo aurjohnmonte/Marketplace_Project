@@ -3,6 +3,7 @@ import { createRouter, createWebHistory} from "vue-router";
 //IMPORT HERE ALL THE COMPONENTS
 import Dashboard from "../seller/pages/Dashboard.vue";
 import Login from "../forms/Login.vue";
+import Notification from "../seller/pages/Notification.vue";
 
 const routes = [
     {
@@ -14,6 +15,11 @@ const routes = [
         path: "/login",
         name: "Login",
         component: Login
+    },
+    {
+        path: "/seller/notifications",
+        name: "Notification",
+        component: Notification
     },
     {
         path: "/seller/profile/1"
