@@ -102,6 +102,11 @@ const routes = [
         path: "/buyer/profile",
         name: "BuyerProfile",
         component: BuyerProfile
+    },
+    {
+        path: '/seller',
+        redirect: '/seller/dashboard',
+        component: Dashboard,
     }
 ]
 
