@@ -21,6 +21,28 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+//BUYER SIDE
+Route::get('/buyer', function(){
+
+    return view('buyer_home');
+});
+Route::get('/buyer/browse/{name}/{category}/{filter}', function(){
+
+    return view('buyer_home');
+})->whereIn("name", ["Product"])
+  ->whereIn("category", ["Any"])
+  ->whereIn("filter", ["Popular", "New"]);
+
+Route::get('/buyer/product/{id}', function(){
+
+    return view('buyer_home');
+})->where('id', '[0-9]+');
+
+Route::get('/buyer/{p}', function(){
+
+    return view('buyer_home');
+})->whereIn("p", ["home", "message", "profile", "following", "map"]);
+
 //buyer blade view
 Route::get('/buyer/home', function() {
     return view('buyer_pages.buyer_home');

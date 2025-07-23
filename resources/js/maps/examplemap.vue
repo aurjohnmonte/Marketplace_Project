@@ -1,7 +1,7 @@
 <template>
     <div>
-        <button @click="showlocation()">Show location</button>
-        <div id="map" style="height: 100vh;"> 
+        <!-- <button @click="showlocation()">Show location</button> -->
+        <div id="map"> 
 
         </div>
     </div>
@@ -110,5 +110,11 @@ export default {
 </script>
 
 <style>
-
+#map{
+    height: 100vh;
+    z-index: 1;
+    position: relative;
+    top: 60px;
+    left: 0;
+}
 </style>
