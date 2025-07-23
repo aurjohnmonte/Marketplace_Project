@@ -50,6 +50,10 @@ const routes = [
         name: "Products",
         component: Products
     },
+    {
+        path: '/seller',
+        redirect: '/seller/dashboard'
+    }
 ]
 
 const router = createRouter({
