@@ -4,7 +4,10 @@
     <div :class="['seller-container', showMenu ? 'with-sidebar' : 'no-sidebar']">
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
-                <h3>Timbershoppe</h3>
+                <button class="mobile-menu-toggle" @click="toggleMenu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h3 class="brand-title">Timbershoppe</h3>
             </div>
             <a class="navbar-brand">{{ $route.name === 'AddProduct' ? 'Products' : $route.name }}</a>
             <div class="navbar-right">
@@ -25,14 +28,16 @@
                     <p>Notifications</p>
                     <router-link to="/seller/notifications">View All</router-link>
                 </div>
-                <form method="GET" action="/seller/logout">
+                <form method="GET" action="/seller/logout" class="desktop-logout">
                     <button type="submit">Logout</button>
                 </form>
             </div>
         </nav>
 
+        <!-- Mobile overlay for sidebar -->
+        <div v-if="showMenu && isMobile" class="mobile-overlay" @click="toggleMenu"></div>
 
-        <div v-if="showMenu" class="sidebar">
+        <div :class="['sidebar', { 'show': showMenu && isMobile }]" v-if="showMenu || isMobile">
             <div class="sidebar-header">
                 <div class="logo-container">
                     <img src="../images/Logo-2.png" alt="Logo" class="logo">
@@ -85,7 +90,7 @@
                 </router-link>
             </div>
         </div>
-        <div v-else class="sidebar-minimized">
+        <div v-else-if="!isMobile" class="sidebar-minimized">
             <div class="sidebar-minimized-header">
                 <img src="../images/Logo-2.png" alt="Logo" class="logo-minimized">
             </div>
@@ -131,8 +136,16 @@ export default{
         return{
             showProfileBox: false,
             showNotifBox: false,
-            showMenu: true
+            showMenu: true,
+            isMobile: false
         }
+    },
+    mounted() {
+        this.checkScreenSize();
+        window.addEventListener('resize', this.checkScreenSize);
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
         toggleProfileBox() {
@@ -145,6 +158,12 @@ export default{
         },
         toggleMenu() {
             this.showMenu = !this.showMenu;
+        },
+        checkScreenSize() {
+            this.isMobile = window.innerWidth <= 768;
+            if (this.isMobile) {
+                this.showMenu = false;
+            }
         }
     }
 }
@@ -197,6 +216,31 @@ export default{
     grid-template-columns: 3.5em 1fr;
 }
 
+/* Mobile responsive grid */
+@media (max-width: 768px) {
+    .seller-container {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .seller-container.with-sidebar {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+    }
+
+    .seller-container.no-sidebar {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+    }
+}
+
 /* navbar designs */
 .navbar {
     grid-area: navbar;
@@ -209,17 +253,20 @@ export default{
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     min-height: 60px;
     align-items: center;
+    padding: 0 1rem;
 }
 
 .navbar-right,
 .navbar-left {
     display: flex;
     gap: 1em;
+    align-items: center;
 }
 
 .navbar-left {
     align-items: center;
 }
+
 .navbar-left h3 {
     font-size: 1.6em;
     font-weight: 700;
@@ -259,6 +306,47 @@ export default{
   font-size: 3.7rem;
 }
 
+/* Mobile navbar adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 0.5rem;
+    }
+
+    .brand-title {
+        font-size: 1.2em !important;
+        margin: 0 0.5em 0 0 !important;
+    }
+
+    .navbar-brand {
+        font-size: 1em;
+        display: none;
+    }
+
+    .navbar-right {
+        gap: 0.5em;
+    }
+
+    .desktop-logout {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: #323232;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
 /* sidebar designs */
 .sidebar {
     grid-area: sidebar;
@@ -267,6 +355,36 @@ export default{
     background: #323232;
     padding: .5rem;
     box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+    z-index: 1200;
+}
+
+/* Mobile sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1500;
+        display: block;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1400;
+    }
 }
 
 .sidebar-header {
@@ -320,6 +438,14 @@ export default{
   box-shadow: 6px 4px 1px rgba(37, 0, 0, 0.233);
 }
 
+/* Mobile sidebar buttons */
+@media (max-width: 768px) {
+    .sidebar-btn button {
+        padding: 1rem .5rem;
+        font-size: 12px;
+    }
+}
+
 .sidebar-btn button:hover {
   background-color: #DDD0C8;
 }
@@ -340,7 +466,6 @@ export default{
   text-decoration: none;
 }
 
-
 .sidebar-minimized {
   position: fixed;
   left: 0;
@@ -355,6 +480,14 @@ export default{
   z-index: 1100;
   box-shadow: 2px 0 12px rgba(0,0,0,0.08);
 }
+
+/* Hide minimized sidebar on mobile */
+@media (max-width: 768px) {
+    .sidebar-minimized {
+        display: none;
+    }
+}
+
 .sidebar-minimized-header {
   margin-top: 1em;
 }
@@ -389,14 +522,62 @@ export default{
   cursor: pointer;
 }
 
-
-
 .content {
     grid-area: content;
     height: 100%;
     background-color: #faf4f0;
     width: 100%;
     overflow-y: auto;
+    padding: 1rem;
 }
 
+/* Mobile content adjustments */
+@media (max-width: 768px) {
+    .content {
+        padding: 0.5rem;
+    }
+}
+
+/* Floating boxes responsive */
+@media (max-width: 768px) {
+    .floating-box {
+        right: 1em;
+        min-width: 160px;
+        font-size: 14px;
+    }
+
+    .profile-box {
+        right: 5em;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .seller-container.with-sidebar {
+        grid-template-columns: 10em 1fr;
+    }
+
+    .sidebar-btn button {
+        width: 7rem;
+        padding: 0.8rem;
+        font-size: 12px;
+    }
+
+    .brand-title {
+        font-size: 1.4em !important;
+    }
+}
+
+/* Large screen adjustments */
+@media (min-width: 1025px) {
+    .seller-container.with-sidebar {
+        grid-template-columns: 14em 1fr;
+    }
+
+    .sidebar-btn button {
+        width: 9rem;
+        padding: 1.2rem;
+        font-size: 14px;
+    }
+}
 </style>

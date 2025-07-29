@@ -80,14 +80,16 @@
                             </div>
                             <div class="comments-section">
                                 <h4>User Comments</h4>
-                                <div v-if="item.comments && item.comments.length">
-                                    <div v-for="(comment, idx) in item.comments" :key="idx" :class="comment">
-                                        <span class="comment-user">{{ comment.user }}:</span>
-                                        <span class="comment-text">{{ comment.text }}</span>
+                                <div class="comments-list">
+                                    <div v-if="item.comments && item.comments.length">
+                                        <div v-for="(comment, idx) in item.comments" :key="idx" class="comment">
+                                            <span class="comment-user">{{ comment.user }}:</span>
+                                            <span class="comment-text">{{ comment.text }}</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div v-else>
-                                    <span>No comment yet.</span>
+                                    <div v-else>
+                                        <span>No comment yet.</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -195,7 +197,7 @@ export default {
                     comments: [{user: 'Al', text: 'Very comfortable!'}]
                 },
                 {id: '2', name: 'Table', qty: '5', cat: 'Furniture', price: '200', views: '3', status: 'Pre Order', rating: 4, images: ['https://images.unsplash.com/photo-1532372320572-cda25653a5d4?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop'],
-                    comments: [{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}]
+                    comments: [{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}]
                 },
                 {id: '3', name: 'Lamp', qty: '0', cat: 'Furniture', price: '50', views: '8', status: 'On Stock', rating: 5, images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d21?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop']},
                 {id: '4', name: 'Sofa', qty: '2', cat: 'Furniture', price: '500', views: '2', status: 'Limited Stock', rating: 2, images: ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1493663284031-f7d311293a2d?w=400&h=400&fit=crop']},
@@ -645,15 +647,17 @@ export default {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50vw;
-    height: 80vh;
+    max-width: 800px;
+    height: 90vh;
+    max-height: 600px;
     background: #DDD0C8;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
     z-index: 1000;
-    padding: 2em 4.5em;
-    border-radius: 2em;
+    padding: 1.5em 4.5em;
+    border-radius: 1.5em;
     overflow: hidden;
 }
 
@@ -714,7 +718,9 @@ export default {
     display: flex;
     align-items: center;
     width: 100%;
-    height: 30vh;
+    height: 25vh;
+    min-height: 200px;
+    margin-top: 1em;
 }
 
 .toggle-img {
@@ -835,6 +841,12 @@ export default {
     padding: 1em;
     box-shadow: 0 1px 4px rgba(0,0,0,0.07);
 }
+
+.comments-list {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 0.5em;
+}
 .comments-section h4 {
     margin: 0 0 0.5em 0;
     font-size: 1em;
@@ -851,6 +863,187 @@ export default {
     margin-right: 0.3em;
 }
 .comment-text {
-  color: #252525;
+    color: #252525;
+}
+
+/* Custom scrollbar for comments list */
+.comments-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.comments-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+.comments-list::-webkit-scrollbar-thumb {
+    background: #ca9d73;
+    border-radius: 3px;
+}
+
+.comments-list::-webkit-scrollbar-thumb:hover {
+    background: #a87d5a;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .product-container {
+        padding: 1.5em;
+        gap: 2em;
+    }
+
+    .product-header {
+        flex-direction: column;
+        gap: 1em;
+        align-items: stretch;
+    }
+
+    .search-bar {
+        flex: none;
+        width: 100%;
+    }
+
+    .filters {
+        flex: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5em;
+    }
+
+    .add-btn {
+        align-self: center;
+    }
+
+    .toggle-details {
+        width: 95vw;
+        height: 95vh;
+        padding: 1em;
+        border-radius: 1em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.2em;
+        margin-bottom: 0.5em;
+    }
+
+    .image-container {
+        height: 20vh;
+        min-height: 150px;
+    }
+
+    .toggle-img img {
+        max-width: 8em;
+        max-height: 8em;
+    }
+
+    .nav-btn {
+        width: 2em;
+        height: 2em;
+        font-size: 0.8em;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 1em;
+    }
+
+    .comments-section {
+        margin-top: 1em;
+        padding: 0.8em;
+    }
+
+    .comments-list {
+        max-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-container {
+        padding: 1em;
+        gap: 1.5em;
+    }
+
+    .product-table {
+        font-size: 0.8em;
+    }
+
+    .action-btn button {
+        padding: 0.1em 0.4em;
+        font-size: 0.7em;
+        min-width: 40px;
+    }
+
+    .toggle-details {
+        width: 98vw;
+        height: 98vh;
+        padding: 0.8em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1em;
+    }
+
+    .image-container {
+        height: 18vh;
+        min-height: 120px;
+    }
+
+    .toggle-img img {
+        max-width: 6em;
+        max-height: 6em;
+    }
+
+    .nav-btn {
+        width: 1.8em;
+        height: 1.8em;
+        font-size: 0.7em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.6em;
+        font-size: 0.85em;
+    }
+
+    .comments-section {
+        padding: 0.6em;
+    }
+
+    .comments-list {
+        max-height: 100px;
+    }
+
+    .comment {
+        font-size: 0.85em;
+    }
+}
+
+@media (max-width: 320px) {
+    .product-container {
+        padding: 0.5em;
+    }
+
+    .toggle-details {
+        width: 99vw;
+        height: 99vh;
+        padding: 0.5em;
+    }
+
+    .image-container {
+        height: 15vh;
+        min-height: 100px;
+    }
+
+    .toggle-img img {
+        max-width: 5em;
+        max-height: 5em;
+    }
+
+    .nav-btn {
+        width: 1.5em;
+        height: 1.5em;
+        font-size: 0.6em;
+    }
 }
 </style>
