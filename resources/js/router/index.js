@@ -17,6 +17,7 @@ import BuyerProfile from "../buyer/pages/BuyerProfile.vue";
 import BuyerHome from "../buyer/home/BuyerHome.vue";
 import BuyerBrowse from "../buyer/home/BuyerBrowse.vue";
 import BuyerProduct from "../buyer/home/BuyerProduct.vue";
+import AddProduct from "../seller/pages/AddProduct.vue";
 
 const routes = [
     {
@@ -37,7 +38,7 @@ const routes = [
     {
         path: "/buyer/browse/:name/:category/:filter",
         name: "BuyerBrowse",
-        component: BuyerBrowse,  
+        component: BuyerBrowse,
     },
     {
         path: "/seller/dashboard",
@@ -102,6 +103,11 @@ const routes = [
         path: "/buyer/profile",
         name: "BuyerProfile",
         component: BuyerProfile
+    },
+    {
+        path: '/seller/product/add',
+        name: 'AddProduct',
+        component: AddProduct
     },
     {
         path: '/seller',

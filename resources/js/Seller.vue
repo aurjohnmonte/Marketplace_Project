@@ -6,7 +6,7 @@
             <div class="navbar-left">
                 <h3>Timbershoppe</h3>
             </div>
-            <a class="navbar-brand">{{ page }}</a>
+            <a class="navbar-brand">{{ $route.name === 'AddProduct' ? 'Products' : $route.name }}</a>
             <div class="navbar-right">
                 <div class="profile-circle" @click="toggleProfileBox">
                     <i class="fa-regular fa-circle-user" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.4);"></i>
@@ -44,44 +44,43 @@
             <div class="sidebar-btn">
                 <router-link to="/seller/dashboard">
                     <button
-                        :class="{ active: page === 'Dashboard' }"
-                        @click="changePage('Dashboard')">
+                        :class="{ active: $route.name === 'Dashboard' }">
                     <img src="../images/apps.png" alt="">
                     Dashboard</button>
                 </router-link>
                 <router-link to="/seller/products">
-                    <button :class="{ active: page === 'Products' }" @click="changePage('Products')">
+                    <button :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }">
                         <i class="fa-solid fa-bag-shopping"></i>
                         Products
                     </button>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <button :class="{ active: page === 'Notifications' }" @click="changePage('Notifications')">
-                        <i class="fa-regular fa-bell"></i>
+                    <button :class="{ active: $route.name === 'Notification' }">
+                        <i class="fa-solid fa-bell"></i>
                         Notifications
                     </button>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <button :class="{ active: page === 'Messages' }" @click="changePage('Messages')">
-                        <i class="fa-regular fa-message"></i>
+                    <button :class="{ active: $route.name === 'Messages' }">
+                        <i class="fa-solid fa-message"></i>
                         Messages
                     </button>
                 </router-link>
                 <router-link to="/seller/map">
-                    <button :class="{ active: page === 'Map' }" @click="changePage('Map')">
+                    <button :class="{ active: $route.name === 'Map' }">
                         <i class="fa-solid fa-location-dot"></i>
                         Map
                     </button>
                 </router-link>
                 <router-link to="/seller/profile">
-                    <button :class="{ active: page === 'Profile' }" @click="changePage('Profile')">
-                        <i class="fa-regular fa-user"></i>
+                    <button :class="{ active: $route.name === 'Profile' }">
+                        <i class="fa-solid fa-user"></i>
                         Profile
                     </button>
                 </router-link>
                 <router-link to="/seller/followers">
-                    <button :class="{ active: page === 'Followers' }" @click="changePage('Followers')">
-                        <img src="../images/friends.png" alt="">
+                    <button :class="{ active: $route.name === 'Followers' }">
+                        <img src="../images/friends (white).png" alt="">
                         Followers</button>
                 </router-link>
             </div>
@@ -92,25 +91,25 @@
             </div>
             <div class="sidebar-minimized-btns">
                 <router-link to="/seller/dashboard">
-                    <i class="fa-solid fa-table-cells-large" :class="{ active: page === 'Dashboard' }" @click="changePage('Dashboard')" title="Dashboard"></i>
+                    <i class="fa-solid fa-table-cells-large" :class="{ active: $route.name === 'Dashboard' }" title="Dashboard"></i>
                 </router-link>
                 <router-link to="/seller/products">
-                    <i class="fa-solid fa-bag-shopping" :class="{ active: page === 'Products' }" @click="changePage('Products')" title="Products"></i>
+                    <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }" title="Products"></i>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <i class="fa-regular fa-bell" :class="{ active: page === 'Notifications' }" @click="changePage('Notifications')" title="Notifications"></i>
+                    <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' }" title="Notifications"></i>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <i class="fa-regular fa-message" :class="{ active: page === 'Messages' }" @click="changePage('Messages')" title="Messages"></i>
+                    <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' }" title="Messages"></i>
                 </router-link>
                 <router-link to="/seller/map">
-                    <i class="fa-solid fa-location-dot" :class="{ active: page === 'Map' }" @click="changePage('Map')" title="Map"></i>
+                    <i class="fa-solid fa-location-dot" :class="{ active: $route.name === 'Map' }" title="Map"></i>
                 </router-link>
                 <router-link to="/seller/profile">
-                    <i class="fa-regular fa-user" :class="{ active: page === 'Profile' }" @click="changePage('Profile')" title="Profile"></i>
+                    <i class="fa-regular fa-user" :class="{ active: $route.name === 'Profile' }" title="Profile"></i>
                 </router-link>
                 <router-link to="/seller/followers">
-                    <i class="fa-solid fa-user-group" :class="{ active: page === 'Followers' }" @click="changePage('Followers')" title="Followers"></i>
+                    <i class="fa-solid fa-user-group" :class="{ active: $route.name === 'Followers' }" title="Followers"></i>
                 </router-link>
             </div>
             <div class="sidebar-minimized-footer">
@@ -126,25 +125,16 @@
 </template>
 
 <script>
-import examplemap from './maps/examplemap.vue';
-import '../css/app.css';
 
 export default{
-    components: {
-        examplemap
-    },
     data(){
         return{
-            page: 'Dashboard',
             showProfileBox: false,
             showNotifBox: false,
             showMenu: true
         }
     },
     methods: {
-        changePage(switchPage) {
-            this.page = switchPage;
-        },
         toggleProfileBox() {
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
@@ -344,13 +334,6 @@ export default{
     margin: 0 auto 0.3em auto;
 }
 
-.content {
-    grid-area: content;
-    height: 100%;
-    background-color: #faf4f0;
-    width: 100%;
-}
-
 .sidebar a,
 .floating-box a {
   color: #4A4947;
@@ -404,6 +387,16 @@ export default{
   color: #FAF7F0;
   font-size: 1.3em;
   cursor: pointer;
+}
+
+
+
+.content {
+    grid-area: content;
+    height: 100%;
+    background-color: #faf4f0;
+    width: 100%;
+    overflow-y: auto;
 }
 
 </style>
