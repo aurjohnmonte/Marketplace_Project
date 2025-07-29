@@ -411,11 +411,10 @@ export default {
 
 <style scoped>
 .product-container {
-    padding: 3em;
+    padding: 3em 3em 0 3em  ;
     display: flex;
     flex-direction: column;
     gap: 4em;
-    overflow: hidden;
 }
 
 .product-header {
