@@ -16,6 +16,7 @@ return new class extends Migration
             $table->unsignedBigInteger('from_id');
             $table->unsignedBigInteger('to_id');
             $table->string('messages', 250);
+            $table->string("message_pic", 200)->nullable();
             $table->boolean('seen');
             $table->dateTime('seen_at')->nullable();
 

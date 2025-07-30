@@ -14,7 +14,7 @@
           <div style="border-bottom: 3px solid gray; width: 97%;"></div>
         </div>
     </div>
-    <examplemap @click="goHideResult"/>
+    <examplemap @click="goHideResult" :shops="shops" v-if="show"/>
   </div>
 </template>
 
@@ -26,6 +26,8 @@ export default {
     },
     data(){
       return{
+        show: false,
+        shops: null,
         hide_result: true,
         search_result: [1],
       }
@@ -33,12 +35,22 @@ export default {
     methods: {
       goHideResult(){
         this.hide_result = true;
+      },
+      async returnShops(){
+        
+        const res = await axios.get("/return/shop");
+
+        console.log(res.data.shops);
+        this.shops = res.data.shops;
       }
     },
-    mounted(){
+    async mounted(){
+        window.scrollTo(0, 0);
         let path = this.$route.path;
         let new_path = path.slice(7);
         this.$emit("changepathtext", new_path);
+        await this.returnShops();
+        this.show = true;
     }
 }
 </script>

@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class UserCheckMiddleware
+class BuyerCheck
 {
     /**
      * Handle an incoming request.
@@ -15,7 +15,7 @@ class UserCheckMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(session()->has('email') && session("user_type") === "seller"){
+        if(session()->has('email') && session("user_type") === "buyer"){
             return $next($request);
         }
         return redirect()->route('home');

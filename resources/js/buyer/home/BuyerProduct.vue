@@ -1,7 +1,11 @@
 <template>
   <div class="buyer-product">
+    <teleport to="body">
+        <MorePhotos v-if="show_morePhotos" @hideMorePicture="hideMorePicture"/>
+    </teleport>
     <div class="back-button" @click="goBack">
         <img src="../../../images/left-arrows.png">
+        <label>PRODUCT</label>
     </div>
     <div class="border-gray"></div>
     <div class="product-info">
@@ -18,7 +22,7 @@
                 <img src="../../../images/images.jpg" class="pic">
                 <img src="../../../images/images.jpg" class="pic">
             </div>
-            <label>More pictures</label>
+            <label @click="show_morePhotos=true">More pictures</label>
         </div>
         <div class="shop-name">
             <label>Shop Name</label>
@@ -117,16 +121,29 @@
     </div>
     <div class="border-gray"></div>
     <div class="product-description">
-        <h1>DESCRIPTION</h1>
+        <h5>Product Specification</h5>
+        <h6>Description</h6>
+
+        <div class="description-text">
+            Here’s a polished overview of the Acer Nitro V gaming laptop series, focusing on the Nitro V 15 and 16 models. These models offer compelling value for gamers and creators alike:
+
+🧠 Overview & Positioning
+The Acer Nitro V series is built for budget-conscious gamers and content creators seeking solid performance with modern specs—including Intel or AMD processors and RTX‑class GPUs. These models start at around $999 (USD) or ₱50K (PHP) and balance portability, refresh rate, and cooling for casual gaming and productivity.
+        </div>
     </div>
   </div>
 </template>
 
 <script>
+import MorePhotos from './MorePhotos.vue';
 import { useDataStore } from '../../stores/dataStore';
 export default {
+    components: {
+        MorePhotos
+    },
     data(){
         return{
+            show_morePhotos: false,
             product: null,
             show_rate: false,
             rate: {
@@ -137,6 +154,9 @@ export default {
         }
     },
     methods: {
+        hideMorePicture(){
+            this.show_morePhotos = false;
+        },
         goBack(){
             this.$router.go(-1);
         },
@@ -150,11 +170,34 @@ export default {
     created(){
         const store = useDataStore();
         this.product = store.selectedProduct;
+    },
+    mounted(){
+        window.scrollTo(0, 0);
     }
 }
 </script>
 
 <style scoped>
+.product-description{
+    padding-right: 20px;
+}
+.description-text{
+    font-size: 12px;
+    color: rgb(72, 72, 72);
+    line-height: 1rem;
+}
+.product-description h5, h6{
+    color: rgb(44, 44, 44);
+}
+.back-button{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+.back-button label{
+    font-weight: bolder;
+}
 .submit-btn{
     width: 50px;
     font-size: 10px;
@@ -206,7 +249,8 @@ export default {
 }
 .product-description{
     height: 300px;
-    padding: 100px;
+    padding-bottom: 100px;
+    padding-left: 20px;
 }
 .comment-pic img{
     width: 50px;

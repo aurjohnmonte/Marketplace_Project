@@ -1,9 +1,10 @@
 <template>
   <div class="buyer-browse-maincontainer">
-    <div style="padding: 20px;">
+    <div style="padding: 20px;" class="back-header">
         <img src="../../../images/left-arrows.png" style="width: 30px; height: 30px; cursor: pointer" @click="goPrevious">
+        <label style="font-weight: bolder;">BROWSE</label>
     </div>
-    <label style="padding-left: 20px; padding-right: 20px;  padding-bottom: 10px; font-weight: bolder;">{{ $route.params.name.toUpperCase() }}</label>
+    <label style="font-weight: bolder; padding-left: 20px; padding-bottom: 10px;">{{ $route.params.name}}s</label>
     <div class="filter-search-browse">
         <select>
             <option>Category</option>
@@ -231,14 +232,23 @@ export default {
         goPrevious(){ 
             this.$router.go(-1);
         }
+    },
+    mounted(){
+      window.scrollTo(0, 0);
     }
 }
 </script>
 
 <style scoped>
+.back-header{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
 .item-pic{
-  width: 160px;
-  height: 160px;
+  width: 150px;
+  height: 150px;
   overflow: hidden;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
@@ -313,7 +323,7 @@ export default {
 }
 .buyer-browse-content{
     display: grid;
-    grid-template-columns: repeat(2, 10rem);
+    grid-template-columns: repeat(2, 8.5rem);
     gap: 30px;
     padding-left: 20px;
 }
@@ -327,7 +337,7 @@ export default {
     font-size: 12px;
     padding-left: 10px;
     border: 1px solid #D25E27;
-    width: 150px;
+    width: 130px;
 }
 .filter-search-browse{
     display: flex;

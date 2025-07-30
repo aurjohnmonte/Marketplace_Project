@@ -17,8 +17,41 @@ import BuyerProfile from "../buyer/pages/BuyerProfile.vue";
 import BuyerHome from "../buyer/home/BuyerHome.vue";
 import BuyerBrowse from "../buyer/home/BuyerBrowse.vue";
 import BuyerProduct from "../buyer/home/BuyerProduct.vue";
+import BuyerConversation from "../buyer/message/BuyerConversation.vue";
+import ShopView from "../buyer/home/ShopView.vue";
+import ShopAbout from "../buyer/home/shopview_pages/ShopAbout.vue";
+import ShopProducts from "../buyer/home/shopview_pages/ShopProducts.vue";
+import ShopReview from "../buyer/home/shopview_pages/ShopReview.vue";
+import BuyerShops from "../buyer/home/BuyerShops.vue";
 
 const routes = [
+    {
+        path: "/buyer/browse/shop/:id",
+        name: "ShopView",
+        component: ShopView,
+        children: [
+            {
+                path: "about",
+                name: "ShopAbout",
+                component: ShopAbout,
+            },
+            {
+                path: "products",
+                name: "ShopProducts",
+                component: ShopProducts,
+            },
+            {
+                path: "review",
+                name: "ShopReview",
+                component: ShopReview,
+            }
+        ]
+    },
+    {
+        path: "/buyer/message/conversation/:id",
+        name: "BuyerConversation",
+        component: BuyerConversation,
+    },
     {
         path: "/buyer/product/:id",
         name: "BuyerProduct",
@@ -38,6 +71,11 @@ const routes = [
         path: "/buyer/browse/:name/:category/:filter",
         name: "BuyerBrowse",
         component: BuyerBrowse,  
+    },
+    {
+        path: "/buyer/browse-shop/:name/:category/:filter",
+        name: "BuyerShops",
+        component: BuyerShops,  
     },
     {
         path: "/seller/dashboard",

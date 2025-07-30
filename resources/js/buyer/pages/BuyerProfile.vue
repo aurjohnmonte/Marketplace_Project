@@ -10,17 +10,25 @@
           <label>Account Setting</label>
         </div>
         <div class="profile-content" style="position: absolute; bottom: 0; margin-bottom: 20px;">
-          <label>Logout</label>
+          <label @click="goLogout">Logout</label>
         </div>
       </div>
     </teleport>
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
+
 export default {
     methods: {
       goexit(){
         this.$emit("goexit");
+      },
+      goLogout(){
+        const store = useDataStore();
+        this.$emit('stopLocation');
+        store.reset();
+        window.location.href="/seller/logout";
       }
     },
     mounted(){

@@ -4,36 +4,59 @@
       <h2>TIMBERSHOPPEE</h2>
     </div>
     <div class="filter-search-container">
-      <div class="header-filter-search">
-        <label class="filter-header-label">FILTER SEARCH</label>
-        <label class="more-filter" @click="hide_more_filter = !hide_more_filter">More Filter</label>
-      </div>
-      <div class="filter-search">
-        <select>
-          <option>Product name</option>
-          <option>Shop name</option>
-          <option>Seller name</option>
-        </select>
-        <input placeholder="Search ..." >
-        <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" >
-      </div>
-          
-      <div class="more-filter-option" v-if="hide_more_filter">
-        <select>
-          <option>Category</option>
-          <option>Game</option>
-          <option>Furniture</option>
-        </select>
-                <select>
-          <option>Filter</option>
-          <option>Popular</option>
-          <option>New</option>
-        </select>
-      </div>
+      <form @submit.prevent="goSubmitSearch">
+        <div class="header-filter-search">
+          <label class="filter-header-label">FILTER SEARCH</label>
+          <label class="more-filter" @click="hide_more_filter = !hide_more_filter">More Filter</label>
+        </div><br>
+        <div class="filter-search">
+          <select v-model="search_info.name">
+            <option value="Product">Product name</option>
+            <option value="Shop">Shop name</option>
+            <option value="Seller">Seller name</option>
+          </select>
+          <input placeholder="Search ..." v-model="search_text">
+          <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" >
+        </div><br>
+            
+        <div class="more-filter-option" v-if="hide_more_filter">
+          <select v-model="search_info.category">
+            <option value="" disabled>Category</option>
+            <option value="Any">Any</option>
+            <option value="game">Game</option>
+            <option value="furniture">Furniture</option>
+          </select>
+          <select v-model="search_info.filter">
+            <option value="" disabled>Filter</option>
+            <option value="Popular">Popular</option>
+            <option value="New">New</option>
+          </select>
+        </div>
+      </form>
     </div>
 
     <div class="search-result">
-
+      <div>
+        <label style="color: rgb(92, 92, 92); font-size: 15px; font-weight: bolder;">Nearby Shop/s</label>
+      </div>
+      <template v-if="store.nearbyShops">
+        <div class="list-of-nearbyshops" v-for="shop in store.nearbyShops" :key="shop">
+          <div class="nearbyshops-leftside">
+            <img :src="'/'+shop.profile_photo">
+            <div style="display: flex; flex-direction: column;">
+              <label style="font-size: 15px; color: rgb(92, 92, 92);">{{ shop.name }}</label>
+              <label style="font-size: 10px; color: rgb(92, 92, 92);">{{ shop.address }}</label>
+            </div>
+          </div>
+          <div class="nearbyshops-leftside">
+            <img src="../../../images/location.png">
+            <img src="../../../images/send.png">
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN 1 KM <br>(Please click the location icon at the top)</label>
+      </template>
     </div>
 
     <div class="popular-content">
@@ -66,7 +89,7 @@
             <div class="item-comment">
               <label>99+ Comments</label>
             </div>
-            <div class="item-shopname">
+            <div class="item-shopname" @click="goShop">
               <label>Soysoy's Furniture cheap</label>
             </div>
             <div class="item-name">
@@ -319,14 +342,19 @@
 </template>
 
 <script>
+import { watch } from 'vue';
+import { useDataStore } from '../../stores/dataStore'
+
 export default {
   data(){
     return{
+      store: useDataStore(),
       search_info: {
-        name: "",
-        category: "",
-        filter: ""
+        name: "Product",
+        category: "Any",
+        filter: "Popular"
       },
+      search_text: "",
       hide_more_filter: false,
       rate: {
         start: 3,
@@ -336,6 +364,40 @@ export default {
     }
   },
   methods: {
+
+    goSubmitSearch(){
+      console.log(this.search_info);
+      console.log(this.search_text);
+
+      //this navigate to the BuyerBrowse component. This component is for product only. Browsing product only.
+      if(this.search_info.name === "Product"){
+        this.$router.push({name: "BuyerBrowse",
+                         params: {
+                          name: this.search_info.name,
+                          category: this.search_info.category,
+                          filter: this.search_info.filter
+                         },
+                         query: {
+                          "search_text": this.search_text
+                         }
+                        });
+        return;
+      }
+
+      //Otherwise browse only Shops.
+      this.$router.push({name: "BuyerShops",
+                         params: {
+                          name: this.search_info.name,
+                          category: this.search_info.category,
+                          filter: this.search_info.filter
+                         },
+                         query: {
+                          "search_text": this.search_text
+                         }
+      });
+      return;
+    },
+
     goSearch(info){
       console.log("info: ", info);
       if(info.name === "Product"){
@@ -347,12 +409,45 @@ export default {
                          }
                         });
       }
+    },
+    goShop(){
+      this.$router.push({name: "ShopAbout", params: {id: 0}});
     }
+  },
+  mounted(){
+    window.scrollTo(0, 0);
+    console.log('nearby: ', this.store.nearbyShops);
+    
+    watch(
+      () => this.store.nearbyShops,
+      (newshop) => {
+        this.store.nearbyShops = newshop;
+        console.log('nearby: ', this.store.nearbyShops)
+      }
+    )
   }
 }
 </script>
 
 <style scoped>
+.nearbyshops-leftside{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+.nearbyshops-leftside img{
+  width: 30px; 
+  height: 30px;
+  border-radius: 40px;
+}
+.list-of-nearbyshops{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 20px;
+}
 .more-filter-option{
   display: flex;
   flex-direction: row;
@@ -389,6 +484,7 @@ export default {
 .search-result{
   padding: 20px;
   border-top: 2px solid rgb(198, 198, 198);
+  border-bottom: 2px solid rgb(198, 198, 198);
 }
 .filter-search {
   display: flex;
@@ -397,7 +493,7 @@ export default {
   gap: 5px;
 }
 .filter-search input{
-  width: 200px;
+  width: 120px;
   padding: 4px;
   border: 1px solid #D25E27;
 }
@@ -490,6 +586,7 @@ export default {
   font-weight: bolder;
 }
 .item-shopname{
+  text-decoration: underline;
   font-size: 12px;
   color: rgb(34, 34, 34);
 }

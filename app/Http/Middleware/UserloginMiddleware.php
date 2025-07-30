@@ -25,7 +25,8 @@ class UserloginMiddleware
         if($user){
             if(Hash::check($password, $user->password)){
 
-                $request->session()->put('email', $user->email);
+                $request->session()->put(['email' => $user->email,
+                                          'user_type' => $user->role ]);
 
                 return $next($request);
             }

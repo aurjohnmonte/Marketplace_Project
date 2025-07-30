@@ -2,6 +2,9 @@
   <!-- Montserrat Google Fonts import for modern navbar font -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <div :class="['seller-container', showMenu ? 'with-sidebar' : 'no-sidebar']">
+        <teleport to="body">
+            <NewMessage :notifymessage="notifymessage" v-if="is_visible" @hidenotify="is_visible = false"/>
+        </teleport>
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
                 <h3>Timbershoppe</h3>
@@ -128,20 +131,31 @@
 <script>
 import examplemap from './maps/examplemap.vue';
 import '../css/app.css';
+import axios from 'axios';
+import NewMessage from './seller/notifications/NewMessage.vue';
 
 export default{
     components: {
-        examplemap
+        examplemap,
+        NewMessage
     },
     data(){
         return{
+            is_visible: false,
+            notifymessage: 'Notification: New Message',
             page: 'Dashboard',
             showProfileBox: false,
             showNotifBox: false,
-            showMenu: true
+            showMenu: true,
+            user: [],
         }
     },
     methods: {
+        async returnUserInfo(){
+            const res = await axios.post("/return/user-seller/info");
+            console.log(res.data.message);
+            this.user = res.data.message;
+        },
         changePage(switchPage) {
             this.page = switchPage;
         },
@@ -156,6 +170,17 @@ export default{
         toggleMenu() {
             this.showMenu = !this.showMenu;
         }
+    },
+    async mounted(){
+        await this.returnUserInfo();
+        console.log(`message.${this.user.name}`)
+
+        Echo.channel(`message.${this.user.name}`)
+            .listen('.message.sent', (event) => {
+                console.log('NEEEH AGIIIIIII');
+                this.notifymessage = "Notification: New Message";
+                this.is_visible = true;
+        });
     }
 }
 </script>

@@ -3,6 +3,29 @@
         <teleport to="body">
             <PermissionInfo v-if="show_permission" @goCancel="goCancel" @goAllow="goAllow"/>
         </teleport>
+
+        <teleport to="body">
+            <div class="map-container" v-if="shop_map">
+                <div style="height: 500px; width: 1000px; display: flex; overflow: hidden; flex-direction: column; position: relative;">
+                    <div style="display: flex; flex-direction: row; align-items: center; z-index: 5000; background-color: gray; height: 50px; gap: 10px; justify-content: end; padding-right: 10px;">
+                        <button style="padding: 2px;" @click="getLocation()">Current Location</button>
+                        <img src="../../images/cancel.png" style="width: 20px; height: 20px;  cursor: pointer;" @click="shop_map = false">
+                    </div>
+                    <div style="gap: 10px; position: absolute; top: 10%; right: 0; width: 300px; height: auto; padding: 10px; background-color: white; display: flex; flex-direction: column; z-index: 500; margin-right: 10px;">
+                        <div>
+                            <label>This is the coordinate you selected</label>
+                        </div>
+                        <div>
+                            <label>Latitude: {{ shopData.latitude }}</label><br>
+                            <label>Longitude: {{ shopData.longitude }}</label>
+                        </div>
+                        <button style="padding: 5px; background-color: green; font-weight: bolder; color: white;" @click="map_save_coordinate">Save</button>
+                    </div>
+                    <Map_Buyer @returnCoordinate="returnCoordinate" :shopData="shopData"/>
+                </div>
+            </div>
+        </teleport>
+        
         <div class="form-header">
             <h1>Sign up</h1>
             <p>Shop Details</p>
@@ -38,7 +61,8 @@
                         </div>
 
                         <div class="location-btn">
-                            <button @click="getLocation()" type="button">Share Location</button>
+                            <label style="font-size: 10px; color: gray;">Please double check</label>
+                            <button type="button" @click="shop_map = true;">Share Location</button>
                         </div>
                     </div>
                 </template>
@@ -59,7 +83,7 @@
                     <div class="category-label">
                         <h5 style="margin-bottom: 6px;">{{ details.label }}</h5>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%;">
-                            <template v-for="(option, idx) in details.options" :key="option.value">
+                            <template v-for="(option, idx) in details.options" :key="idx">
                                 <div style="display: flex; align-items: center; width: 48%; margin-bottom: 4px;">
                                     <input
                                         type="checkbox"
@@ -109,16 +133,19 @@
 
 <script>
 import PermissionInfo from './PermissionInfo.vue';
+import Map_Buyer from './Map.vue';
 export default {
     props: [
         'formData'
     ],
     components: {
-        PermissionInfo
+        PermissionInfo,
+        Map_Buyer
     },
     data() {
         return {
             show_permission: false,
+            shop_map: false,
             shopInfo: [
                 {label: 'Shop Name', type: 'text', name: 'shop_name', id: 'shop_name' },
                 {label: 'Shop Address', type: 'text', name: 'shop_address', id: 'shop_address' },
@@ -145,13 +172,25 @@ export default {
                 shop_description: '',
                 shop_profile: '',
                 shop_category: [],
-                latitude: null,
-                longitude: null,
+                latitude: "none",
+                longitude: "none",
             },
             validationMessages: {},
         }
     },
     methods: {
+        map_save_coordinate(){
+            if(this.shopData.longitude === "none" || this.shopData.latitude === "none"){
+                window.alert("Please select a the coordinate/location of your shop")
+                return;
+            }
+            console.log('coordinate: ', this.shopData);
+            this.shop_map = false;
+        },
+        returnCoordinate(coordinate){
+            this.shopData.longitude = parseFloat(coordinate.long);
+            this.shopData.latitude = parseFloat(coordinate.lat);
+        },
         goAllow(){
             const arr = ['terms','location_access'];
 
@@ -250,7 +289,18 @@ export default {
 
 
 <style scoped>
-
+.map-container{
+    width: 100vw; 
+    height: 100vh;
+    position: absolute; 
+    background-color: rgba(0, 0, 0, 0.781); 
+    left: 0; 
+    top: 0; 
+    z-index: 3000; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+}
 .form-content {
     max-width: 400px;
     width: 100%;
