@@ -86,7 +86,15 @@ export default {
                 const res = await axios.post('/user/login', formdata);
 
                 if(res.data.message === 'successful'){
-                    window.location.href = "/seller";
+                    
+                    if(res.data.type === 'seller'){
+                        window.location.href = "/seller";
+                        return;
+                    }
+                    else{
+                        window.location.href = "/buyer";
+                        return;
+                    }
                 }
                 else if(res.data.message === 'user not found'){
                     window.alert('USER NOT FOUND');

@@ -2,6 +2,9 @@
   <!-- Montserrat Google Fonts import for modern navbar font -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
     <div :class="['seller-container', showMenu ? 'with-sidebar' : 'no-sidebar']">
+        <teleport to="body">
+            <NewMessage :notifymessage="notifymessage" v-if="is_visible" @hidenotify="is_visible = false"/>
+        </teleport>
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
                 <button class="mobile-menu-toggle" @click="toggleMenu">
@@ -130,13 +133,26 @@
 </template>
 
 <script>
+import examplemap from './maps/examplemap.vue';
+import '../css/app.css';
+import axios from 'axios';
+import NewMessage from './seller/notifications/NewMessage.vue';
+import { useDataStore } from './stores/dataStore';
 
 export default{
+    components: {
+        examplemap,
+        NewMessage
+    },
     data(){
         return{
+            is_visible: false,
+            notifymessage: 'Notification: New Message',
+            page: 'Dashboard',
+            showMenu: true,
+            user: [],
             showProfileBox: false,
             showNotifBox: false,
-            showMenu: true,
             isMobile: false
         }
     },
@@ -148,6 +164,19 @@ export default{
         window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
+        async returnUserInfo(){
+            const res = await axios.post("/return/user-seller/info");
+
+            const store = useDataStore();
+
+            console.log(res.data.message);
+            this.user = res.data.message;
+            store.setUserInfo(res.data.message);
+            console.log('id: ', store.currentUser_info.id);
+        },
+        changePage(switchPage) {
+            this.page = switchPage;
+        },
         toggleProfileBox() {
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
@@ -165,6 +194,17 @@ export default{
                 this.showMenu = false;
             }
         }
+    },
+    async mounted(){
+        await this.returnUserInfo();
+        console.log(`message.${this.user.name}`)
+
+        Echo.channel(`message.${this.user.name}`)
+            .listen('.message.sent', (event) => {
+                console.log('NEEEH AGIIIIIII');
+                this.notifymessage = "Notification: New Message";
+                this.is_visible = true;
+        });
     }
 }
 </script>

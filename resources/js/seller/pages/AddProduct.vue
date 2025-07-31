@@ -1,5 +1,10 @@
 <template>
     <div class="product-container">
+        <teleport to="body">
+            <div class="overlay" v-if="is_overlay_loading">
+                <img src="../../../images/kOnzy.gif">
+            </div>
+        </teleport>
         <div class="header">
             <h1>Add New Product</h1>
             <router-link to="/seller/products">
@@ -27,12 +32,13 @@
                             <label for="product-category">Category *</label>
                             <select id="product-category" v-model="productData.category" required>
                                 <option value="">Select Category</option>
-                                <option value="furniture">Furniture</option>
-                                <option value="accessory">Accessory</option>
-                                <option value="decoration">Decoration</option>
-                                <option value="kitchen">Kitchen</option>
-                                <option value="bathroom">Bathroom</option>
-                                <option value="outdoor">Outdoor</option>
+                                <option value="Furniture">Furniture</option>
+                                <option value="Kitchenware">Kitchenware</option>
+                                <option value="Musical Instrument">Musical Instrument</option>
+                                <option value="Decorative Items">Decorative Items</option>
+                                <option value="Games">Games</option>
+                                <option value="Outdoor Decor">Outdoor Decor</option>
+                                <option value="Home Decor">Home Decor</option>
                             </select>
                         </div>
 
@@ -174,9 +180,14 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { useDataStore } from '../../stores/dataStore';
+
 export default {
     data() {
         return {
+            is_overlay_loading: false,
+            store: useDataStore(),
             productData: {
                 name: '',
                 description: '',
@@ -232,6 +243,12 @@ export default {
         },
 
         async submitProduct() {
+
+            this.is_overlay_loading = true;
+
+            console.log('user info: ', this.store.currentUser_info);
+            console.log('images', this.productData.images);
+
             if (!this.validateForm()) {
                 return;
             }
@@ -239,22 +256,28 @@ export default {
             this.isSubmitting = true;
 
             try {
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                //this 'data' object will be the container for sending the productData to the server. Using append() method to store the productData
+                const data = new FormData();
+                data.append('product', JSON.stringify(this.productData));
+                this.productData.images.forEach(img => {
+                    data.append('images[]', img.file);
+                });
+                data.append('id', this.store.currentUser_info.id);
 
-                // Here you would typically send the data to your backend
-                console.log('Product data:', this.productData);
+                //axios is a library that will help to communicate client and server.
+                const res = await axios.post('/seller/add/product', data);
 
-                this.showMessage('Product added successfully!', 'success');
+                console.log(res.data.message);
+                window.alert(res.data.message);
 
-                // Reset form after successful submission
-                setTimeout(() => {
-                    this.$router.push('/seller/products');
-                }, 1500);
+                if(res.data.message === "successful"){
+                    this.$router.push({name: 'Products'});
+                }
 
             } catch (error) {
                 this.showMessage('Failed to add product. Please try again.', 'error');
             } finally {
+                this.is_overlay_loading = false;
                 this.isSubmitting = false;
             }
         },
@@ -327,6 +350,22 @@ export default {
 </script>
 
 <style scoped>
+.overlay{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.841);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overlay img{
+    width: 100px;
+    height: 100px;
+}
 .product-container {
     padding: 2em;
     margin: 0 auto;

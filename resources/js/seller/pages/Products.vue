@@ -1,24 +1,31 @@
 <template>
     <div class="product-container">
+        <teleport to="body">
+            <div class="overlay" v-if="is_overlay_loading">
+                <img src="../../../images/kOnzy.gif">
+            </div>
+        </teleport>
         <div class="product-header">
-            <div class="search-bar">
-                <input type="search" name="search-product" id="search-product" placeholder="Search Product" @input="searchProduct">
-                <i class="fa fa-search search-icon"></i>
-            </div>
-            <div class="filters">
-                <select name="product-category" id="product-category" @change="filterByCategory">
-                    <option value="">Filter by category</option>
-                    <option v-for="category in productCategory" :key="category" :value="category">
-                        {{ category }}
-                    </option>
-                </select>
-                <select name="product-status" id="product-status" @change="filterByStatus">
-                    <option value="">Filter by status</option>
-                    <option v-for="status in productStatus" :key="status" :value="status">
-                        {{ status }}
-                    </option>
-                </select>
-            </div>
+            <form class="product-header" @submit.prevent="goSearch">
+                <div class="search-bar">
+                    <input type="search" name="search-product" id="search-product" placeholder="Search Product" v-model="search.text">
+                    <i class="fa fa-search search-icon"></i>
+                </div>
+                <div class="filters">
+                    <select name="product-category" id="product-category" v-model="search.category">
+                        <option value="">Filter by category</option>
+                        <option v-for="category in productCategory" :key="category" :value="category">
+                            {{ category }}
+                        </option>
+                    </select>
+                    <select name="product-status" id="product-status" v-model="search.status">
+                        <option value="">Filter by status</option>
+                        <option v-for="status in productStatus" :key="status" :value="status">
+                            {{ status }}
+                        </option>
+                    </select>
+                </div>
+            </form>
 
             <div class="add-btn">
                 <router-link to="/seller/product/add">
@@ -40,13 +47,13 @@
                 </tr>
             </thead>
 
-            <tbody>
+            <tbody v-if="!is_loading">
                 <tr v-for="item in filteredProducts" :key="item.id" :class="statusClass(item.status)">
                     <td class="name">{{ item.name }}</td>
-                    <td class="qty">{{ item.qty }}</td>
-                    <td class="cat">{{ item.cat }}</td>
+                    <td class="qty">{{ item.quantity }}</td>
+                    <td class="cat">{{ item.category }}</td>
                     <td class="price">{{ item.price }}</td>
-                    <td class="views">{{ item.views }}</td>
+                    <td class="views">{{ item.total_views }}</td>
                     <td class="status">{{ item.status }}</td>
                     <td class="action-btn">
                         <button class="view-btn" @click="toggleViewProduct(item.id)">View</button>
@@ -56,15 +63,15 @@
                             <div class="image-container">
                                 <button class="nav-btn nav-left"
                                     @click="scrollImages('left', item.id)"
-                                    v-if="item.images.length>3">
+                                    v-if="item.photos.length>3">
                                     <i class="fa fa-chevron-left"></i>
                                 </button>
                                 <div class="toggle-img">
-                                    <img v-for="image in item.images" :key="image" :src="image" alt="Image">
+                                    <img v-for="image in item.photos" :key="image" :src="'/'+image.filename" alt="Image">
                                 </div>
                                 <button class="nav-btn nav-right"
                                     @click="scrollImages('right', item.id)"
-                                    v-if="item.images.length>3">
+                                    v-if="item.photos.length>3">
                                     <i class="fa fa-chevron-right"></i>
                                 </button>
                             </div>
@@ -74,9 +81,9 @@
                                     v-for="star in 5"
                                     :key="star"
                                     class="fa fa-star"
-                                    :class="{ checked: star <= item.rating }"
+                                    :class="{ checked: star <= item.overall_rate }"
                                 ></span>
-                                <span class="rating-text">({{ item.rating }}/5)</span>
+                                <span class="rating-text">({{ item.overall_rate }}/5)</span>
                             </div>
                             <div class="comments-section">
                                 <h4>User Comments</h4>
@@ -105,13 +112,13 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="qty">Quantity</label>
-                                        <input type="text" name="qty" id="qty" v-model="editingProduct.qty">
+                                        <input type="text" name="qty" id="qty" v-model="editingProduct.quantity">
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
                                         <label for="product-category">Category</label>
-                                        <select name="product-category" id="product-category" v-model="editingProduct.cat">
+                                        <select name="product-category" id="product-category" v-model="editingProduct.category">
                                             <option v-for="category in productCategory" :key="category" :value="category">
                                                 {{ category }}
                                             </option>
@@ -137,6 +144,23 @@
                                     ></textarea>
                                 </div>
                                 <div class="form-group">
+                                    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                                        <label for="product-description">Photos</label>
+                                        <label style="text-decoration: underline; cursor: pointer;" for="addphoto">Add photo</label>
+                                    </div>
+                                    <div class="photo-container">
+                                        <div v-for="(img, index) in editingProduct.photos" :key="index" style="position: relative; cursor: pointer;" >
+                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: 15px; height: 15px; top: -9px; right: -5px;" @click.stop="cancelNotBlob(index, img.id)">
+                                            <img :src="'/'+img.filename" alt="product image">
+                                        </div>
+                                        <div v-for="(img, indx) in new_photo" :key="indx" style="position: relative; cursor: pointer;" >
+                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: 15px; height: 15px; top: -9px; right: -5px;" @click.stop="cancelBlob(indx)">
+                                            <img :src="img.preview" alt="product image">
+                                        </div>
+                                        <input type="file" hidden id="addphoto" @change="handleFileUpload" accept="image/*">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="padding-bottom: 30px;">
                                     <button type="submit">Save Changes</button>
                                     <button type="button" @click="cancelEdit" style="margin-left: 10px; background-color: #6c757d;">Cancel</button>
                                 </div>
@@ -150,6 +174,10 @@
                     </td>
                 </tr>
             </tbody>
+            <h3 style="color: red;" v-if="allProducts === null">No results</h3>
+            <div class="loading-container" v-if="is_loading">
+                <img src="../../../images/kOnzy.gif" style="width: 200px; height: 200px;">
+            </div>
         </table>
 
         <!-- Overlay background when toggle-details are displayed -->
@@ -158,18 +186,32 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
+
+
 export default {
     data() {
         return {
+            search: {
+                text: "",
+                status: "",
+                category: "",
+            },
+            is_overlay_loading: false,
+            is_loading: true,
+            store: useDataStore(),
             searchQuery: '',
             selectedCategory: '',
             selectedStatus: '',
             viewedProductId: null,
             editedProductId: null,
+            deleted_photo_edit: [],
+            new_photo: [],
             editingProduct: {
                 name: '',
-                qty: '',
-                cat: '',
+                quantity: '',
+                category: '',
                 price: '',
                 status: '',
                 description: ''
@@ -183,33 +225,17 @@ export default {
             ],
             productCategory: [
                 'Furniture',
-                'Accessory',
-                'Decoration',
-                'Kitchen',
-                'Bathroom',
-                'Outdoor'
+                'Kitchenware',
+                'Musical Instrument',
+                'Decorative Items',
+                'Games',
+                'Office Supplies',
+                'Outdoor Decor'
             ],
 
             /* Palihog ko ug connect ani sa database bai */
             description: '',
-            allProducts:  [
-                {id: '1', name: 'Chair', qty: '10', cat: 'Furniture', price: '100', views: '5', status: 'New Arrival', rating: 3, images: ['https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=400&h=400&fit=crop'],
-                    comments: [{user: 'Al', text: 'Very comfortable!'}]
-                },
-                {id: '2', name: 'Table', qty: '5', cat: 'Furniture', price: '200', views: '3', status: 'Pre Order', rating: 4, images: ['https://images.unsplash.com/photo-1532372320572-cda25653a5d4?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop'],
-                    comments: [{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}, {user: 'Jems', text: 'Wide!'},{user: 'Al', text: 'Very comfortable!'}, {user: 'Jems', text: 'Wide!'}]
-                },
-                {id: '3', name: 'Lamp', qty: '0', cat: 'Furniture', price: '50', views: '8', status: 'On Stock', rating: 5, images: ['https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d21?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=400&fit=crop']},
-                {id: '4', name: 'Sofa', qty: '2', cat: 'Furniture', price: '500', views: '2', status: 'Limited Stock', rating: 2, images: ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1493663284031-f7d311293a2d?w=400&h=400&fit=crop']},
-                {id: '5', name: 'Necklace', qty: '2', cat: 'Accessory', price: '500', views: '2', status: 'Out of Stock', rating: 4, images: ['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop']},
-                {id: '7', name: 'Ring', qty: '3', cat: 'Accessory', price: '300', views: '1', status: 'New Arrival', rating: 3, images: ['https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop']},
-                {id: '8', name: 'Bracelet', qty: '1', cat: 'Accessory', price: '150', views: '4', status: 'Limited Stock', rating: 5, images: ['https://images.unsplash.com/photo-1611591437281-460bfbe1220a?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop']},
-                {id: '9', name: 'Earrings', qty: '0', cat: 'Accessory', price: '80', views: '6', status: 'Out of Stock', rating: 1, images: ['https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=400&h=400&fit=crop']},
-                {id: '10', name: 'Watch', qty: '4', cat: 'Accessory', price: '250', views: '3', status: 'On Stock', rating: 4, images: ['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1547996160-81dfa63595aa?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop']},
-                {id: '11', name: 'Desk', qty: '2', cat: 'Furniture', price: '350', views: '2', status: 'Limited Stock', rating: 3, images: ['https://images.unsplash.com/photo-1532372320572-cda25653a5d4?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop']},
-                {id: '12', name: 'Bookshelf', qty: '1', cat: 'Furniture', price: '180', views: '1', status: 'Out of Stock', rating: 2, images: ['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=400&h=400&fit=crop']},
-                {id: '13', name: 'Mirror', qty: '3', cat: 'Furniture', price: '120', views: '5', status: 'New Arrival', rating: 4, images: ['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1493663284031-f7d311293a2d?w=400&h=400&fit=crop', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=400&fit=crop']}
-            ]
+            allProducts:  null,
         }
     },
     computed: {
@@ -242,6 +268,62 @@ export default {
         }
     },
     methods: {
+        async goSearch(){
+            this.is_loading = true;
+            const data = new FormData();
+            data.append('data', JSON.stringify(this.search));
+
+            const res = await axios.post('/seller/search/product', data);
+            console.log(res.data.message);
+            this.allProducts = res.data.message;
+            this.is_loading = false;
+        },
+        cancelBlob(index){
+            console.log('index: ', index);
+            this.new_photo.splice(index, 1);
+        },
+        cancelNotBlob(index, id){
+            console.log('id: ', id);
+            this.deleted_photo_edit.push(id);
+            this.editingProduct.photos.splice(index,1);
+        },
+        handleFileUpload(event){
+            const files = event.target.files;
+
+            for(let file of files){
+                const reader = new FileReader();
+
+                reader.onload = (e) => {
+
+                    this.new_photo.push({
+                        file,
+                        preview: e.target.result
+                    })
+                };
+
+                reader.readAsDataURL(file);
+            }
+
+            event.target.value = null;
+        },
+        async returnProducts(){
+
+            try{
+                this.is_loading = true;
+                const data = new FormData();
+                data.append('id', this.store.currentUser_info.id);
+
+                const res = await axios.post('/seller/return/products', data);
+                console.log(res.data.message);
+                this.allProducts = res.data.message;
+                this.is_loading = false;
+            }
+            catch(error){
+                this.is_loading = false;
+                console.log(error);
+            }
+        },
+
         statusClass(status) {
             switch(status) {
                 case 'New Arrival': return 'status-new';
@@ -254,20 +336,24 @@ export default {
         canDelete(status) {
             return status === 'Out of Stock' || status === 'Limited Stock';
         },
-        deleteProduct(id) {
-            this.allProducts = this.allProducts.filter(item => item.id !== id);
-            this.$nextTick(() => {
-                this.updateScrollableClass();
-            });
-        },
-        filterByCategory(event) {
-            this.selectedCategory = event.target.value;
-        },
-        filterByStatus(event) {
-            this.selectedStatus = event.target.value;
-        },
-        searchProduct(event) {
-            this.searchQuery = event.target.value;
+        async deleteProduct(id) {
+            
+            this.is_overlay_loading = true;
+            console.log('id: ', id);
+            const data = new FormData();
+            data.append('id', id);
+
+            const res = await axios.post('/seller/delete/product', data);
+
+            if(res.data.message === "successful"){
+                this.allProducts = this.allProducts.filter(item => item.id !== id);
+                this.$nextTick(() => {
+                    this.updateScrollableClass();
+                });
+
+                window.alert(res.data.message);
+            }
+            this.is_overlay_loading = false;
         },
         updateScrollableClass() {
             this.$nextTick(() => {
@@ -287,11 +373,12 @@ export default {
                 this.editedProductId = null;
                 this.editingProduct = {
                     name: '',
-                    qty: '',
-                    cat: '',
+                    quantity: '',
+                    category: '',
                     price: '',
                     status: '',
-                    description: ''
+                    description: '',
+                    photos: null,
                 };
             } else {
                 this.editedProductId = productId;
@@ -300,41 +387,93 @@ export default {
                 if (product) {
                     this.editingProduct = {
                         name: product.name,
-                        qty: product.qty,
-                        cat: product.cat,
+                        quantity: product.quantity,
+                        category: product.category,
                         price: product.price,
                         status: product.status,
-                        description: product.description || ''
+                        description: product.description || '',
+                        photos: product.photos,
                     };
                 }
             }
+
         },
-        saveProduct(productId) {
-            // Find the product index
-            const productIndex = this.allProducts.findIndex(item => item.id === productId);
-            if (productIndex !== -1) {
-                // Update the product with the edited data
-                this.allProducts[productIndex] = {
-                    ...this.allProducts[productIndex],
-                    name: this.editingProduct.name,
-                    qty: this.editingProduct.qty,
-                    cat: this.editingProduct.cat,
-                    price: this.editingProduct.price,
-                    status: this.editingProduct.status,
-                    description: this.editingProduct.description
+        async saveProduct(productId) {
+
+            this.is_overlay_loading = true;
+
+            const data = new FormData();
+
+            const images = [];
+
+            console.log('new photo: ', this.new_photo);
+
+            if(this.new_photo){
+                console.log("here");
+                //this store all the photos
+                this.new_photo.forEach(photo => {
+
+                    images.push(photo.file);
+                });
+
+                images.forEach(img => {
+                    data.append('images[]', img);
+                })
+            }
+            else{
+                data.append('images', null);
+            }
+
+            data.append('product_info', JSON.stringify(this.editingProduct));
+            data.append('list_id', JSON.stringify(this.deleted_photo_edit));
+            data.append('id', productId);
+
+            const res = await axios.post('/seller/edit/product', data);
+
+            console.log(res.data.message);
+
+            console.log('product id: ', productId);
+            console.log('edited product: ', this.editingProduct);
+            console.log('total images: ', images);
+
+            console.log('paths: ', res.data.paths);
+            this.new_photo = [];
+            
+            if(res.data.message === 'successful'){
+                const productIndex = this.allProducts.findIndex(item => item.id === productId);
+                if (productIndex !== -1) {
+                    // Update the product with the edited data
+                    this.allProducts[productIndex] = {
+                        ...this.allProducts[productIndex],
+                        name: this.editingProduct.name,
+                        qty: this.editingProduct.qty,
+                        cat: this.editingProduct.cat,
+                        price: this.editingProduct.price,
+                        status: this.editingProduct.status,
+                        description: this.editingProduct.description,
+                        photos: res.data.photos,
+                    };
+                }
+
+                // Close the edit form
+                this.editedProductId = null;
+                this.editingProduct = {
+                    name: '',
+                    qty: '',
+                    cat: '',
+                    price: '',
+                    status: '',
+                    description: '',
+                    photos: [],
                 };
             }
 
-            // Close the edit form
-            this.editedProductId = null;
-            this.editingProduct = {
-                name: '',
-                qty: '',
-                cat: '',
-                price: '',
-                status: '',
-                description: ''
-            };
+
+            console.log('updated products: ', this.allProducts);
+
+            this.is_overlay_loading = false;
+            window.alert(res.data.message);
+
         },
         cancelEdit() {
             this.editedProductId = null;
@@ -344,7 +483,8 @@ export default {
                 cat: '',
                 price: '',
                 status: '',
-                description: ''
+                description: '',
+                photos: null,
             };
         },
         handleOutsideClick(event) {
@@ -394,7 +534,9 @@ export default {
             }
         }
     },
-    mounted() {
+    async mounted() {
+        await this.returnProducts();
+
         this.updateScrollableClass();
         // Add click event listener to document
         document.addEventListener('click', this.handleOutsideClick);
@@ -410,6 +552,47 @@ export default {
 </script>
 
 <style scoped>
+.overlay{
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.841);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overlay img{
+    width: 100px;
+    height: 100px;
+}
+.loading-container{
+    width: 100%;
+    height: 300px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    padding-top: 50px;
+}
+.photo-container img{
+    width: 100px;
+    height: 100px;
+    border: 1px solid gray;
+}
+.photo-container{
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    background-color: rgb(237, 237, 237);
+    border-style: dotted;
+    border-color: rgb(135, 135, 135);
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    overflow-x: auto;
+}
 .product-container {
     padding: 3em 3em 0 3em  ;
     display: flex;
@@ -419,7 +602,7 @@ export default {
 
 .product-header {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: row;
     gap: 1.5em;
     width: 100%;
     font-size: .9em;
@@ -475,7 +658,9 @@ export default {
     text-transform: uppercase;
     color: #252525;
     font-weight: 600;
-    padding: .5em 1.5em;
+    width: 150px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     border-radius: 2em;
     border: none;
     box-shadow: 2px 2px 2px rgba(0,0,0, 0.585);
@@ -648,6 +833,8 @@ export default {
     width: 50vw;
     max-width: 800px;
     height: 90vh;
+    scrollbar-width: none;
+  -ms-overflow-style: none;
     max-height: 600px;
     background: #DDD0C8;
     display: flex;
@@ -657,7 +844,13 @@ export default {
     z-index: 1000;
     padding: 1.5em 4.5em;
     border-radius: 1.5em;
-    overflow: hidden;
+    overflow: auto;
+}
+
+.toggle-details::-webkit-scrollbar {
+  display: none; 
+  width: 0; 
+  height: 0;
 }
 
 .toggle-details form {

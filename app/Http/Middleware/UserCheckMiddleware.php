@@ -15,7 +15,7 @@ class UserCheckMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if(session()->has('email')){
+        if(session()->has('email') && session("user_type") === "seller"){
             return $next($request);
         }
         return redirect()->route('home');
