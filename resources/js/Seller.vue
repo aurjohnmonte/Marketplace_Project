@@ -7,9 +7,12 @@
         </teleport>
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
-                <h3>Timbershoppe</h3>
+                <button class="mobile-menu-toggle" @click="toggleMenu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h3 class="brand-title">Timbershoppe</h3>
             </div>
-            <a class="navbar-brand">{{ page }}</a>
+            <a class="navbar-brand">{{ $route.name === 'AddProduct' ? 'Products' : $route.name }}</a>
             <div class="navbar-right">
                 <div class="profile-circle" @click="toggleProfileBox">
                     <i class="fa-regular fa-circle-user" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.4);"></i>
@@ -28,14 +31,16 @@
                     <p>Notifications</p>
                     <router-link to="/seller/notifications">View All</router-link>
                 </div>
-                <form method="GET" action="/seller/logout">
+                <form method="GET" action="/seller/logout" class="desktop-logout">
                     <button type="submit">Logout</button>
                 </form>
             </div>
         </nav>
 
+        <!-- Mobile overlay for sidebar -->
+        <div v-if="showMenu && isMobile" class="mobile-overlay" @click="toggleMenu"></div>
 
-        <div v-if="showMenu" class="sidebar">
+        <div :class="['sidebar', { 'show': showMenu && isMobile }]" v-if="showMenu || isMobile">
             <div class="sidebar-header">
                 <div class="logo-container">
                     <img src="../images/Logo-2.png" alt="Logo" class="logo">
@@ -47,73 +52,72 @@
             <div class="sidebar-btn">
                 <router-link to="/seller/dashboard">
                     <button
-                        :class="{ active: page === 'Dashboard' }"
-                        @click="changePage('Dashboard')">
+                        :class="{ active: $route.name === 'Dashboard' }">
                     <img src="../images/apps.png" alt="">
                     Dashboard</button>
                 </router-link>
                 <router-link to="/seller/products">
-                    <button :class="{ active: page === 'Products' }" @click="changePage('Products')">
+                    <button :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }">
                         <i class="fa-solid fa-bag-shopping"></i>
                         Products
                     </button>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <button :class="{ active: page === 'Notifications' }" @click="changePage('Notifications')">
-                        <i class="fa-regular fa-bell"></i>
+                    <button :class="{ active: $route.name === 'Notification' }">
+                        <i class="fa-solid fa-bell"></i>
                         Notifications
                     </button>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <button :class="{ active: page === 'Messages' }" @click="changePage('Messages')">
-                        <i class="fa-regular fa-message"></i>
+                    <button :class="{ active: $route.name === 'Messages' }">
+                        <i class="fa-solid fa-message"></i>
                         Messages
                     </button>
                 </router-link>
                 <router-link to="/seller/map">
-                    <button :class="{ active: page === 'Map' }" @click="changePage('Map')">
+                    <button :class="{ active: $route.name === 'Map' }">
                         <i class="fa-solid fa-location-dot"></i>
                         Map
                     </button>
                 </router-link>
                 <router-link to="/seller/profile">
-                    <button :class="{ active: page === 'Profile' }" @click="changePage('Profile')">
-                        <i class="fa-regular fa-user"></i>
+                    <button :class="{ active: $route.name === 'Profile' }">
+                        <i class="fa-solid fa-user"></i>
                         Profile
                     </button>
                 </router-link>
                 <router-link to="/seller/followers">
-                    <button :class="{ active: page === 'Followers' }" @click="changePage('Followers')">
-                        <img src="../images/friends.png" alt="">
+                    <button :class="{ active: $route.name === 'Followers' }">
+                        <img src="../images/friends (white).png" alt="">
                         Followers</button>
                 </router-link>
             </div>
         </div>
-        <div v-else class="sidebar-minimized">
+        <div v-else-if="!isMobile" class="sidebar-minimized">
             <div class="sidebar-minimized-header">
                 <img src="../images/Logo-2.png" alt="Logo" class="logo-minimized">
             </div>
             <div class="sidebar-minimized-btns">
                 <router-link to="/seller/dashboard">
-                    <i class="fa-solid fa-table-cells-large" :class="{ active: page === 'Dashboard' }" @click="changePage('Dashboard')" title="Dashboard"></i>
+                    <i class="fa-solid fa-table-cells-large" :class="{ active: $route.name === 'Dashboard' }" title="Dashboard"></i>
                 </router-link>
                 <router-link to="/seller/products">
-                    <i class="fa-solid fa-bag-shopping" :class="{ active: page === 'Products' }" @click="changePage('Products')" title="Products"></i>
+                    <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }" title="Products"></i>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <i class="fa-regular fa-bell" :class="{ active: page === 'Notifications' }" @click="changePage('Notifications')" title="Notifications"></i>
+                    <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' }" title="Notifications"></i>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <i class="fa-regular fa-message" :class="{ active: page === 'Messages' }" @click="changePage('Messages')" title="Messages"></i>
+                    <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' }" title="Messages"></i>
                 </router-link>
                 <router-link to="/seller/map">
-                    <i class="fa-solid fa-location-dot" :class="{ active: page === 'Map' }" @click="changePage('Map')" title="Map"></i>
+                    <i class="fa-solid fa-location-dot" :class="{ active: $route.name === 'Map' }" title="Map"></i>
                 </router-link>
                 <router-link to="/seller/profile">
-                    <i class="fa-regular fa-user" :class="{ active: page === 'Profile' }" @click="changePage('Profile')" title="Profile"></i>
+                    <i class="fa-regular fa-user" :class="{ active: $route.name === 'Profile' }" title="Profile"></i>
                 </router-link>
                 <router-link to="/seller/followers">
-                    <i class="fa-solid fa-user-group" :class="{ active: page === 'Followers' }" @click="changePage('Followers')" title="Followers"></i>
+                    <i class="fa-solid fa-user-group" :class="{ active: $route.name === 'Followers' }" title="Followers"></i>
                 </router-link>
             </div>
             <div class="sidebar-minimized-footer">
@@ -133,6 +137,7 @@ import examplemap from './maps/examplemap.vue';
 import '../css/app.css';
 import axios from 'axios';
 import NewMessage from './seller/notifications/NewMessage.vue';
+import { useDataStore } from './stores/dataStore';
 
 export default{
     components: {
@@ -144,17 +149,30 @@ export default{
             is_visible: false,
             notifymessage: 'Notification: New Message',
             page: 'Dashboard',
-            showProfileBox: false,
-            showNotifBox: false,
             showMenu: true,
             user: [],
+            showProfileBox: false,
+            showNotifBox: false,
+            isMobile: false
         }
+    },
+    mounted() {
+        this.checkScreenSize();
+        window.addEventListener('resize', this.checkScreenSize);
+    },
+    beforeUnmount() {
+        window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
         async returnUserInfo(){
             const res = await axios.post("/return/user-seller/info");
+
+            const store = useDataStore();
+
             console.log(res.data.message);
             this.user = res.data.message;
+            store.setUserInfo(res.data.message);
+            console.log('id: ', store.currentUser_info.id);
         },
         changePage(switchPage) {
             this.page = switchPage;
@@ -169,6 +187,12 @@ export default{
         },
         toggleMenu() {
             this.showMenu = !this.showMenu;
+        },
+        checkScreenSize() {
+            this.isMobile = window.innerWidth <= 768;
+            if (this.isMobile) {
+                this.showMenu = false;
+            }
         }
     },
     async mounted(){
@@ -232,6 +256,31 @@ export default{
     grid-template-columns: 3.5em 1fr;
 }
 
+/* Mobile responsive grid */
+@media (max-width: 768px) {
+    .seller-container {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr;
+    }
+
+    .seller-container.with-sidebar {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+    }
+
+    .seller-container.no-sidebar {
+        grid-template-areas:
+            'navbar'
+            'content';
+        grid-template-columns: 1fr;
+    }
+}
+
 /* navbar designs */
 .navbar {
     grid-area: navbar;
@@ -244,17 +293,20 @@ export default{
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     min-height: 60px;
     align-items: center;
+    padding: 0 1rem;
 }
 
 .navbar-right,
 .navbar-left {
     display: flex;
     gap: 1em;
+    align-items: center;
 }
 
 .navbar-left {
     align-items: center;
 }
+
 .navbar-left h3 {
     font-size: 1.6em;
     font-weight: 700;
@@ -294,6 +346,47 @@ export default{
   font-size: 3.7rem;
 }
 
+/* Mobile navbar adjustments */
+@media (max-width: 768px) {
+    .navbar {
+        padding: 0 0.5rem;
+    }
+
+    .brand-title {
+        font-size: 1.2em !important;
+        margin: 0 0.5em 0 0 !important;
+    }
+
+    .navbar-brand {
+        font-size: 1em;
+        display: none;
+    }
+
+    .navbar-right {
+        gap: 0.5em;
+    }
+
+    .desktop-logout {
+        display: none;
+    }
+
+    .mobile-menu-toggle {
+        display: block;
+        background: none;
+        border: none;
+        color: #323232;
+        font-size: 1.2rem;
+        cursor: pointer;
+        padding: 0.5rem;
+    }
+}
+
+@media (min-width: 769px) {
+    .mobile-menu-toggle {
+        display: none;
+    }
+}
+
 /* sidebar designs */
 .sidebar {
     grid-area: sidebar;
@@ -302,6 +395,36 @@ export default{
     background: #323232;
     padding: .5rem;
     box-shadow: 2px 0 12px rgba(0,0,0,0.08);
+    z-index: 1200;
+}
+
+/* Mobile sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 200px;
+        height: 100vh;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        z-index: 1500;
+        display: block;
+    }
+
+    .sidebar.show {
+        transform: translateX(0);
+    }
+
+    .mobile-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1400;
+    }
 }
 
 .sidebar-header {
@@ -355,6 +478,14 @@ export default{
   box-shadow: 6px 4px 1px rgba(37, 0, 0, 0.233);
 }
 
+/* Mobile sidebar buttons */
+@media (max-width: 768px) {
+    .sidebar-btn button {
+        padding: 1rem .5rem;
+        font-size: 12px;
+    }
+}
+
 .sidebar-btn button:hover {
   background-color: #DDD0C8;
 }
@@ -369,19 +500,11 @@ export default{
     margin: 0 auto 0.3em auto;
 }
 
-.content {
-    grid-area: content;
-    height: 100%;
-    background-color: #faf4f0;
-    width: 100%;
-}
-
 .sidebar a,
 .floating-box a {
   color: #4A4947;
   text-decoration: none;
 }
-
 
 .sidebar-minimized {
   position: fixed;
@@ -397,6 +520,14 @@ export default{
   z-index: 1100;
   box-shadow: 2px 0 12px rgba(0,0,0,0.08);
 }
+
+/* Hide minimized sidebar on mobile */
+@media (max-width: 768px) {
+    .sidebar-minimized {
+        display: none;
+    }
+}
+
 .sidebar-minimized-header {
   margin-top: 1em;
 }
@@ -431,4 +562,62 @@ export default{
   cursor: pointer;
 }
 
+.content {
+    grid-area: content;
+    height: 100%;
+    background-color: #faf4f0;
+    width: 100%;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+/* Mobile content adjustments */
+@media (max-width: 768px) {
+    .content {
+        padding: 0.5rem;
+    }
+}
+
+/* Floating boxes responsive */
+@media (max-width: 768px) {
+    .floating-box {
+        right: 1em;
+        min-width: 160px;
+        font-size: 14px;
+    }
+
+    .profile-box {
+        right: 5em;
+    }
+}
+
+/* Tablet responsive adjustments */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .seller-container.with-sidebar {
+        grid-template-columns: 10em 1fr;
+    }
+
+    .sidebar-btn button {
+        width: 7rem;
+        padding: 0.8rem;
+        font-size: 12px;
+    }
+
+    .brand-title {
+        font-size: 1.4em !important;
+    }
+}
+
+/* Large screen adjustments */
+@media (min-width: 1025px) {
+    .seller-container.with-sidebar {
+        grid-template-columns: 14em 1fr;
+    }
+
+    .sidebar-btn button {
+        width: 9rem;
+        padding: 1.2rem;
+        font-size: 14px;
+    }
+}
 </style>

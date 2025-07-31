@@ -23,6 +23,7 @@ import ShopAbout from "../buyer/home/shopview_pages/ShopAbout.vue";
 import ShopProducts from "../buyer/home/shopview_pages/ShopProducts.vue";
 import ShopReview from "../buyer/home/shopview_pages/ShopReview.vue";
 import BuyerShops from "../buyer/home/BuyerShops.vue";
+import AddProduct from "../seller/pages/AddProduct.vue";
 
 const routes = [
     {
@@ -70,7 +71,7 @@ const routes = [
     {
         path: "/buyer/browse/:name/:category/:filter",
         name: "BuyerBrowse",
-        component: BuyerBrowse,  
+        component: BuyerBrowse,
     },
     {
         path: "/buyer/browse-shop/:name/:category/:filter",
@@ -140,6 +141,11 @@ const routes = [
         path: "/buyer/profile",
         name: "BuyerProfile",
         component: BuyerProfile
+    },
+    {
+        path: '/seller/product/add',
+        name: 'AddProduct',
+        component: AddProduct
     },
     {
         path: '/seller',

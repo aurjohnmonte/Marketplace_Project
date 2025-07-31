@@ -12,14 +12,20 @@
                 <select name="filter" id="filter">
                     <option value="">Filter by Category</option>
                     <option value="all">All</option>
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="furniture">Furniture</option>
+                    <option value="accessory">Accessory</option>
+                    <option value="decoration">Decoration</option>
+                    <option value="kitchen">Kitchen</option>
+                    <option value="bathroom">Bathroom</option>
+                    <option value="outdoor">Outdoor</option>
                 </select>
             </div>
         </div>
         <div class="header-right">
             <router-link to="/seller/map">
-                <i class="fa-solid fa-location-dot"></i>
+                <i class="fa-solid fa-location-dot"
+                    :class="{ active: $route.name === 'Map' }">
+                </i>
             </router-link>
         </div>
     </div>
@@ -54,15 +60,10 @@
 
 <script>
 export default {
-    data() {
-        return {
-            user: ''
-        }
-    }
 }
 </script>
 
-<style>
+<style scoped>
 .dashboard-container {
     padding: 40px;
     display: flex;

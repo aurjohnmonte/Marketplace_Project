@@ -2,6 +2,7 @@
 
 use App\Events\MessageEvent;
 use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SellerController;
 use App\Http\Middleware\BuyerCheck;
@@ -127,6 +128,9 @@ Route::post('/user/register', [RegisterController::class, 'register']);
 Route::post('/send/otp', [RegisterController::class, 'sendotp']);
 
 
+
+
+
 Route::middleware('userlogin')->post('/user/login', function(){
 
     if(session('user_type') === "seller"){
@@ -144,7 +148,7 @@ Route::middleware('userlogin')->post('/user/login', function(){
 
 
 
-
+//SELLER SIDE
 Route::middleware('usercheck')->group(function() {
 
     Route::get('/seller', function() {
@@ -152,13 +156,25 @@ Route::middleware('usercheck')->group(function() {
     })->name('sellerhome');
 
     //seller blade view
-    Route::get('/seller/{p}', function(){
+    Route::get('/seller/{p}/{c?}', function(){
 
         return view('seller_pages.seller_home');
-    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products']);//put all the components in the 2nd parameter in whereIn
+    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product'])
+      ->whereIn("c", ["add"]);//put all the components in the 2nd parameter in whereIn
 
     //return seller info
     Route::post("/return/user-seller/info", [SellerController::class, "returnProfile_info"]);
+    
+    //add product
+    Route::post('/seller/add/product', [ProductController::class, 'addproduct']);
+    //return products
+    Route::post('/seller/return/products', [ProductController::class, 'returnproducts']);
+    //edit products
+    Route::post('/seller/edit/product', [ProductController::class, 'editProduct']);
+    //delete product
+    Route::post('/seller/delete/product', [ProductController::class, 'deleteProduct']);
+    //search product
+    Route::post('/seller/search/product', [ProductController::class, "searchProduct"]);
 });
 
 
