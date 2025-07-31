@@ -165,7 +165,6 @@
 
             <!-- Form Actions -->
             <div class="form-actions">
-                <button type="button" @click="saveDraft" class="draft-btn">Save as Draft</button>
                 <button type="submit" class="submit-btn" :disabled="isSubmitting">
                     {{ isSubmitting ? 'Adding Product...' : 'Add Product' }}
                 </button>
@@ -268,7 +267,6 @@ export default {
                 const res = await axios.post('/seller/add/product', data);
 
                 console.log(res.data.message);
-                window.alert(res.data.message);
 
                 if(res.data.message === "successful"){
                     this.$router.push({name: 'Products'});
@@ -280,12 +278,6 @@ export default {
                 this.is_overlay_loading = false;
                 this.isSubmitting = false;
             }
-        },
-
-        saveDraft() {
-            // Save form data to localStorage as draft
-            localStorage.setItem('productDraft', JSON.stringify(this.productData));
-            this.showMessage('Draft saved successfully!', 'success');
         },
 
         validateForm() {
@@ -329,22 +321,7 @@ export default {
             setTimeout(() => {
                 this.message = '';
             }, 5000);
-        },
-
-        loadDraft() {
-            const draft = localStorage.getItem('productDraft');
-            if (draft) {
-                try {
-                    this.productData = JSON.parse(draft);
-                } catch (error) {
-                    console.error('Failed to load draft:', error);
-                }
-            }
         }
-    },
-
-    mounted() {
-        this.loadDraft();
     }
 }
 </script>

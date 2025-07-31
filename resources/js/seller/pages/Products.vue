@@ -337,7 +337,7 @@ export default {
             return status === 'Out of Stock' || status === 'Limited Stock';
         },
         async deleteProduct(id) {
-            
+
             this.is_overlay_loading = true;
             console.log('id: ', id);
             const data = new FormData();
@@ -351,7 +351,6 @@ export default {
                     this.updateScrollableClass();
                 });
 
-                window.alert(res.data.message);
             }
             this.is_overlay_loading = false;
         },
@@ -438,7 +437,7 @@ export default {
 
             console.log('paths: ', res.data.paths);
             this.new_photo = [];
-            
+
             if(res.data.message === 'successful'){
                 const productIndex = this.allProducts.findIndex(item => item.id === productId);
                 if (productIndex !== -1) {
@@ -472,7 +471,6 @@ export default {
             console.log('updated products: ', this.allProducts);
 
             this.is_overlay_loading = false;
-            window.alert(res.data.message);
 
         },
         cancelEdit() {
@@ -848,8 +846,8 @@ export default {
 }
 
 .toggle-details::-webkit-scrollbar {
-  display: none; 
-  width: 0; 
+  display: none;
+  width: 0;
   height: 0;
 }
 
