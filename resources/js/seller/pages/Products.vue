@@ -56,8 +56,8 @@
                     <td class="views">{{ item.total_views }}</td>
                     <td class="status">{{ item.status }}</td>
                     <td class="action-btn">
+                        <!-- View button/form -->
                         <button class="view-btn" @click="toggleViewProduct(item.id)">View</button>
-
                         <div v-if="viewedProductId === item.id" class="toggle-details" :data-product-id="item.id">
                             <h3>View Product</h3>
                             <div class="image-container">
@@ -67,7 +67,15 @@
                                     <i class="fa fa-chevron-left"></i>
                                 </button>
                                 <div class="toggle-img">
-                                    <img v-for="image in item.photos" :key="image" :src="'/'+image.filename" alt="Image">
+                                    <div v-for="image in item.photos"
+                                        :key="image"
+                                        class="image-wrapper"
+                                    >
+                                        <img :src="'/'+image.filename" alt="Image" @mouseover="displayIcon" >
+                                        <div class="zoom-overlay">
+                                            <i class="fa fa-search-plus zoom-icon" @click.stop="openZoomModal(image.filename)"></i>
+                                        </div>
+                                    </div>
                                 </div>
                                 <button class="nav-btn nav-right"
                                     @click="scrollImages('right', item.id)"
@@ -75,6 +83,22 @@
                                     <i class="fa fa-chevron-right"></i>
                                 </button>
                             </div>
+
+                            <!-- Modal for zoomed image -->
+                            <div v-if="showZoom" class="modal">
+                                <div class="modal-content">
+                                    <button class="close-modal-btn" @click="closeZoomModal">
+                                        <i class="fa fa-times" @click.stop="closeZoomModal"></i>
+                                    </button>
+                                    <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
+                                </div>
+                            </div>
+
+                            <div class="rating">
+                                <p>Status</p>
+                                <span>{{ item.status }}</span>
+                            </div>
+
                             <div class="rating">
                                 <p>Viewer Rating:</p>
                                 <span
@@ -101,6 +125,7 @@
                             </div>
                         </div>
 
+                        <!-- edit button/form -->
                         <button class="edit-btn" @click="editProduct(item.id)">Edit</button>
                         <div v-if="editedProductId === item.id" class="toggle-details">
                             <form method="GET" class="form" @submit.prevent="saveProduct(item.id)">
@@ -111,28 +136,50 @@
                                         <input type="text" name="name" id="name" v-model="editingProduct.name">
                                     </div>
                                     <div class="form-group">
-                                        <label for="qty">Quantity</label>
-                                        <input type="text" name="qty" id="qty" v-model="editingProduct.quantity">
+                                        <label for="price">Price</label>
+                                        <input type="number" name="price" id="price" v-model="editingProduct.price">
                                     </div>
                                 </div>
                                 <div class="form-row">
                                     <div class="form-group">
-                                        <label for="product-category">Category</label>
-                                        <select name="product-category" id="product-category" v-model="editingProduct.category">
+                                        <label for="materials">Product Material</label>
+                                        <input type="text" name="materials" id="materials" v-model="editingProduct.materials">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="quantity">Quantity</label>
+                                        <input type="number" name="quantity" id="quantity" v-model="editingProduct.quantity">
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <select name="category" id="category" v-model="editingProduct.category">
                                             <option v-for="category in productCategory" :key="category" :value="category">
                                                 {{ category }}
                                             </option>
                                         </select>
                                     </div>
                                     <div class="form-group">
-                                        <label for="product-status">Status</label>
-                                        <select name="product-status" id="product-status" v-model="editingProduct.status">
+                                        <label for="status">Status</label>
+                                        <select name="status" id="status" v-model="editingProduct.status">
                                             <option v-for="currentStatus in productStatus" :key="currentStatus" :value="currentStatus">
                                                 {{ currentStatus }}
                                             </option>
                                         </select>
                                     </div>
                                 </div>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="dimensions">Product Dimensions</label>
+                                        <input type="text" name="dimensions" id="dimensions" v-model="editingProduct.dimensions">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="weight">Product Weight</label>
+                                        <input type="text" name="weight" id="weight" v-model="editingProduct.weight">
+                                    </div>
+                                </div>
+
                                 <div class="form-group">
                                     <label for="product-description">Description</label>
                                     <textarea
@@ -143,23 +190,29 @@
                                         placeholder="Enter product description..."
                                     ></textarea>
                                 </div>
+
                                 <div class="form-group">
                                     <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
                                         <label for="product-description">Photos</label>
-                                        <label style="text-decoration: underline; cursor: pointer;" for="addphoto">Add photo</label>
+                                        <label style="text-transform: capitalize; cursor: pointer;" for="addphoto">Add photo</label>
                                     </div>
                                     <div class="photo-container">
                                         <div v-for="(img, index) in editingProduct.photos" :key="index" style="position: relative; cursor: pointer;" >
-                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: 15px; height: 15px; top: -9px; right: -5px;" @click.stop="cancelNotBlob(index, img.id)">
+                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelNotBlob(index, img.id)">
                                             <img :src="'/'+img.filename" alt="product image">
                                         </div>
                                         <div v-for="(img, indx) in new_photo" :key="indx" style="position: relative; cursor: pointer;" >
-                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: 15px; height: 15px; top: -9px; right: -5px;" @click.stop="cancelBlob(indx)">
+                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelBlob(indx)">
                                             <img :src="img.preview" alt="product image">
                                         </div>
                                         <input type="file" hidden id="addphoto" @change="handleFileUpload" accept="image/*">
                                     </div>
                                 </div>
+
+                                <div v-if="message" :class="['message', messageType]">
+                                    {{ message }}
+                                </div>
+
                                 <div class="form-group" style="padding-bottom: 30px;">
                                     <button type="submit">Save Changes</button>
                                     <button type="button" @click="cancelEdit" style="margin-left: 10px; background-color: #6c757d;">Cancel</button>
@@ -174,7 +227,7 @@
                     </td>
                 </tr>
             </tbody>
-            <h3 style="color: red;" v-if="allProducts === null">No results</h3>
+            <h3 style="color: red; font-size: 1.3em; margin: 1em;" v-if="allProducts === null">No results</h3>
             <div class="loading-container" v-if="is_loading">
                 <img src="../../../images/kOnzy.gif" style="width: 200px; height: 200px;">
             </div>
@@ -214,7 +267,10 @@ export default {
                 category: '',
                 price: '',
                 status: '',
-                description: ''
+                description: '',
+                materials: '',
+                dimensions: '',
+                weight: ''
             },
             productStatus: [
                 'New Arrival',
@@ -233,9 +289,12 @@ export default {
                 'Outdoor Decor'
             ],
 
-            /* Palihog ko ug connect ani sa database bai */
-            description: '',
+
             allProducts:  null,
+            clicked: false,
+            showZoom: null,
+            message: '',
+            messageType: 'success'
         }
     },
     computed: {
@@ -364,10 +423,16 @@ export default {
                 }
             });
         },
+        displayIcon() {
+            this.clicked = true;
+        },
         toggleViewProduct(productId) {
             this.viewedProductId = this.viewedProductId === productId ? null : productId;
         },
         editProduct(productId) {
+            // Clear any existing messages when opening edit form
+            this.message = '';
+
             if (this.editedProductId === productId) {
                 this.editedProductId = null;
                 this.editingProduct = {
@@ -378,6 +443,9 @@ export default {
                     status: '',
                     description: '',
                     photos: null,
+                    materials: '',
+                    dimensions: '',
+                    weight: ''
                 };
             } else {
                 this.editedProductId = productId;
@@ -392,6 +460,9 @@ export default {
                         status: product.status,
                         description: product.description || '',
                         photos: product.photos,
+                        materials: product.materials || '',
+                        dimensions: product.dimensions || '',
+                        weight: product.weight || ''
                     };
                 }
             }
@@ -400,73 +471,98 @@ export default {
         async saveProduct(productId) {
 
             this.is_overlay_loading = true;
+            this.message = ''; // Clear any previous messages
 
-            const data = new FormData();
+            try {
+                const data = new FormData();
 
-            const images = [];
+                const images = [];
 
-            console.log('new photo: ', this.new_photo);
+                console.log('new photo: ', this.new_photo);
 
-            if(this.new_photo){
-                console.log("here");
-                //this store all the photos
-                this.new_photo.forEach(photo => {
+                if(this.new_photo){
+                    console.log("here");
+                    //this store all the photos
+                    this.new_photo.forEach(photo => {
 
-                    images.push(photo.file);
-                });
+                        images.push(photo.file);
+                    });
 
-                images.forEach(img => {
-                    data.append('images[]', img);
-                })
-            }
-            else{
-                data.append('images', null);
-            }
-
-            data.append('product_info', JSON.stringify(this.editingProduct));
-            data.append('list_id', JSON.stringify(this.deleted_photo_edit));
-            data.append('id', productId);
-
-            const res = await axios.post('/seller/edit/product', data);
-
-            console.log(res.data.message);
-
-            console.log('product id: ', productId);
-            console.log('edited product: ', this.editingProduct);
-            console.log('total images: ', images);
-
-            console.log('paths: ', res.data.paths);
-            this.new_photo = [];
-
-            if(res.data.message === 'successful'){
-                const productIndex = this.allProducts.findIndex(item => item.id === productId);
-                if (productIndex !== -1) {
-                    // Update the product with the edited data
-                    this.allProducts[productIndex] = {
-                        ...this.allProducts[productIndex],
-                        name: this.editingProduct.name,
-                        qty: this.editingProduct.qty,
-                        cat: this.editingProduct.cat,
-                        price: this.editingProduct.price,
-                        status: this.editingProduct.status,
-                        description: this.editingProduct.description,
-                        photos: res.data.photos,
-                    };
+                    images.forEach(img => {
+                        data.append('images[]', img);
+                    })
+                }
+                else{
+                    data.append('images', null);
                 }
 
-                // Close the edit form
-                this.editedProductId = null;
-                this.editingProduct = {
-                    name: '',
-                    qty: '',
-                    cat: '',
-                    price: '',
-                    status: '',
-                    description: '',
-                    photos: [],
-                };
-            }
+                data.append('product_info', JSON.stringify(this.editingProduct));
+                data.append('list_id', JSON.stringify(this.deleted_photo_edit));
+                data.append('id', productId);
 
+                const res = await axios.post('/seller/edit/product', data);
+
+                console.log(res.data.message);
+
+                console.log('product id: ', productId);
+                console.log('edited product: ', this.editingProduct);
+                console.log('total images: ', images);
+
+                console.log('paths: ', res.data.paths);
+                this.new_photo = [];
+
+                if(res.data.message === 'successful'){
+                    const productIndex = this.allProducts.findIndex(item => item.id === productId);
+                    if (productIndex !== -1) {
+                        // Update the product with the edited data
+                        this.allProducts[productIndex] = {
+                            ...this.allProducts[productIndex],
+                            name: this.editingProduct.name,
+                            quantity: this.editingProduct.quantity,
+                            category: this.editingProduct.category,
+                            price: this.editingProduct.price,
+                            status: this.editingProduct.status,
+                            description: this.editingProduct.description,
+                            photos: res.data.photos,
+                            materials: this.editingProduct.materials,
+                            dimensions: this.editingProduct.dimensions,
+                            weight: this.editingProduct.weight
+                        };
+                    }
+
+                    // Show success message
+                    this.message = 'Product updated successfully!';
+                    this.messageType = 'success';
+
+                    // Close the edit form after a short delay to show the message
+                    setTimeout(() => {
+                        this.editedProductId = null;
+                        this.editingProduct = {
+                            name: '',
+                            quantity: '',
+                            category: '',
+                            price: '',
+                            status: '',
+                            description: '',
+                            photos: [],
+                            materials: '',
+                            dimensions: '',
+                            weight: ''
+                        };
+                        this.message = ''; // Clear the message
+                    }, 2000);
+
+                } else {
+                    // Show error message for unsuccessful update
+                    this.message = 'Failed to update product. Please try again.';
+                    this.messageType = 'error';
+                }
+
+            } catch (error) {
+                console.error('Error updating product:', error);
+                this.message = 'An error occurred while updating the product. Please try again.';
+                this.messageType = 'error';
+            }
 
             console.log('updated products: ', this.allProducts);
 
@@ -474,29 +570,55 @@ export default {
 
         },
         cancelEdit() {
-            this.editedProductId = null;
-            this.editingProduct = {
-                name: '',
-                qty: '',
-                cat: '',
-                price: '',
-                status: '',
-                description: '',
-                photos: null,
-            };
+            // Show cancel message
+            this.message = 'Update cancelled!';
+            this.messageType = 'error';
+
+            setTimeout(() => {
+                this.editedProductId = null;
+                this.editingProduct = {
+                    name: '',
+                    quantity: '',
+                    category: '',
+                    price: '',
+                    status: '',
+                    description: '',
+                    photos: null,
+                    materials: '',
+                    dimensions: '',
+                    weight: ''
+                };
+
+                this.message = '';
+            }, 1000);
         },
         handleOutsideClick(event) {
             // Check if the click was outside any toggle-details element
             const toggleDetails = event.target.closest('.toggle-details');
             const actionButton = event.target.closest('.action-btn');
+            const modalContent = event.target.closest('.modal-content');
 
-            // Only close if click is outside both toggle-details and action buttons
+            // Close zoom modal if clicking outside modal content
+            if (this.showZoom && !modalContent) {
+                this.closeZoomModal();
+                return;
+            }
+
+            // Only close toggle-details if click is outside both toggle-details and action buttons
             if (!toggleDetails && !actionButton) {
                 this.viewedProductId = null;
                 this.editedProductId = null;
             }
         },
-                scrollImages(direction, productId) {
+        openZoomModal(filename) {
+            console.log('Opening zoom modal for:', filename);
+            this.showZoom = filename;
+        },
+        closeZoomModal() {
+            console.log('Closing zoom modal');
+            this.showZoom = null;
+        },
+        scrollImages(direction, productId) {
             // Use querySelector to find the container for this specific product
             const container = this.$el.querySelector(`[data-product-id="${productId}"] .toggle-img`);
             console.log('Container found:', container);
@@ -577,19 +699,40 @@ export default {
 .photo-container img{
     width: 100px;
     height: 100px;
-    border: 1px solid gray;
+    border: none;
 }
 .photo-container{
     width: 100%;
     height: auto;
-    padding: 20px;
+    padding: 1em 1em .8em 1em;
     background-color: rgb(237, 237, 237);
     border-style: dotted;
+    border-radius: 1em;
     border-color: rgb(135, 135, 135);
     display: flex;
     flex-direction: row;
     gap: 20px;
     overflow-x: auto;
+    position: relative;
+}
+
+.photo-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.photo-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+    margin: 0 1em;
+}
+
+.photo-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.photo-container::-webkit-scrollbar-thumb:hover {
+    background: #555;
 }
 .product-container {
     padding: 3em 3em 0 3em  ;
@@ -831,18 +974,18 @@ export default {
     width: 50vw;
     max-width: 800px;
     height: 90vh;
-    scrollbar-width: none;
-  -ms-overflow-style: none;
     max-height: 600px;
     background: #DDD0C8;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     z-index: 1000;
     padding: 1.5em 4.5em;
     border-radius: 1.5em;
     overflow: auto;
+    scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 .toggle-details::-webkit-scrollbar {
@@ -857,6 +1000,11 @@ export default {
     width: 100%;
     height: 100%;
     gap: 1em;
+    padding: 1em;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: none;
+  -ms-overflow-style: none;
 
 }
 
@@ -922,12 +1070,23 @@ export default {
     overflow-y: hidden;
     scroll-behavior: smooth;
     align-items: center;
-    padding: 0 .3em;
+    padding: 0 .3em 1em .3em;
+    scroll-margin: 2em;
+    /* Fallback for browsers that don't support scroll-margin */
+    scroll-padding: 2em;
 }
 
 .toggle-img {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+}
+
+.image-wrapper {
+    position: relative;
+    cursor: pointer;
+    border-radius: 0.5em;
+    overflow: hidden;
+    flex-shrink: 0;
 }
 
 .toggle-img img {
@@ -937,12 +1096,34 @@ export default {
     border-radius: 0.5em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease;
-    flex-shrink: 0;
+    display: block;
 }
 
-.toggle-img img:hover {
-    transform: scale(1.05);
+.zoom-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 0.5em;
 }
+
+.image-wrapper:hover .zoom-overlay {
+    opacity: 1;
+}
+
+.zoom-icon {
+    color: white;
+    font-size: 2em;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 
 .nav-btn {
     position: absolute;
@@ -1056,6 +1237,70 @@ export default {
     color: #252525;
 }
 
+/* Modal styles for zoomed images */
+.modal {
+    position: fixed;
+    top: -4em;
+    left: 0;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    cursor: default;
+}
+
+.modal-content {
+    position: relative;
+    max-width: 20em;
+    max-height: 20em;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgb(255, 255, 255);
+    border-radius: 12px;
+    padding: 1em;
+}
+
+.zoomed-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.zoomed-image:hover {
+    transform: scale(1.02);
+}
+
+.close-modal-btn {
+    position: absolute;
+    background: transparent;
+    top: 2%;
+    right: -4%;
+    border: none !important;
+    outline: none !important;
+    width: 1em;
+    height: 1em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.close-modal-btn:hover {
+    color: #7e6556;
+    transform: scale(1.1);
+}
+
 /* Custom scrollbar for comments list */
 .comments-list::-webkit-scrollbar {
     width: 6px;
@@ -1073,6 +1318,25 @@ export default {
 
 .comments-list::-webkit-scrollbar-thumb:hover {
     background: #a87d5a;
+}
+
+.message {
+    padding: 1em;
+    border-radius: 0.5em;
+    margin-top: 1em;
+    font-weight: 600;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
 }
 
 /* Responsive Design */
@@ -1124,6 +1388,10 @@ export default {
     .toggle-img img {
         max-width: 8em;
         max-height: 8em;
+    }
+
+    .zoom-icon {
+        font-size: 1.5em;
     }
 
     .nav-btn {
@@ -1183,6 +1451,10 @@ export default {
         max-height: 6em;
     }
 
+    .zoom-icon {
+        font-size: 1.2em;
+    }
+
     .nav-btn {
         width: 1.8em;
         height: 1.8em;
@@ -1228,6 +1500,10 @@ export default {
     .toggle-img img {
         max-width: 5em;
         max-height: 5em;
+    }
+
+    .zoom-icon {
+        font-size: 1em;
     }
 
     .nav-btn {

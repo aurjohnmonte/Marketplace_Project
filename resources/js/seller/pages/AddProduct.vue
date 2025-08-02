@@ -24,13 +24,12 @@
                                 type="text"
                                 id="product-name"
                                 v-model="productData.name"
-                                required
                                 placeholder="Enter product name"
                             />
                         </div>
                         <div class="form-group">
                             <label for="product-category">Category *</label>
-                            <select id="product-category" v-model="productData.category" required>
+                            <select id="product-category" v-model="productData.category">
                                 <option value="">Select Category</option>
                                 <option value="Furniture">Furniture</option>
                                 <option value="Kitchenware">Kitchenware</option>
@@ -44,7 +43,7 @@
 
                         <div class="form-group">
                             <label for="product-status">Status *</label>
-                            <select id="product-status" v-model="productData.status" required>
+                            <select id="product-status" v-model="productData.status">
                                 <option value="">Select Status</option>
                                 <option value="New Arrival">New Arrival</option>
                                 <option value="Pre Order">Pre Order</option>
@@ -60,7 +59,6 @@
                         <textarea
                             id="product-description"
                             v-model="productData.description"
-                            required
                             rows="4"
                             placeholder="Describe your product..."
                         ></textarea>
@@ -77,7 +75,6 @@
                                 type="number"
                                 id="product-price"
                                 v-model="productData.price"
-                                required
                                 min="0"
                                 step="0.01"
                                 placeholder="0.00"
@@ -90,7 +87,6 @@
                                 type="number"
                                 id="product-quantity"
                                 v-model="productData.quantity"
-                                required
                                 min="0"
                                 placeholder="0"
                             />
@@ -107,6 +103,7 @@
                                 <i class="fa fa-cloud-upload"></i>
                                 <p>Click to upload or drag images here</p>
                                 <p class="upload-hint">Supports: JPG, PNG, GIF (Max 5MB each)</p>
+                                <p class="upload-required">At least one image is required</p>
                             </div>
                             <div v-else class="image-preview">
                                 <div v-for="(image, index) in productData.images" :key="index" class="image-item">
@@ -163,6 +160,11 @@
                 </div>
             </div>
 
+            <!-- Success/Error Messages -->
+            <div v-if="message" :class="['message', messageType]">
+                {{ message }}
+            </div>
+
             <!-- Form Actions -->
             <div class="form-actions">
                 <button type="submit" class="submit-btn" :disabled="isSubmitting">
@@ -170,11 +172,6 @@
                 </button>
             </div>
         </form>
-
-        <!-- Success/Error Messages -->
-        <div v-if="message" :class="['message', messageType]">
-            {{ message }}
-        </div>
     </div>
 </template>
 
@@ -204,6 +201,10 @@ export default {
             messageType: 'success'
         }
     },
+    mounted() {
+        // Ensure component is properly initialized
+        console.log('AddProduct component mounted');
+    },
     methods: {
         triggerImageUpload() {
             this.$refs.imageInput.click();
@@ -221,20 +222,60 @@ export default {
         },
 
         processImages(files) {
+            let validFiles = 0;
+            let invalidFiles = 0;
+
             files.forEach(file => {
-                if (file.type.startsWith('image/') && file.size <= 5 * 1024 * 1024) {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        this.productData.images.push({
-                            file: file,
-                            preview: e.target.result
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                } else {
-                    this.showMessage('Please select valid image files (max 5MB each)', 'error');
+                if (!file.type.startsWith('image/')) {
+                    invalidFiles++;
+                    this.showMessage(`"${file.name}" is not a valid image file. Please select JPG, PNG, or GIF files only.`, 'error');
+
+                    return;
                 }
+
+                if (file.size > 5 * 1024 * 1024) {
+                    invalidFiles++;
+                    this.showMessage(`"${file.name}" is too large. Maximum size is 5MB.`, 'error');
+
+                    return;
+                }
+
+                if (file.size === 0) {
+                    invalidFiles++;
+                    this.showMessage('Please select a valid image.', 'error');
+
+                    return;
+                }
+
+                /* valid file, thenm process it */
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.productData.images.push({
+                        file: file,
+                        preview: e.target.result
+                    })
+                    validFiles++;
+
+                    if (validFiles === 1) {
+                        this.showMessage(`"${validFiles}" image has been uploaded succssfully.`, 'success');
+                    } else if (validFiles > 1) {
+                        this.showMessage(`"${validFiles}" images has been uploaded succesfully.`, 'success');
+                    }
+                };
+
+                reader.onerror = () => {
+                    invalidFiles++;
+                    this.showMessage(`Failed to read "${file.name}". Pleaser try again.`, 'error');
+                };
+
+                reader.readAsDataURL(file);
             });
+
+            if (files.length > 1 && invalidFiles > 0) {
+                    setTimeout(() => {
+                        this.showMessage(`${validFiles} valid images uploaded, ${invalidFiles} files rejected.`, 'error');
+                    }, 1000);
+                }
         },
 
         removeImage(index) {
@@ -242,9 +283,6 @@ export default {
         },
 
         async submitProduct() {
-
-            this.is_overlay_loading = true;
-
             console.log('user info: ', this.store.currentUser_info);
             console.log('images', this.productData.images);
 
@@ -263,64 +301,109 @@ export default {
                 });
                 data.append('id', this.store.currentUser_info.id);
 
+                // Show loading screen after validation but before API call
+                this.is_overlay_loading = true;
+
                 //axios is a library that will help to communicate client and server.
                 const res = await axios.post('/seller/add/product', data);
 
                 console.log(res.data.message);
 
                 if(res.data.message === "successful"){
-                    this.$router.push({name: 'Products'});
+                    // Hide loading screen first
+                    this.is_overlay_loading = false;
+
+                    // Show success message
+                    if (typeof this.showMessage === 'function') {
+                        this.showMessage('Product added successfully!', 'success');
+                    }
+
+                    // Wait a bit for the message to be visible before redirecting
+                    setTimeout(() => {
+                        this.$router.push({name: 'Products'});
+                    }, 1500);
                 }
 
             } catch (error) {
-                this.showMessage('Failed to add product. Please try again.', 'error');
-            } finally {
+                console.error('Error submitting product:', error);
+
+                // Hide loading screen first
                 this.is_overlay_loading = false;
+
+                // Show error message
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Failed to add product. Please try again.', 'error');
+                }
+            } finally {
                 this.isSubmitting = false;
             }
         },
 
         validateForm() {
             if (!this.productData.name.trim()) {
-                this.showMessage('Product name is required', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Product name is required', 'error');
+                }
                 return false;
             }
 
             if (!this.productData.description.trim()) {
-                this.showMessage('Product description is required', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Product description is required', 'error');
+                }
                 return false;
             }
 
             if (!this.productData.category) {
-                this.showMessage('Please select a category', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Please select a category', 'error');
+                }
                 return false;
             }
 
             if (!this.productData.status) {
-                this.showMessage('Please select a status', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Please select a status', 'error');
+                }
                 return false;
             }
 
             if (!this.productData.price || this.productData.price <= 0) {
-                this.showMessage('Please enter a valid price', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Please enter a valid price', 'error');
+                }
                 return false;
             }
 
             if (!this.productData.quantity || this.productData.quantity < 0) {
-                this.showMessage('Please enter a valid quantity', 'error');
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('Please enter a valid quantity', 'error');
+                }
+                return false;
+            }
+
+            if (!this.productData.images || this.productData.images.length === 0) {
+                if (typeof this.showMessage === 'function') {
+                    this.showMessage('At least one product image is required', 'error');
+                }
                 return false;
             }
 
             return true;
         },
 
-        showMessage(text, type) {
-            this.message = text;
-            this.messageType = type;
+        showMessage(text, type = 'success') {
+            try {
+                console.log('showMessage called with:', text, type);
+                this.message = text;
+                this.messageType = type;
 
-            setTimeout(() => {
-                this.message = '';
-            }, 5000);
+                setTimeout(() => {
+                    this.message = '';
+                }, 5000);
+            } catch (error) {
+                console.error('Error in showMessage:', error);
+            }
         }
     }
 }
@@ -517,6 +600,13 @@ export default {
     line-height: 1;
 }
 
+.upload-required {
+    font-size: 0.8em;
+    color: #dc3545;
+    margin-top: 0.5em;
+    font-weight: 600;
+}
+
 .form-actions {
     display: flex;
     gap: 1em;
@@ -525,7 +615,6 @@ export default {
     border-top: 1px solid #e9ecef;
 }
 
-.draft-btn,
 .submit-btn {
     padding: 0.75em 2em;
     border-radius: 2em;
@@ -535,16 +624,6 @@ export default {
     cursor: pointer;
     transition: all 0.3s ease;
 }
-
-.draft-btn {
-    background-color: #6c757d;
-    color: white;
-}
-
-.draft-btn:hover {
-    background-color: #5a6268;
-}
-
 .submit-btn {
     background-color: #ca9d73;
     color: #252525;

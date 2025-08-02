@@ -40,7 +40,7 @@
         <!-- Mobile overlay for sidebar -->
         <div v-if="showMenu && isMobile" class="mobile-overlay" @click="toggleMenu"></div>
 
-        <div :class="['sidebar', { 'show': showMenu && isMobile }]" v-if="showMenu || isMobile">
+        <div :class="['sidebar', { 'show': showMenu && isMobile }]" v-if="showMenu || (!isMobile && showMenu)">
             <div class="sidebar-header">
                 <div class="logo-container">
                     <img src="../images/Logo-2.png" alt="Logo" class="logo">
@@ -159,6 +159,7 @@ export default{
     mounted() {
         this.checkScreenSize();
         window.addEventListener('resize', this.checkScreenSize);
+        this.initializeUser();
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkScreenSize);
@@ -193,18 +194,18 @@ export default{
             if (this.isMobile) {
                 this.showMenu = false;
             }
-        }
-    },
-    async mounted(){
-        await this.returnUserInfo();
-        console.log(`message.${this.user.name}`)
+        },
+        async initializeUser(){
+            await this.returnUserInfo();
+            console.log(`message.${this.user.name}`)
 
-        Echo.channel(`message.${this.user.name}`)
-            .listen('.message.sent', (event) => {
-                console.log('NEEEH AGIIIIIII');
-                this.notifymessage = "Notification: New Message";
-                this.is_visible = true;
-        });
+            Echo.channel(`message.${this.user.name}`)
+                .listen('.message.sent', (event) => {
+                    console.log('NEEEH AGIIIIIII');
+                    this.notifymessage = "Notification: New Message";
+                    this.is_visible = true;
+            });
+        }
     }
 }
 </script>

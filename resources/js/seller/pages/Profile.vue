@@ -65,7 +65,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .profile-container {
     padding: 1em;
     width: 100%;
