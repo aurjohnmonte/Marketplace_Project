@@ -94,20 +94,22 @@
                                 </div>
                             </div>
 
-                            <div class="rating">
-                                <p>Status</p>
-                                <span>{{ item.status }}</span>
-                            </div>
+                            <div class="view-row">
+                                <div class="rating">
+                                    <p>Viewer Rating:</p>
+                                    <span
+                                        v-for="star in 5"
+                                        :key="star"
+                                        class="fa fa-star"
+                                        :class="{ checked: star <= item.overall_rate }"
+                                    ></span>
+                                    <span class="rating-text">({{ item.overall_rate }}/5)</span>
+                                </div>
 
-                            <div class="rating">
-                                <p>Viewer Rating:</p>
-                                <span
-                                    v-for="star in 5"
-                                    :key="star"
-                                    class="fa fa-star"
-                                    :class="{ checked: star <= item.overall_rate }"
-                                ></span>
-                                <span class="rating-text">({{ item.overall_rate }}/5)</span>
+                                <div class="rating">
+                                    <p>Status:</p>
+                                    <span>{{ item.status }}</span>
+                                </div>
                             </div>
                             <div class="comments-section">
                                 <h4>User Comments</h4>
@@ -1051,6 +1053,12 @@ export default {
 }
 
 /* view toggle box design */
+.view-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 1em ;
+    width: 100%;
+}
 .image-container {
     position: relative;
     display: flex;
@@ -1072,7 +1080,6 @@ export default {
     align-items: center;
     padding: 0 .3em 1em .3em;
     scroll-margin: 2em;
-    /* Fallback for browsers that don't support scroll-margin */
     scroll-padding: 2em;
 }
 
@@ -1240,9 +1247,9 @@ export default {
 /* Modal styles for zoomed images */
 .modal {
     position: fixed;
-    top: -4em;
+    top: 0em;
     left: 0;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.623);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1252,8 +1259,8 @@ export default {
 
 .modal-content {
     position: relative;
-    max-width: 20em;
-    max-height: 20em;
+    max-width: 30em;
+    max-height: 30em;
     width: auto;
     height: auto;
     display: flex;
@@ -1281,8 +1288,8 @@ export default {
 .close-modal-btn {
     position: absolute;
     background: transparent;
-    top: 2%;
-    right: -4%;
+    top: 1%;
+    right: -3%;
     border: none !important;
     outline: none !important;
     width: 1em;
