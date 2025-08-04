@@ -279,6 +279,7 @@ export default {
                 'Limited Stock',
                 'Out of Stock'
             ],
+            
             productCategory: [
                 'Furniture',
                 'Kitchenware',
@@ -286,7 +287,8 @@ export default {
                 'Decorative Items',
                 'Games',
                 'Office Supplies',
-                'Outdoor Decor'
+                'Outdoor Decor',
+                'Home Decor',
             ],
 
 
