@@ -24,7 +24,7 @@ import ShopProducts from "../buyer/home/shopview_pages/ShopProducts.vue";
 import ShopReview from "../buyer/home/shopview_pages/ShopReview.vue";
 import BuyerShops from "../buyer/home/BuyerShops.vue";
 import AddProduct from "../seller/pages/AddProduct.vue";
-import NewMessage from "../seller/notifications/NewMessage.vue";
+import ViewNotification from "../seller/notifications/ViewNotification.vue";
 
 const routes = [
     {
@@ -97,7 +97,7 @@ const routes = [
             {
                 path: "view",
                 name: "ViewNotification",
-                component: NewMessage
+                component: ViewNotification
             }
         ]
     },

@@ -281,7 +281,7 @@ export default {
                 'Limited Stock',
                 'Out of Stock'
             ],
-            
+
             productCategory: [
                 'Furniture',
                 'Kitchenware',
@@ -738,7 +738,9 @@ export default {
 .photo-container::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
+
 .product-container {
+    position: relative;
     padding: 3em 3em 0 3em  ;
     display: flex;
     flex-direction: column;

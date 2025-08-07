@@ -569,7 +569,6 @@ export default{
     background-color: #faf4f0;
     width: 100%;
     overflow-y: auto;
-    padding: 1rem;
 }
 
 /* Mobile content adjustments */
