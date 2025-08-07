@@ -24,6 +24,7 @@ import ShopProducts from "../buyer/home/shopview_pages/ShopProducts.vue";
 import ShopReview from "../buyer/home/shopview_pages/ShopReview.vue";
 import BuyerShops from "../buyer/home/BuyerShops.vue";
 import AddProduct from "../seller/pages/AddProduct.vue";
+import NewMessage from "../seller/notifications/NewMessage.vue";
 
 const routes = [
     {
@@ -76,7 +77,7 @@ const routes = [
     {
         path: "/buyer/browse-shop/:name/:category/:filter",
         name: "BuyerShops",
-        component: BuyerShops,  
+        component: BuyerShops,
     },
     {
         path: "/seller/dashboard",
@@ -91,7 +92,14 @@ const routes = [
     {
         path: "/seller/notifications",
         name: "Notification",
-        component: Notification
+        component: Notification,
+        children: [
+            {
+                path: "view",
+                name: "ViewNotification",
+                component: NewMessage
+            }
+        ]
     },
     {
         path: "/seller/profile",

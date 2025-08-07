@@ -1,7 +1,7 @@
 <template>
   <div class="notification-wrapper">
     <div class="notification-card">
-      <span class="message">{{ notifymessage }}</span>
+      <span class="message">{{ notifymessage || 'Notification details will be displayed here' }}</span>
       <button class="close-btn" @click="hidenotify">×</button>
     </div>
   </div>
@@ -9,10 +9,15 @@
 
 <script>
 export default{
-    props: ['notifymessage'],
+    props: {
+        notifymessage: {
+            type: String,
+            default: 'Notification details will be displayed here'
+        }
+    },
     data(){
         return{
-            
+
         }
     },
     methods: {
@@ -25,10 +30,9 @@ export default{
 
 <style scoped>
 .notification-wrapper {
-  position: absolute;
-  top: 5rem;
-  right: 20%;
-  z-index: 9999;
+  position: relative;
+  margin: 2rem 0;
+  padding: 1rem;
 }
 
 .notification-card {
@@ -41,6 +45,8 @@ export default{
   gap: 1rem;
   align-items: center;
   min-width: 200px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
 .message {
@@ -55,5 +61,6 @@ export default{
   border: none;
   font-size: 1.25rem;
   cursor: pointer;
+  color: #ffffff;
 }
 </style>
