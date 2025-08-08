@@ -31,9 +31,7 @@
                     <p>Notifications</p>
                     <router-link to="/seller/notifications">View All</router-link>
                 </div>
-                <form method="GET" action="/seller/logout" class="desktop-logout">
-                    <button type="submit">Logout</button>
-                </form>
+                <button @click="goLogout">Logout</button>
             </div>
         </nav>
 
@@ -165,6 +163,14 @@ export default{
         window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
+        goLogout(){
+            
+            console.log('here')
+            const store = useDataStore();
+            let id = store.currentUser_info.id;
+
+            window.location.href = `/seller/logout?id=${id}`;
+        },
         async returnUserInfo(){
             const res = await axios.post("/return/user-seller/info");
 
