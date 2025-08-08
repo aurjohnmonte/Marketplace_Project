@@ -106,9 +106,11 @@ export default {
         //https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         //tiles sa sattelite ver.
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(this.map_object)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri — Sources: Esri, Garmin, USGS, etc.',
+            maxZoom: 19,
+            minZoom: 3,
+        }).addTo(this.map_object);
 
 
         if(this.shopData.latitude !== "none" && this.shopData.longitude !== "none"){

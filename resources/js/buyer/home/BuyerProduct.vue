@@ -1,115 +1,100 @@
 <template>
   <div class="buyer-product">
     <teleport to="body">
-        <MorePhotos v-if="show_morePhotos" @hideMorePicture="hideMorePicture"/>
+        <MorePhotos v-if="show_morePhotos" @hideMorePicture="hideMorePicture" :photos="photos"/>
     </teleport>
     <div class="back-button" @click="goBack">
         <img src="../../../images/left-arrows.png">
         <label>PRODUCT</label>
     </div>
+    <div class="show-pic-overlay" v-if="show_pic" @click="show_pic=false; pic=null;">
+        <img :src="'/'+pic" style="background-color: white; width: 250px; height: 250px; border-radius: 20px;">
+    </div>
     <div class="border-gray"></div>
     <div class="product-info">
         <div class="product-profile-pic">
             <div class="option-icon">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
+                <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+            <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
             </div>
-            <img src="../../../images/images.jpg" class="profile-pic-product">
+            <img :src="'/'+product.photos[0].filename" class="profile-pic-product">
         </div>
         <div class="more-pic">
             <div class="pic-list">
-                <img src="../../../images/images.jpg" class="pic">
-                <img src="../../../images/images.jpg" class="pic">
-                <img src="../../../images/images.jpg" class="pic">
+                <img v-for="indx in (product.photos.length > 3 ? 3 : product.photos.length-1)"
+                     :key="indx" :src="'/'+product.photos[indx].filename"
+                      class="pic" 
+                      @click="show_pic=true; pic=product.photos[indx].filename"
+                >...            
             </div>
-            <label @click="show_morePhotos=true">More pictures</label>
+            <label @click="show_morePhotos=true; photos = product.photos;">More pictures</label>
         </div>
         <div class="shop-name">
-            <label>Shop Name</label>
+            <label style="font-size: 15px;" @click="$router.push({name: 'ShopAbout', params: {id: product.shop_id}});">{{ product.shop.name }}</label>
         </div>
         <div class="product-more-info">
-            <label class="product-price">PHP 400.00</label>
-            <label class="product-name">Product Name</label>
-            <label class="text">Purok 3, Barangay 3 Cabadbaran City ADN</label>
-            <label class="text">Games, Woodcraft</label>
+            <label class="product-price">PHP {{ product.price }}</label>
+            <label class="product-name">{{ product.name }}</label>
+            <label class="text">{{ product.shop.address }}</label>
+            <label class="text">{{ product.category }}</label>
         </div>
     </div>
     <div class="border-gray"></div>
     <div class="product-rating-container">
         <div class="product-rating-header">
             <div style="display: flex; flex-direction: row; gap: 5px; align-items: center;">
-                <label>4.5</label>
+                <label>{{ product.overall_rate }}</label>
                 <img src="../../../images/star.png" style="width: 10px; height: 10px;">
             </div>
-            <label>Product Ratings (3.4k)</label>
+            <label>( {{ reviews.length }} ratings)</label>
         </div>
         <div class="product-rating-content">
-            <div class="user-rate">
-                <div class="profile-info">
-                    <img src="../../../images/man.jpg">
-                    <label>aurjohnmonte2003</label>
-                </div>
-                <div class="item-rate">
-                    <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-                    <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-                    <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-                    <label>(7.5)</label>
-                </div>
-                <div class="comment-text">
-                    <label>Okay ra ang product. Ginahan kos iyaha design actually ...</label>
-                </div>
-                <div class="comment-pic">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
-                </div>
-            </div>
-            <div class="user-rate">
-                <div class="profile-info">
-                    <img src="../../../images/man.jpg">
-                    <label>aurjohnmonte2003</label>
-                </div>
-                <div class="item-rate">
-                    <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-                    <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-                    <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-                    <label>(7.5)</label>
-                </div>
-                <div class="comment-text">
-                    <label>Okay ra ang product. Ginahan kos iyaha design actually ...</label>
-                </div>
-                <div class="comment-pic">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
-                    <img src="../../../images/images.jpg">
+            <div style="height: auto; max-height: 300px; overflow-y: auto;">
+                <div class="user-rate" v-for="review in reviews" :key="review">
+                    <div class="profile-info">
+                        <img :src="'/'+review.user.profile">
+                        <label>{{ review.user.firstname }} {{ review.user.m_initial }} {{ review.user.lastname }}</label>
+                    </div>
+                    <div class="item-rate">
+                        <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',review.rate)" :key="turn">
+                        <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',review.rate)" :key="turn">
+                        <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',review.rate)" :key="turn">
+                        <label>{{ review.rate }}</label>
+                    </div>
+                    <div class="comment-text">
+                        <label>{{ review.comment }}</label>
+                    </div>
+                    <div class="comment-pic">
+                        <img :src="'/'+photo.path" v-for="photo in review.reviewphotos" :key="photo" style="border: 1px solid gray;" @click="show_pic=true; pic=photo.path">
+                    </div>
                 </div>
             </div>
 
             <div class="user-comment" v-if="show_rate">
-                <form>
+                <form @submit.prevent="goSentReview">
                     <label class="user-comment-text">User Rate</label>
                     <div class="user-rate-star">
-                        <select>
-                            <option>Rate</option>
-                            <option>1 star</option>
-                            <option>1.5 star</option>
-                            <option>2 stars</option>
-                            <option>2.5 stars</option>
-                            <option>3 stars</option>
-                            <option>3.5 stars</option>
-                            <option>4 stars</option>
-                            <option>4.5 stars</option>
-                            <option>5 stars</option>
+                        <select v-model="review_info.rate" required>
+                            <option disable value=0>Rate</option>
+                            <option value=1>1 star</option>
+                            <option value=2>2 stars</option>
+                            <option value=3>3 stars</option>
+                            <option value=4>4 stars</option>
+                            <option value=5>5 stars</option>
                         </select>
                         <label>(Choose your rating for this product)</label>
                     </div>
-                    <textarea placeholder="Leave a comment" required></textarea>
-                    <div>
+                    <textarea placeholder="Leave a comment" required v-model="review_info.comment"></textarea>
+                    <div style="display: flex; flex-direction: row; gap: 10px; align-items: center;">
                         <label for="img"><img src="../../../images/image-gallery.png"></label>
+                        <template v-if="review_photo_send.length > 0 && review_photo_send">
+                            <div v-for="(photo, indx) in review_photo_send" :key="indx" style="position: relative;">
+                                <label style="position: absolute; right: 0; top: -9px; font-size: 14px; color: red;" @click="removePhoto(indx)">x</label>
+                                <img style="width: 30px; height: 30px; border: 1px solid gray;" :src="photo.preview">
+                            </div>
+                        </template>
                     </div>
-                    <input type="file" id="img" hidden>
+                    <input type="file" id="img" hidden @change="addPhoto">
                     <button class="submit-btn">Submit</button>
                 </form>
             </div>
@@ -120,18 +105,18 @@
         </div>
     </div>
     <div class="border-gray"></div>
-    <div class="product-description">
-        <h5>Product Specification</h5>
-        <h6>Description</h6>
+        <div class="product-description">
+            <h5>Product Specification</h5>
+            <h6>Description</h6>
 
-        <div class="description-text">
-            Here’s a polished overview of the Acer Nitro V gaming laptop series, focusing on the Nitro V 15 and 16 models. These models offer compelling value for gamers and creators alike:
-
-🧠 Overview & Positioning
-The Acer Nitro V series is built for budget-conscious gamers and content creators seeking solid performance with modern specs—including Intel or AMD processors and RTX‑class GPUs. These models start at around $999 (USD) or ₱50K (PHP) and balance portability, refresh rate, and cooling for casual gaming and productivity.
+            <div class="description-text">
+                {{ product.description }}<br><br>
+                Materials: {{ product.materials }} <br><br>
+                Dimensions: {{ product.dimensions }}<br><br>
+                Weight: {{ product.weight }}
+            </div>
         </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -143,7 +128,16 @@ export default {
     },
     data(){
         return{
+            show_pic: false,
+            pic: null,
             show_morePhotos: false,
+            review_photo_send: [],
+            review_info: {
+                rate: 0,
+                comment: "",
+            },
+            photos: [],
+            reviews: [],
             product: null,
             show_rate: false,
             rate: {
@@ -154,6 +148,104 @@ export default {
         }
     },
     methods: {
+        goLocation(lat, long){
+            console.log(lat + " " + long);
+            const store = useDataStore();
+            store.setSelectedCoordinate(lat, long);
+            this.$router.push({name: 'BuyerMap'});
+        },
+        goMessage(user_id, product = null){
+            console.log("go message");
+            
+            if(product !== null){
+            this.$router.push({name: "BuyerConversation",
+                            params: {"id": user_id},
+                            query: {
+                                name: product.name,
+                                photo: product.photos[0].filename,
+                                product_id: product.id
+                            }});
+            }else{
+            this.$router.push({name: "BuyerConversation", params: {"id": user_id}});
+            }
+      },
+        removePhoto(index){
+            console.log(index);
+            this.review_photo_send.splice(index, 1);
+        },
+        isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+
+    returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+        addPhoto(e){
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+
+                this.review_photo_send.push({
+                    file,
+                    preview: e.target.result
+                });
+            }
+            
+            reader.readAsDataURL(file);
+
+            e.target.value = null;
+        },
+        reset(){
+            this.review_photo_send = [];
+            this.review_info = {
+                rate: 0,
+                comment: "",
+            };
+        },
+        async goSentReview(){
+            if(this.review_info.rate === 0){
+                window.alert("Please select your rating");
+                return;
+            }
+            const store = useDataStore();
+            const data = new FormData();
+            data.append('review_info', JSON.stringify(this.review_info));
+
+            this.review_photo_send.forEach(photo => {
+
+                data.append('photos[]', photo.file);
+            });
+            data.append('type', 'product');
+            data.append('to_id', this.product.id);
+            data.append('from_id', store.currentUser_info.id);
+
+            const res = await axios.post('/buyer/add/review', data);
+            console.log(res.data.message);
+            this.product.overall_rate = res.data.message;
+            this.reset();
+            await this.returnReviews();
+            this.show_rate = false;
+        },
         hideMorePicture(){
             this.show_morePhotos = false;
         },
@@ -165,19 +257,63 @@ export default {
                 return "Hide";
             }
             return "Leave a comment";
+        },
+        async returnReviews(){
+            const data = new FormData();
+            data.append('product_id', this.product.id);
+            data.append('type', 'product');
+
+            const res = await axios.post('/buyer/return/review', data);
+            console.log(res.data.message);
+            this.reviews = res.data.message;
         }
     },
     created(){
+
+        this.$watch(
+            () => this.$route.params.id,
+            async (newID) => {
+                console.log('haaaaa');
+                const res = await axios.get('/buyer/return-product/info', {
+                    params: {
+                        id: newID
+                    }
+                });
+
+                const store = useDataStore();
+                store.setSelectedProduct(res.data.product);
+                this.product = store.selectedProduct;
+                this.product_id = newID;
+                await this.returnReviews();
+            }
+        )
+
         const store = useDataStore();
         this.product = store.selectedProduct;
+        console.log('product: ', this.product);
     },
-    mounted(){
+    async mounted(){
+        this.$emit("changepathtext", "home");
         window.scrollTo(0, 0);
+        await this.returnReviews();
     }
 }
 </script>
 
 <style scoped>
+.show-pic-overlay{
+    position: fixed;
+    background-color: rgba(0, 0, 0, 0.725);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    z-index: 32;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
 .product-description{
     padding-right: 20px;
 }

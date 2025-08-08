@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Log;
 
 use function PHPUnit\Framework\isEmpty;
 
@@ -54,8 +55,27 @@ class User extends Authenticatable
 
             if($search_info->name === "Shop"){
                 $result = self::join('shops','shops.user_id','=','users.id')
-                              ->where('shops.name','like',"%$search_text%")
-                              ->get()->toArray();
+                              ->where('shops.name','like',"%$search_text%");
+
+                if($search_info->filter === "Popular"){
+                    $result = $result->orderBy("shops.overall_rate", 'desc')->limit(10)->get()->toArray();
+                }
+                else{
+                    $result = $result->orderBy("shops.created_at", 'desc')->limit(10)->get()->toArray();
+                }      
+                
+                if($search_info->category !== "Any" && $search_info->category !== ""){
+                    $dummy = [];
+                    foreach($result as $shop){
+                        $category = json_decode($shop['category']);
+                        Log::info('category', ['category'=>$category]);
+                        if(in_array($search_info->category, $category)){
+                            array_unshift($dummy, $shop);
+                        }
+                    }
+                    Log::info('dummy',['dummy'=>$dummy]);
+                    $result = $dummy;
+                }
             }
 
             return $result;
@@ -67,7 +87,7 @@ class User extends Authenticatable
 
     public static function returnShopinfo($id){
         try{
-            $shop = Shop::where('user_id','=',$id)->first();
+            $shop = self::with('shop')->where('id','=',$id)->first();
             
             if(empty($shop)){
                 return [];
@@ -93,5 +113,13 @@ class User extends Authenticatable
         catch(\Exception $err){
             return $err;
         }
+    }
+
+    public function followers(){
+        return $this->hasmany(Follower::class, 'user_id');
+    }
+
+    public function shop(){
+        return $this->hasOne(Shop::class, 'user_id');
     }
 }

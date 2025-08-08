@@ -1,38 +1,46 @@
 <template>
   <div class="reviews-container">
+    <teleport to="body">
+      <ShopRate @cancel="hide = true;" v-if="!hide" @addReview="addReview"/>
+    </teleport>
     <div class="reviews-header">
-      <div class="reviews-count">{{ reviews.length }}+ Reviews</div>
-      <select v-model="selectedRating" class="filter-select">
-        <option value="">All Ratings</option>
-        <option value="5">5 star</option>
-        <option value="4">4 star</option>
-        <option value="3">3 star</option>
-        <option value="2">2 star</option>
-        <option value="1">1 star</option>
-      </select>
+      <div class="reviews-count">{{ reviews.length }} Reviews</div>
+      <div style="display: flex; flex-direction: row; gap: 10px;">
+        <button style="font-size: 12px; background-color: #D25E27; color: white; border: gray; border-radius: 5px;" @click="hide = false;">Rate this shop</button>
+        <select v-model="selectedRating" class="filter-select">
+          <option value="">All Ratings</option>
+          <option value="5">5 star</option>
+          <option value="4">4 star</option>
+          <option value="3">3 star</option>
+          <option value="2">2 star</option>
+          <option value="1">1 star</option>
+        </select>
+      </div>
     </div>
 
     <div class="review-list">
       <div
         class="review-card"
-        v-for="(review, index) in filteredReviews"
+        v-for="(review, index) in reviews"
         :key="index"
       >
         <div class="review-header">
-          <div class="user-avatar"></div>
+          <div class="user-avatar">
+            <img :src="'/'+review.user.profile">
+          </div>
           <div class="user-info">
-            <div class="username">{{ review.username }}</div>
-            <div class="date">{{ review.date }}</div>
+            <div class="username">{{ review.user.name }}</div>
+            <div class="date">{{ formatDate(review.created_at) }} - {{ formatTime(review.created_at) }}</div>
           </div>
         </div>
         <div class="item-rate">
-          <img src="../../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-          <img src="../../../../images/half-star.png" class="star-rate" v-if="rate.half">
-          <img src="../../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-          <label>(7.5)</label>
+          <img src="../../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',review.rate)" :key="turn">
+          <img src="../../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',review.rate)" :key="turn">
+          <img src="../../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',review.rate)" :key="turn">
+          <label>( {{ review.rate }} )</label>
         </div><br>
         <div class="review-text">
-          {{ review.text }}
+          {{ review.comment }}
         </div>
       </div>
     </div>
@@ -40,46 +48,94 @@
 </template>
 
 <script>
+import ShopRate from './ShopRate.vue';
+import { useDataStore } from '../../../stores/dataStore';
 export default {
+  components: {
+    ShopRate
+  },
   data() {
     return {
+      shop: null,
+      reviews: [],
+      store: useDataStore(),
+      hide: true,
       selectedRating: '',
       rate: {
         start: 3,
         half: true,
         no_star: 1,
       },
-      reviews: [
-        {
-          username: "John Doe",
-          date: "3 months ago",
-          text: "Great shop! Fast delivery and excellent products.",
-          rating: 5,
-        },
-        {
-          username: "Jane Smith",
-          date: "2 weeks ago",
-          text: "Item arrived broken. Seller was unresponsive.",
-          rating: 1,
-        },
-        {
-          username: "Carlos Reyes",
-          date: "1 month ago",
-          text: "Affordable prices and friendly seller.",
-          rating: 4,
-        },
-        // Add more reviews as needed
-      ],
+      reviews: [],
     };
   },
-  computed: {
+  watch: {
+    selectedRating(newval){
+      console.log(newval);
+      if(newval !== ""){
+        let rate = parseInt(newval);
+
+        let partial = [];
+
+        this.store.selected_shop.reviews.forEach(review => {
+
+          if(review.rate === rate){
+            partial.unshift(review);
+          }
+        });
+        this.reviews = partial;
+        return;
+      }
+      this.reviews = this.store.selected_shop.reviews;
+      return;
+    }
+  },
+  methods: {
+    isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+
+    returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+    addReview(review){
+      this.store.selected_shop.reviews.unshift(review);
+      this.reviews = this.store.selected_shop.reviews;
+    },
+    formatDate(date){
+      return new Date(date).toLocaleDateString();
+    },
+    formatTime(date){
+      return new Date(date).toLocaleTimeString();
+    },
     filteredReviews() {
-      if (!this.selectedRating) return this.reviews;
-      return this.reviews.filter(
-        (review) => review.rating === parseInt(this.selectedRating)
-      );
+        this.reviews = this.store.selected_shop.reviews;
     },
   },
+  mounted(){
+    this.filteredReviews();
+    console.log(this.store.currentUser_info);
+  }
 };
 </script>
 
@@ -154,6 +210,13 @@ export default {
   background-color: #d8d8d8;
   border-radius: 50%;
   margin-right: 10px;
+  overflow: hidden;
+}
+
+.user-avatar img{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .user-info {

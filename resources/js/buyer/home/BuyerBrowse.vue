@@ -5,192 +5,62 @@
         <label style="font-weight: bolder;">BROWSE</label>
     </div>
     <label style="font-weight: bolder; padding-left: 20px; padding-bottom: 10px;">{{ $route.params.name}}s</label>
-    <div class="filter-search-browse">
-        <select>
-            <option>Category</option>
+    <form @submit.prevent="returnSearchProducts">
+      <div class="filter-search-browse">
+        <select v-model="search_info.category">
+            <option value="" disabled>Category</option>
+            <option value="Any">Any</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Kitchenware">Kitchenware</option>
+            <option value="Musical Instrument">Musical Instrument</option>
+            <option value="Decorative Items">Decorative Items</option>
+            <option value="Games">Games</option>
+            <option value="Outdoor Decor">Outdoor Decor</option>
+            <option value="Home Decor">Home Decor</option>
         </select>
-        <select>
-            <option>Popular</option>
+        <select v-model="search_info.filter">
+            <option value="" disabled>Filter</option>
+            <option value="Popular">Popular</option>
+            <option value="New">New</option>
         </select>
-        <input placeholder="Search product name ...">
+        <input placeholder="Search product name ..." v-model="search_text">
         <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; margin-left: 5px;">
-    </div>
+      </div>
+    </form>
     <div class="buyer-browse-header">
         <label class="popular-text">{{ $route.params.filter }}</label>
         <label class="category-text">{{ $route.params.category }}</label>
     </div>
-    <div class="buyer-browse-content">
-        <div class="item-content">
+    <div v-if="loading" class="loading-content">
+        <img src="../../../images/kOnzy.gif"/>
+    </div>
+    <div class="buyer-browse-content" v-else>
+        <div class="item-content" v-for="product in products" :key="product">
           <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
+              <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+              <img src="../../../images/send.png" @click.stop="goMessage(product.shop.user_id, product)">
           </div>
           <div class="item-pic">
-            <img src="../../../images/images.jpg">
+            <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
           </div>
-          <div class="item-info" @click="goProduct">
+          <div class="item-info" @click="goProduct(product)">
             <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
+              <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+              <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+              <label>{{ product.overall_rate }}</label>
             </div>
             <div class="item-comment">
               <label>99+ Comments</label>
             </div>
             <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
+              <label>{{ product.name }}</label>
             </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
+            <div class="item-name" @click.stop="goShop(product.shop.id)">
+              <label>{{ product.shop.name }}</label>
             </div>
             <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
+              <label>PHP {{ product.price }}</label>
             </div>
           </div>
         </div>
@@ -203,7 +73,8 @@ import { useDataStore } from '../../stores/dataStore';
 export default {
     data(){
         return{
-            product: {
+            loading: true,
+            products: {
               name: "Wood Bed",
               description: "Just a bed that made of wood",
               rate: {
@@ -211,6 +82,12 @@ export default {
                 half: true,
                 no_star: 1
               }
+            },
+            search_text: "",
+            search_info: {
+                name: "Product",
+                category: "Any",
+                filter: "Popular"
             },
             rate: {
                     start: 3,
@@ -220,26 +97,114 @@ export default {
         }
     },
     methods: {
-      goProduct(){
+    goShop(id){
+      this.$router.push({name: "ShopAbout", params: {id: id}});
+    },
+    goLocation(lat, long){
+      console.log(lat + " " + long);
+      const store = useDataStore();
+      store.setSelectedCoordinate(lat, long);
+      this.$router.push({name: 'BuyerMap'});
+    },
+    goMessage(user_id, product = null){
+        console.log("go message");
+        
+        if(product !== null){
+          this.$router.push({name: "BuyerConversation",
+                          params: {"id": user_id},
+                          query: {
+                            name: product.name,
+                            photo: product.photos[0].filename,
+                            product_id: product.id
+                          }});
+        }else{
+          this.$router.push({name: "BuyerConversation", params: {"id": user_id}});
+        }
+      },
+      isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+      returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          console.log('num: ', num);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+      initialize_params(){
+            this.search_info.name = this.$route.params.name;
+            this.search_info.category = this.$route.params.category;
+            this.search_info.filter = this.$route.params.filter;
+
+            this.search_text = this.$route.query.search_text;
+        },
+      goProduct(product){
         const store = useDataStore();
-        store.setSelectedProduct(this.product);
+        store.setSelectedProduct(product);
 
         console.log("hello");
         this.$router.push({name: "BuyerProduct", 
                            params: {id: 1},
                            query: {}});
       },
+      async returnSearchProducts(){
+            this.loading = true;
+            const data = new FormData();
+            console.log('search_info: ', this.search_info);
+            console.log('text: ', this.search_text);
+            data.append("shop_info", JSON.stringify(this.search_info));
+            data.append("search_text", this.search_text);
+            const res = await axios.post("/buyer/search-product", data);
+
+            console.log(res.data.products);
+
+            this.products = res.data.products;
+
+            this.loading = false;
+      },
         goPrevious(){ 
             this.$router.go(-1);
         }
     },
     mounted(){
+      this.$emit("changepathtext", "home");
       window.scrollTo(0, 0);
+      this.initialize_params();
+      this.returnSearchProducts();
     }
 }
 </script>
 
 <style scoped>
+.loading-content img{
+    width: 100px;
+    height: 100px;
+}
+.loading-content{
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .back-header{
   display: flex;
   flex-direction: row;
@@ -300,6 +265,7 @@ export default {
   font-size: 14px;
   color: rgb(92, 92, 92);
   font-weight: bolder;
+  text-decoration: underline;
 }
 .item-comment{
   color: gray;
@@ -330,6 +296,7 @@ export default {
 .filter-search-browse select{
     padding: 5px;
     font-size: 10px;
+    width: 70px;
     border: 1px solid #D25E27;
 }
 .filter-search-browse input{
@@ -337,7 +304,7 @@ export default {
     font-size: 12px;
     padding-left: 10px;
     border: 1px solid #D25E27;
-    width: 130px;
+    width: 100%;
 }
 .filter-search-browse{
     display: flex;

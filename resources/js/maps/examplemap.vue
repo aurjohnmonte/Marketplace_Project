@@ -136,14 +136,24 @@ export default {
         L.DomUtil.setPosition(this._container, pos.add(anchor));
         };
 
-        this.map_object = L.map('map').setView([9.0753, 125.5126], 13) // sample: Butuan coordinates
+        // this.map_object = L.map('map').setView([9.0753, 125.5126], 13) // sample: Butuan coordinates
+
+        this.map_object = L.map('map', {
+            center: [9.0753, 125.5126],
+            zoom: 13,
+            maxZoom: 19,
+            minZoom: 3,
+        })
 
         //https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png'
         //tiles sa sattelite ver.
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(this.map_object)
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+            attribution: 'Tiles &copy; Esri — Sources: Esri, Garmin, USGS, etc.',
+            maxZoom: 19,
+            minZoom: 3,
+        }).addTo(this.map_object);
+
         
         this.viewShopLocation();
 
@@ -154,6 +164,15 @@ export default {
         if (latitude !== null && longitude !== null) {
             this.mapuserLoc(latitude, longitude);
         }
+
+        //THIS LOCATE THE SHOP
+        let lat = store.selectedCoordinate.latitude;
+        let long = store.selectedCoordinate.longitude;
+        if (lat !== null && long !== null) {
+            this.map_object.setView([lat, long], 15)
+        }
+
+        
 
         // Watch for future changes
         watch(
@@ -176,16 +195,19 @@ export default {
             latitude: null,
             longitude: null,
         };
+        store.resetSelectedCoordinate();
     }
 }
 </script>
 
 <style>
-#map{
+#map {
     height: 100vh;
     z-index: 1;
     position: relative;
     top: 60px;
     left: 0;
+    background-color: #f0f0f0; /* Prevent brown background */
 }
+
 </style>

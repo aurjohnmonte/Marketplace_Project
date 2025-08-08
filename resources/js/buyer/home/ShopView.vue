@@ -1,66 +1,180 @@
 <template>
   <div class="seller-profile">
-    <div class="seller-profile-header">
-        <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-          <img src="../../../images/left-arrows.png" @click="goPrevious" class="left-arrow">
-          <label style="font-weight: bolder; font-size: 18px;">SHOPS</label>
-        </div>
-        <!-- <img src="../../../images/more (2).png" style=" cursor: pointer; width: 20px; height: 20px; border: 1px solid gray; padding-left: 10px; padding-right: 10px; border-radius: 10px;"> -->
-    </div>
-    <div class="seller-info">
-        <img src="../../../images/images.jpg">
-        <div class="cover-section">
-            <div class="settings-icon"></div>
-                <div class="profile-info">
-                    <div class="option-icon">
-                        <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                          <img src="../../../images/location.png" class="option-img">
-                          <img src="../../../images/send.png" class="option-img">
-                        </div>
-                        <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                          <img src="../../../images/star (2).png" class="option-rate">
-                          <img src="../../../images/user (4).png" class="option-img">
-                        </div>
-                    </div>
-                    <div class="profile-circle">
-                        <img src="../../../images/images (1).jpg">
-                    </div>
-                    <h2>SHOP NAME</h2>
-                    <div class="stats">
-                    <span>4.5 (overall rate)</span>
-                    <span>100+ followers</span>
-                </div>
-            </div>
-        </div>
-    </div>
+    <template v-if="is_loading">
+      <div class="overlay">
+        <img src="../../../images/kOnzy.gif">
+      </div>
+    </template>
+    <template v-else>
+      <div class="seller-profile-header">
+          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <img src="../../../images/left-arrows.png" @click="goPrevious" class="left-arrow">
+            <label style="font-weight: bolder; font-size: 18px;">SHOPS</label>
+          </div>
+          <!-- <img src="../../../images/more (2).png" style=" cursor: pointer; width: 20px; height: 20px; border: 1px solid gray; padding-left: 10px; padding-right: 10px; border-radius: 10px;"> -->
+      </div>
+      <div class="seller-info">
+          <img src="../../../images/images.jpg">
+          <div class="cover-section">
+              <div class="settings-icon"></div>
+                  <div class="profile-info">
+                      <div class="option-icon">
+                          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                            <img src="../../../images/location.png" class="option-img" @click="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
+                            <img src="../../../images/send.png" class="option-img" @click="goMessage(shop.user_id, product)">
+                          </div>
+                          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                            <img src="../../../images/star (2).png" class="option-rate" @click="$router.push({name: 'ShopReview', params: {id: shop.id}})">
+                            <img :src="returnPath" class="option-img" @click="followShop(shop.user_id)">
+                          </div>
+                      </div>
+                      <div class="profile-circle">
+                          <img :src="'/'+shop.profile_photo">
+                      </div>
+                      <h2>{{ shop.name }}</h2>
+                      <div class="stats">
+                      <span @click="$router.push({name: 'ShopReview', params: {id: shop.id}})">{{ shop.overall_rate }} (overall rate)</span>
+                      <span>{{ shop.user.followers.length }} followers</span>
+                  </div>
+              </div>
+          </div>
+      </div>
 
-    <div class="tabs">
-      <router-link :to="{name: 'ShopAbout', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">ABOUT</router-link>
-      <router-link :to="{name: 'ShopProducts', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">PRODUCTS</router-link>
-      <router-link :to="{name: 'ShopReview', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">REVIEW</router-link>
-    </div>
+      <div class="tabs">
+        <router-link :to="{name: 'ShopAbout', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">ABOUT</router-link>
+        <router-link :to="{name: 'ShopProducts', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">PRODUCTS</router-link>
+        <router-link :to="{name: 'ShopReview', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">REVIEW</router-link>
+      </div>
 
-    <div class="content">
-      <router-view />
-    </div>
+      <div class="content">
+        <router-view />
+      </div>
+    </template>
   </div>
 </template>
 <script>
+import axios from 'axios';
+import { useDataStore } from '../../stores/dataStore';
 
 export default{
+    data(){
+      return{
+        is_loading: true,
+        is_friend: false,
+        shop: null,
+      }
+    },
+    computed: {
+      returnPath(){
+        let followers = this.shop.user.followers;
+        if(followers.length > 0){
+          const store = useDataStore();
+          console.log('followers: ', followers);
+          console.log('current user: ', store.currentUser_info);
+          for(let follower of followers){
+            console.log('f: ', follower);
+            if(follower.follower_id === store.currentUser_info.id){
+              this.is_friend = true;
+              return "/images/user2.png";
+            }
+          }
+        }
+        this.is_friend = false;
+        return "/images/user3.png";
+      }
+    },
     methods: {
+      async followShop(id){
+
+        if(this.is_friend){
+          return;
+        }
+
+        const store = useDataStore();
+        console.log('id: ', id);
+        const data = new FormData();
+        data.append('user_id', id);
+        data.append('id', store.currentUser_info.id);
+
+        const res = await axios.post('/buyer/follow-shop', data);
+        window.alert(res.data.message);
+      },
+
+      goLocation(lat, long){
+      console.log(lat + " " + long);
+      const store = useDataStore();
+      store.setSelectedCoordinate(lat, long);
+      this.$router.push({name: 'BuyerMap'});
+    },
+    goMessage(user_id, product = null){
+        console.log("go message");
+        
+        if(product !== null){
+          this.$router.push({name: "BuyerConversation",
+                          params: {"id": user_id},
+                          query: {
+                            name: product.name,
+                            photo: product.photos[0].filename,
+                            product_id: product.id
+                          }});
+        }else{
+          this.$router.push({name: "BuyerConversation", params: {"id": user_id}});
+        }
+      },
         goPrevious(){
             this.$router.go(-1);
+        },
+        async returnShopInfo(id){
+          try{
+            this.is_loading = true;
+            const data = new FormData();
+            data.append('id', id);
+
+            const res = await axios.post('/return/shop-info', data);
+            console.log('shop: ',res.data.shop);
+            
+            if(res.data.shop.length <= 0){
+              window.alert("No shop have found");
+            }
+            else{
+              const store = useDataStore();
+              this.shop = res.data.shop[0];
+              store.setSelectedShop(this.shop);
+            }
+            
+            this.is_loading = false;
+          }
+          catch(error){
+            window.alert('something went wrong please reload the page');
+          }
         }
     },
-    mounted(){
+    async mounted(){
         window.scrollTo(0,0);
+        this.$emit("changepathtext", "home");
         this.$router.push({name: 'ShopAbout', params: {shopname: this.$route.params.shopname}})
+        let id = this.$route.params.id;
+        await this.returnShopInfo(id);
     }
 }
 </script>
 
 <style scoped>
+.overlay{
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.48);
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.overlay img{
+  width: 50px;
+  height: 50px;
+}
 .follow-action{
   font-size: 12px;
   color: rgb(255, 255, 255);
@@ -150,7 +264,7 @@ export default{
 .profile-circle {
   width: 120px;
   height: 120px;
-  background-color: #c62828;
+  background-color: white;
   border: 1px solid white;
   border-radius: 50%;
   display: flex;
@@ -184,9 +298,9 @@ export default{
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-    padding: 5px;
+  padding: 5px;
   font-weight: bolder;
-  font-size: 10px;
+  font-size: 14px;
   text-decoration: underline;
 }
 

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="search-filter">
+    <!-- <div class="search-filter">
         <div style="display: flex; flex-direction: row; gap: 2px;">
           <input placeholder="Search ...">
           <select>
@@ -13,7 +13,7 @@
           </div>
           <div style="border-bottom: 3px solid gray; width: 97%;"></div>
         </div>
-    </div>
+    </div> -->
     <examplemap @click="goHideResult" :shops="shops" v-if="show"/>
   </div>
 </template>

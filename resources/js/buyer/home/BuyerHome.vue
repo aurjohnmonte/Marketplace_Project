@@ -6,7 +6,7 @@
     <div class="filter-search-container">
       <form @submit.prevent="goSubmitSearch">
         <div class="header-filter-search">
-          <label class="filter-header-label">FILTER SEARCH</label>
+          <label class="filter-header-label">What are you looking for?</label>
           <label class="more-filter" @click="hide_more_filter = !hide_more_filter">More Filter</label>
         </div><br>
         <div class="filter-search">
@@ -16,15 +16,20 @@
             <option value="Seller">Seller name</option>
           </select>
           <input placeholder="Search ..." v-model="search_text">
-          <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" >
+          <!-- <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" > -->
         </div><br>
             
         <div class="more-filter-option" v-if="hide_more_filter">
           <select v-model="search_info.category">
             <option value="" disabled>Category</option>
-            <option value="Any">Any</option>
-            <option value="game">Game</option>
-            <option value="furniture">Furniture</option>
+            <option value="Any" disabled>Any</option>
+            <option value="Furniture">Furniture</option>
+            <option value="Kitchenware">Kitchenware</option>
+            <option value="Musical Instrument">Musical Instrument</option>
+            <option value="Decorative Items">Decorative Items</option>
+            <option value="Games">Games</option>
+            <option value="Outdoor Decor">Outdoor Decor</option>
+            <option value="Home Decor">Home Decor</option>
           </select>
           <select v-model="search_info.filter">
             <option value="" disabled>Filter</option>
@@ -40,7 +45,7 @@
         <label style="color: rgb(92, 92, 92); font-size: 15px; font-weight: bolder;">Nearby Shop/s</label>
       </div>
       <template v-if="store.nearbyShops">
-        <div class="list-of-nearbyshops" v-for="shop in store.nearbyShops" :key="shop">
+        <div class="list-of-nearbyshops" v-for="shop in store.nearbyShops" :key="shop" @click="goShop(shop.id)">
           <div class="nearbyshops-leftside">
             <img :src="'/'+shop.profile_photo">
             <div style="display: flex; flex-direction: column;">
@@ -49,8 +54,8 @@
             </div>
           </div>
           <div class="nearbyshops-leftside">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
+            <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
+            <img src="../../../images/send.png" @click.stop="goMessage(shop.user_id)">
           </div>
         </div>
       </template>
@@ -71,51 +76,42 @@
       </div>
 
       <div class="content">
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
+        <template v-if="!loading_popular">
+          <div class="item-content" v-for="(product, index) in popular" :key="index">
+            <div class="option-icon">
+              <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+              <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
             </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
+            <div class="item-pic">
+              <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
             </div>
-            <div class="item-shopname" @click="goShop">
-              <label>Soysoy's Furniture cheap</label>
+            <div class="item-info">
+              <div class="item-rate">
+                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                <label>{{ product.overall_rate }}</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ product.reviews.length }} Reviews</label>
+              </div>
+              <div class="item-shopname" @click="goShop(product.shop.id)">
+                <label>{{ product.shop.name }}</label>
+              </div>
+              <div class="item-name">
+                <label style="text-decoration: underline;" @click="goProduct(product)">{{ product.name }}</label>
+              </div>
+              <div class="item-price">
+                <label>PHP {{ product.price }}</label>
+              </div>
             </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
-            </div>
           </div>
-        </div>
-        <div class="item-content">
-          <div class="item-pic">
-
+        </template>
+        <template v-else>
+          <div class="overlay">
+            <img src="../../../images/kOnzy.gif">
           </div>
-          <div class="item-info">
-
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="item-pic">
-
-          </div>
-          <div class="item-info">
-
-          </div>
-        </div>
+        </template>
       </div>
     </div>
 
@@ -123,58 +119,50 @@
       <div class="popular-content-header">
         <div class="header1">
           <label class="popular">New</label>
-          <label class="popular-desc">You’ve never seen this before!</label>
+          <label class="popular-desc">New product have been added. Check it out!</label>
         </div>
         <div class="header2" @click="goSearch(search_info={name:'Product',category:'Any',filter:'New'})">
           <label class="view-all">VIEW ALL</label>
         </div>
       </div>
+      <div class="range">
+        <label>This 30 Days</label>
+      </div>
 
       <div class="content">
-        <div class="item-content">
-          <div class="option-icon">
-            <img src="../../../images/location.png">
-            <img src="../../../images/send.png">
-          </div>
-          <div class="item-pic">
-            <img src="../../../images/images.jpg">
-          </div>
-          <div class="item-info">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-if="rate.half">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-              <label>(7.5)</label>
+        <div class="content" v-if="!loading_new">
+          <div class="item-content" v-for="(product, index) in new_product" :key="index">
+            <div class="option-icon">
+              <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+              <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
             </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
+            <div class="item-pic">
+              <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
             </div>
-            <div class="item-shopname">
-              <label>Soysoy's Furniture cheap</label>
-            </div>
-            <div class="item-name">
-              <label>Wooden Chair</label>
-            </div>
-            <div class="item-price">
-              <label>PHP 700.00</label>
+            <div class="item-info">
+              <div class="item-rate">
+                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                <label>{{ product.overall_rate }}</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ product.reviews.length }} Reviews</label>
+              </div>
+              <div class="item-shopname" @click="goShop(product.shop.id)">
+                <label>{{ product.shop.name }}</label>
+              </div>
+              <div class="item-name">
+                <label style="text-decoration: underline;" @click="goProduct(product)">{{ product.name }}</label>
+              </div>
+              <div class="item-price">
+                <label>PHP {{ product.price }}</label>
+              </div>
             </div>
           </div>
         </div>
-        <div class="item-content">
-          <div class="item-pic">
-
-          </div>
-          <div class="item-info">
-
-          </div>
-        </div>
-        <div class="item-content">
-          <div class="item-pic">
-
-          </div>
-          <div class="item-info">
-
-          </div>
+        <div class="overlay" v-else>
+          <img src="../../../images/kOnzy.gif">
         </div>
       </div>
     </div><br><br><br>
@@ -189,71 +177,25 @@
           <div class="shop-header">
             <label>Popular</label>
           </div>
-          <div class="shop-group">
+          <div class="shop-group" v-for="(shop, indx) in shop_popular" :key="indx" @click="goShop(shop.id)">
             <div class="shop">
               <div class="shop-info">
-                <label>1. </label>
+                <label>{{ ++indx }}. </label>
                 <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
                   <div class="shop-image">
-                    <img src="../../../images/images.jpg">
+                    <img :src="'/'+shop.profile_photo">
                   </div>
                   <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
+                    <label style="font-size: 14px;">{{ shop.name }}</label>
+                    <label style="font-weight: bolder;">{{shop.overall_rate}} ({{ shop.reviews.length }} reviews)</label>
+                    <label>{{ shop.address }}</label>
                   </div>
                 </div>
               </div>
 
               <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
-              </div>
-              
-            </div>
-          </div>
-          <div class="shop-group">
-            <div class="shop">
-              <div class="shop-info">
-                <label>2. </label>
-                <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                  <div class="shop-image">
-                    <img src="../../../images/images.jpg">
-                  </div>
-                  <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
-              </div>
-              
-            </div>
-          </div>
-          <div class="shop-group">
-            <div class="shop">
-              <div class="shop-info">
-                <label>3. </label>
-                <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                  <div class="shop-image">
-                    <img src="../../../images/images.jpg">
-                  </div>
-                  <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
+                <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
+                <img src="../../../images/send.png" @click.stop="goMessage(shop.user_id)">
               </div>
               
             </div>
@@ -264,73 +206,27 @@
       <div>
         <div class="shop-content">
                   <div class="shop-header">
-          <label>New</label>
+          <label>Latest</label>
         </div>
-          <div class="shop-group">
+          <div class="shop-group" v-for="(shop, indx) in shop_new" :key="indx" @click="goShop(shop.id)">
             <div class="shop">
               <div class="shop-info">
                 <label>1. </label>
                 <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
                   <div class="shop-image">
-                    <img src="../../../images/images.jpg">
+                    <img :src="'/'+shop.profile_photo">
                   </div>
                   <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
+                    <label style="font-size: 14px;">{{ shop.name }}</label>
+                    <label style="font-weight: bolder;">{{ shop.overall_rate }} ({{ shop.reviews.length }} reviews)</label>
+                    <label>{{ shop.address }}</label>
                   </div>
                 </div>
               </div>
 
               <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
-              </div>
-              
-            </div>
-          </div>
-          <div class="shop-group">
-            <div class="shop">
-              <div class="shop-info">
-                <label>2. </label>
-                <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                  <div class="shop-image">
-                    <img src="../../../images/images.jpg">
-                  </div>
-                  <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
-              </div>
-              
-            </div>
-          </div>
-          <div class="shop-group">
-            <div class="shop">
-              <div class="shop-info">
-                <label>3. </label>
-                <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                  <div class="shop-image">
-                    <img src="../../../images/images.jpg">
-                  </div>
-                  <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
-                    <label style="font-size: 14px;">Shopname 1</label>
-                    <label style="font-weight: bolder;">4.5 (30+ reviews)</label>
-                    <label>Butuan City Agusan del Norte</label>
-                  </div>
-                </div>
-              </div>
-
-              <div class="shop-button">
-                <img src="../../../images/location.png">
-                <img src="../../../images/send.png">
+                <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
+                <img src="../../../images/send.png" @click.stop="goMessage(shop.user_id)">
               </div>
               
             </div>
@@ -343,11 +239,18 @@
 
 <script>
 import { watch } from 'vue';
+import axios from 'axios';
 import { useDataStore } from '../../stores/dataStore'
 
 export default {
   data(){
     return{
+      shop_popular: [],
+      shop_new: [],
+      loading_popular: true,
+      loading_new: true,
+      popular: [],
+      new_product: [],
       store: useDataStore(),
       search_info: {
         name: "Product",
@@ -364,6 +267,82 @@ export default {
     }
   },
   methods: {
+    async goProduct(product){
+
+      this.store.setSelectedProduct(product);
+      this.$router.push({name: 'BuyerProduct', params: {id: product.id}});
+    },
+    goLocation(lat, long){
+      console.log(lat + " " + long);
+      const store = useDataStore();
+      store.setSelectedCoordinate(lat, long);
+      this.$router.push({name: 'BuyerMap'});
+    },
+    goMessage(user_id, product = null){
+        console.log("go message");
+        
+        if(product !== null){
+          this.$router.push({name: "BuyerConversation",
+                          params: {"id": user_id},
+                          query: {
+                            name: product.name,
+                            photo: product.photos[0].filename,
+                            product_id: product.id
+                          }});
+        }else{
+          this.$router.push({name: "BuyerConversation", params: {"id": user_id}});
+        }
+      },
+    isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+
+    returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+    
+    async returnShops(){
+
+      const res = await axios.get('/return/shops/popular-new');
+      this.shop_new = res.data.new;
+      this.shop_popular = res.data.popular;
+      console.log('shop new: ', this.shop_new);
+      console.log('shop popular: ', this.shop_popular);
+    },
+
+    async returnProducts(){
+      this.loading_new = true;
+      this.loading_popular = true;
+
+      const res = await axios.get('/buyer/return/products');
+      console.log(res.data.popular);
+      console.log(res.data.new);
+      this.popular = res.data.popular;
+      this.new_product = res.data.new;
+
+      this.loading_new = false;
+      this.loading_popular = false;
+    },
 
     goSubmitSearch(){
       console.log(this.search_info);
@@ -406,16 +385,25 @@ export default {
                           name: info.name,
                           category: info.category,
                           filter: info.filter
+                         },
+                         query: {
+                          search_text: "",
                          }
                         });
       }
     },
-    goShop(){
-      this.$router.push({name: "ShopAbout", params: {id: 0}});
+    goShop(id){
+      this.$router.push({name: "ShopAbout", params: {id: id}});
     }
   },
-  mounted(){
+  async mounted(){
+    let path = this.$route.path;
+    let new_path = path.slice(7);
+    this.$emit("changepathtext", new_path);
     window.scrollTo(0, 0);
+    //return products (popular and new)
+    await this.returnProducts();
+    await this.returnShops();
     console.log('nearby: ', this.store.nearbyShops);
     
     watch(
@@ -430,6 +418,27 @@ export default {
 </script>
 
 <style scoped>
+.range{
+  color: rgb(34, 34, 34);
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+.shop-group:hover{
+  background-color: rgba(0, 0, 0, 0.168);
+}
+.overlay img{
+  width: 100px;
+  height: 100px;
+}
+.overlay{
+  padding-top: 20px;
+  position: relative;
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 .nearbyshops-leftside{
   display: flex;
   flex-direction: row;
@@ -493,9 +502,10 @@ export default {
   gap: 5px;
 }
 .filter-search input{
-  width: 120px;
+  width: 100%;
   padding: 4px;
   border: 1px solid #D25E27;
+  border-radius: 5px;
 }
 .filter-search input::placeholder{
   font-size: 12px;
@@ -506,6 +516,7 @@ export default {
   padding: 5px;
   height: 25px;
   border: 1px solid #D25E27;
+  border-radius: 5px;
 }
 .shop-button{
   display: flex;

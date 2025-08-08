@@ -1,11 +1,11 @@
 <template>
   <div class="main-container">
-    <BuyerProfile v-if="show_profile" @goexit="goexit" @changepathtext="changepathtext" @stopLocation="stopLocation"/>
-    <BuyerNotification v-if="show_notify" @goexit="goexit" @changepathtext="changepathtext"/>
+    <ProfileModal v-if="show_profile" @goexit="goexit" @changepathtext="changepathtext" @stopLocation="stopLocation"/>
+    <BuyerNotification v-if="show_notify" @goexit="goexit" @changepathtext="changepathtext" @modifyseen="modifyseen" :notifications="notifications"/>
     <header :class="{hidden: ishidden}">
       <div class="header1" style="cursor: pointer;" @click="show_profile = true; show_notify = false;">
         <div class="profile-pic">
-          <img :src="'/'+user.profile">
+          <img :src="'/'+store.currentUser_info.profile">
         </div>
         <div class="profile-info" style="cursor: pointer;">
           <label style="cursor: pointer;">{{ user.name }}</label>
@@ -16,7 +16,8 @@
       <div class="header2">
         <img src="../images/logo.png" class="bell-icon">
         <img src="../images/maps-and-flags.png" class="locate-icon" @click="locateCurrent">
-        <img src="../images/bell.png" class="bell-icon" style="cursor: pointer" @click="show_notify = true; show_profile = false;">
+
+        <img :src="bell_type" class="bell-icon" style="cursor: pointer" @click="show_notify = true; show_profile = false;">
       </div>
     </header>
     <div class="content" v-if="show_content">
@@ -52,7 +53,7 @@
       <router-link to="/buyer/following" @click="clicked = 'following'">
         <div class="nav-group">
             <img src="../images/friends (1).png" class="navbar-icon" v-if="clicked === 'following'">
-            <img src="../images/friends.png" class="navbar-icon" v-else>
+            <img src="../images/friends grey.png" class="navbar-icon" v-else>
             <label :class="clicked === 'following' ? 'clicked' : 'notclicked'">Following</label>
         </div>
       </router-link>
@@ -69,7 +70,7 @@
 </template>
 
 <script>
-import BuyerProfile from './buyer/pages/BuyerProfile.vue';
+import ProfileModal from './buyer/profile/ProfileModal.vue';
 import BuyerNotification from './buyer/pages/BuyerNotification.vue';
 import { useDataStore } from './stores/dataStore';
 import L from "leaflet";
@@ -78,26 +79,31 @@ import { watch } from 'vue';
 
 export default {
     components: {
-      BuyerProfile,
+      ProfileModal,
       BuyerNotification
     },
     data(){
         return{
             store: useDataStore(),
+            bell_type: '/images/bell (1).png',
             show_content: false,
             show_profile: false,
             show_notify: false,
             clicked: 'home',
             lastScroll: 0,
             ishidden: false,
+            notifications: [],
             shops: null,
             user: [],
             watchID: null,
         }
     },
+
     async mounted(){
+      
         await this.returnUserInfo();
         await this.returnShops();
+        await this.returnNotifications();
 
         console.log(this.$route.path)
         let path = this.$route.path;
@@ -108,6 +114,11 @@ export default {
         Echo.channel(`message.${this.user.name}`)
             .listen('.message.sent', (event) => {
                 console.log('HAAAAAAAAAAA NEH AGI DIRIAAAAAAAAAAAAAAAAAAAA');
+        });
+
+        Echo.channel(`notify`)
+            .listen('.notify.sent', async(event) => {
+                await this.returnNotifications();
         });
 
         window.addEventListener('scroll', this.handleScroll);
@@ -124,6 +135,41 @@ export default {
         )
     },
     methods: {
+
+      checkNotify(){
+        for(let notify of this.notifications){
+          if(notify.seen === 0){
+            this.bell_type = "/images/notification.png";
+            return;
+          }
+        }
+
+        this.bell_type = "/images/bell (1).png";
+        return;
+      },
+
+      modifyseen(notif_id){
+        
+        for(let notif of this.notifications){
+          
+          if(notif.id === notif_id){
+            notif.seen = 1;
+          }
+        }
+      
+        this.checkNotify();
+      },
+      async returnNotifications(){
+
+        const res = await axios.get('/return/notifications', {
+          params: {
+            id: this.store.currentUser_info.id
+          }
+        });
+        this.notifications = res.data.message;
+        console.log(res.data.message);
+        this.checkNotify();
+      },
 
       async returnShops(){
         

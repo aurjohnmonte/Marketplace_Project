@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Notification;
 use App\Models\Photo;
 use App\Models\Product;
 use App\Models\Shop;
@@ -35,7 +36,7 @@ dimensions: '',
 weight: ''
 */
             $product->shop_id = $shop->id;
-            $product->description = $shop->description;
+            $product->description = $productData->description;
             $product->name = $productData->name;
             $product->category = $productData->category;
             $product->status = $productData->status;
@@ -49,23 +50,34 @@ weight: ''
             
 
             if($product->save()){
-                    Log::info('images', ['images'=>$request->images]);
-                    foreach ($request->file('images') as $image) {
-                        $photo = new Photo(); // Make sure this is the right model
-                        Log::info('img', ['img'=>$image]);
-                        if ($image !== null) {
-                            $filename = time() . "_" . $image->getClientOriginalName();
-                            $image->storeAs('public/product_img/', $filename);
-                            $path = "storage/product_img/" . $filename;
+                Log::info('images', ['images'=>$request->images]);
+                foreach ($request->file('images') as $image) {
+                    $photo = new Photo(); // Make sure this is the right model
+                    Log::info('img', ['img'=>$image]);
+                    if ($image !== null) {
+                        $filename = time() . "_" . $image->getClientOriginalName();
+                        $image->storeAs('public/product_img/', $filename);
+                        $path = "storage/product_img/" . $filename;
 
-                            $photo->product_id = $product->id;
-                            $photo->filename = $path;
+                        $photo->product_id = $product->id;
+                        $photo->filename = $path;
 
-                            if (!$photo->save()) {
-                                return response()->json(['message' => 'error']);
-                            }
+                        if (!$photo->save()) {
+                            return response()->json(['message' => 'error']);
                         }
                     }
+                }
+                
+                $notify = new Notification();
+                $notify->from_id = $shop->user_id;
+                $notify->text = "$shop->name added new product. Check it out.";
+                $notify->seen = false;
+                $notify->type= "product";
+                $notify->product_id = $product->id;
+
+                if($notify->save()){
+                    
+                }
 
                 return response()->json(['message'=>'successful']);
             }
@@ -86,7 +98,9 @@ weight: ''
                 return response()->json(['message'=>'shop not found']);
             }
 
-            $products = Product::with('photos')->get();
+            $products = Product::with('photos')
+                               ->where('shop_id', $shop->id)
+                               ->orderBy('created_at','desc')->get();
 
 
             return response()->json(['message'=>$products]);
@@ -155,6 +169,9 @@ weight: ''
             $product->quantity = $product_info->quantity;
             $product->status = $product_info->status;
             $product->description = $product_info->description;
+            $product->materials = $product_info->materials;
+            $product->dimensions = $product_info->dimensions;
+            $product->weight = $product_info->weight;
 
             if($product->save()){
                 return response()->json(['message'=>'successful', 'photos' => $photos]);

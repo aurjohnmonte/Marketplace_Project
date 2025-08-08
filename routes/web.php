@@ -1,15 +1,20 @@
 <?php
 
+use App\Events\ActiveEvent;
 use App\Events\MessageEvent;
 use App\Http\Controllers\BuyerController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\SellerController;
+use App\Http\Controllers\ShopController;
 use App\Http\Middleware\BuyerCheck;
 use App\Mail\OtpMail;
 use App\Models\Otp;
 use App\Models\Pendingaccounts;
 use App\Models\Pendingshop;
+use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -98,6 +103,61 @@ Route::middleware('buyercheck')->group(function() {
     Route::post("/edit/message", [BuyerController::class, "editMessage"]);
     //return shop
     Route::get("/return/shop", [BuyerController::class, "returnShops"]);
+    //return products to hom
+    Route::get('/buyer/return/products', [BuyerController::class, "returnProducts"]);
+    //return products by search
+    Route::post('/buyer/search-product', [BuyerController::class, 'returnProductsBySearch']);
+    //buyer add review
+    Route::post('/buyer/add/review', [BuyerController::class, 'addReview']);
+    //return reviews
+    Route::post('/buyer/return/review', [BuyerController::class, "returnReviews"]);
+    //return new and popular shops
+    Route::get('/return/shops/popular-new', [BuyerController::class, "returnAllShops"]);
+    Route::post('/return/product', [BuyerController::class, "returnProduct"]);
+    //return shop info
+    Route::post('/return/shop-info', [ShopController::class, "returnShopInfo"]);
+    //follow shop
+    Route::post('/buyer/follow-shop', [BuyerController::class, "followShop"]);
+    //search messages
+    Route::get('/buyer/search-message', [BuyerController::class, "searchMessage"]);
+    //return user info about the shop for buyermessage.vue
+    Route::get('/shop/info', function(Request $request){
+
+        $user = User::where('id',$request->id)->first();
+
+        return response()->json(['user'=>$user]);
+    });
+    //return product info
+    Route::get('/buyer/return-product/info', [BuyerController::class, "returnProduct_info"]);
+    //return following
+    Route::get('/buyer/return-following', [BuyerController::class, 'returnFollowing']);
+    //change profile
+    Route::post('/user/change-profile', [BuyerController::class, 'changeProfile']);
+    //user edit info
+    Route::post('/buyer/edit-info', [BuyerController::class, 'editinfo']);
+
+    //LOGOUT
+    Route::get('/buyer/logout', function(Request $request) {
+
+        $id = (int) $request->id;
+
+        $user = User::where('id', $id)->first();
+
+        Log::info('user: ', ['user'=>$user]);
+        if(!$user){
+            return "User not found";
+        }
+
+        $user->is_active = false;
+        $user->time_logout = now();
+
+        if($user->save()){
+            session()->flush();
+            return redirect()->route('home');
+        }
+        
+        return "Something went wrong ...";
+    });
 });
 
 
@@ -175,11 +235,39 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/delete/product', [ProductController::class, 'deleteProduct']);
     //search product
     Route::post('/seller/search/product', [ProductController::class, "searchProduct"]);
+
+    Route::get('/seller/logout', function(Request $request) {
+
+        $id = (int) $request->id;
+
+        $user = User::where('id', $id)->first();
+
+        Log::info('user: ', ['user'=>$user]);
+        if(!$user){
+            return "User not found";
+        }
+
+        $user->is_active = false;
+        $user->time_logout = now();
+
+        if($user->save()){
+            broadcast(new ActiveEvent());
+
+            session()->flush();
+            return redirect()->route('home');
+        }
+        
+        return "Something went wrong ...";
+    });
 });
 
+//RETURN NOTIFICATIONS FOR BOTH SIDE
+Route::get('/return/notifications', [NotificationController::class, 'returnNotifications']);
+//change seen in  notification
+Route::get('/seen-notify', [NotificationController::class, "modifySeen"]);
 
-
-Route::get('/seller/logout', function() {
+Route::get('/logout', function(Request $request){
     session()->flush();
     return redirect()->route('home');
 });
+

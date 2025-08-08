@@ -7,9 +7,12 @@
             <label style="font-size: 12px; text-decoration: underline;">View all</label>
         </div><br>
         <div class="notify-content">
-            <div class="notify-item">
-                <label class="notify-text">Aurjohnmonte has sent a message.</label>
-                <label class="notify-time">15 mins ago.</label>
+            <div class="notify-item" v-for="notif in notifications" :key="notif" @click="goNavigate(notif)">
+                <div style="display: flex; flex-direction: row; flex-direction: row; align-items: center; gap: 5px;">
+                  <div style="width: 5px; height: 5px; border-radius: 10px; background-color: red;" v-if="notif.seen === 0"></div>
+                  <label class="notify-text">{{ notif.text }}</label>
+                </div>
+                <label class="notify-time">{{ returnFormatTime(notif.created_at) }}</label>
             </div>
         </div>
       </div>
@@ -17,12 +20,54 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
 export default {
-    methods: {
-      goexit(){
-        this.$emit("goexit");
+    props: ['notifications'],
+    data(){
+      return{
+
+        store: useDataStore(),
+        notif: null,
       }
     },
+    methods: {
+    returnFormatTime(datetime){
+
+      return new Date(datetime).toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      });
+    },
+      goexit(){
+        this.$emit("goexit");
+      },
+      async goNavigate(notif){
+
+        this.notif = notif;
+
+        if(notif.seen === 0){
+          const res = await axios.get('/seen-notify', {
+            params: {
+              id: notif.id
+            }
+          });
+        }
+
+        this.$emit('modifyseen', notif.id);
+
+
+        console.log(notif);
+
+        switch(notif.type){
+
+          case 'product':
+            this.store.setSelectedProduct(notif.products);
+            this.$router.push({name: 'BuyerProduct', params: {id: notif.products.id}});
+        }
+      }
+    },
+    
     mounted(){
         let path = this.$route.path;
         let new_path = path.slice(7);
@@ -42,6 +87,11 @@ export default {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+.notify-item:hover{
+  background-color: rgba(0, 0, 0, 0.134);
 }
 .notify-text{
     font-size: 10px;

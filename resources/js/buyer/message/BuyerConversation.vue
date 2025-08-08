@@ -12,29 +12,32 @@
       <label v-if="from_image" @click="viewImagefromUser">View</label>
     </div>
     <!-- Header -->
-    <div class="header">
+    <div class="header" v-if="shop_info">
       <button @click="$router.back()" class="back-btn">
         ←
       </button>
-      <div class="shop-info">
+      <div class="shop-info" @click="goShop(shop_info.shop.id)">
         <div class="avatar">
-          <img :src="'/'+shop_info.profile_photo"/>
+          <img :src="'/'+shop_info.shop.profile_photo"/>
         </div>
         <div>
-          <div class="shop-name">{{ shop_info.name }}</div>
-          <div class="last-active">Active 5 minutes ago</div>
+          <div class="shop-name">{{ shop_info.shop.name }}</div>
+          <div class="last-active">
+            <div style="width: 7px; height: 7px; border-radius: 12px; background-color: green;" v-if="shop_info.is_active === 1"></div>
+            <label>Active {{ (shop_info.is_active === 1 ? "now" : returnFormatActivedTime(shop_info.time_logout)) }}</label>
+          </div>
         </div>
       </div>
-      <a class="rate-shop" href="#">Rate Shop</a>
+      <a class="rate-shop" href="#" @click="goShop(shop_info.shop.id)">Rate Shop</a>
     </div>
 
     <!-- Chat messages -->
-    <div class="messages">
+    <div class="messages" v-if="shop_info">
       <div v-if="loading" class="loading-content">
           <img src="../../../images/kOnzy.gif"/>
       </div>
       <div style="width: 100%; text-align: center;">
-        <label style="color: gray; font-size: 12px;">Send {{ shop_info.name }} a message</label>
+        <label style="color: gray; font-size: 12px;">Send {{ shop_info.shop.name }} a message</label>
       </div><br>
       <div class="message-content">
         <div v-for="(m, index) in messages" :key="index">
@@ -42,6 +45,7 @@
           <div style="display: flex; width: 100%; flex-direction: column;" v-if="m.from_id !== currentUser.id">
             <div style="display: flex; flex-direction: row; align-items: center;">
               <div class="receiver-content" v-if="m.messages">
+                <label v-if="m.mention !== null" style="font-size: blue; text-decoration: underline;" @click="goProduct(m.mention)">View</label>
                 <label>{{ m.messages }}</label>
               </div>
             </div>
@@ -51,8 +55,11 @@
           <div style="display: flex; width: 100%; justify-content: end; flex-direction: column; align-items: end;" v-else>
             <div style="display: flex; flex-direction: row; align-items: center;">
               <img src="../../../images/more (2).png" style="padding-right: 10px; width: 20px; height: 20px;" v-if="hover === index" @mouseenter="hover = index" @mouseleave="hover = null" @click.stop="more_option(m.id, index)"/>
-              <div class="sender-content" @mouseenter="hover = index; from_image = false;" @mouseleave="hover = null" v-if="m.messages">
-                <label>{{ m.messages }}</label>
+              <div style="display: flex; flex-direction: column; align-items: center;">
+                <label v-if="m.mention !== null" style="font-size: blue; text-decoration: underline;" @click="goProduct(m.mention)">View</label>
+                <div class="sender-content" @mouseenter="hover = index; from_image = false;" @mouseleave="hover = null" v-if="m.messages">
+                  <label>{{ m.messages }}</label>
+                </div>
               </div>
             </div>
             <img :src="'/'+m.message_pic" v-if="m.message_pic" class="message-pic" @mouseenter="hover = index; 
@@ -80,6 +87,12 @@
           <label>{{ selected_edit_message.messages }}</label>
           <img src="../../../images/cancel.png" style="width: 10px; height: 10px;" @click.prevent="selected_edit_message = null; message_text = '';"/>
         </div>
+        <div class="edit-info" v-if="is_mention">
+          <label style="color: blue; font-weight: bolder;">Mention</label>
+          <img :src="'/'+mention.photo" style="width: 30px; height: 30px;">
+          <label>{{ mention.name }}</label>
+          <img src="../../../images/cancel.png" style="width: 10px; height: 10px;" @click.prevent="goCancelMention()"/>
+        </div>
         <div class="send-img" v-if="photo">
           <div style="position: relative;">
             <img @click="goCancelImgSent" src="../../../images/cancel.png" style="z-index: 1000; width: 10px; height: 10px; position: absolute; padding: 2px; border: 1px solid gray; border-radius: 10px; background-color: white; right: 0; top: 0;">
@@ -105,6 +118,12 @@ import { useDataStore } from '../../stores/dataStore';
 export default{
   data(){
     return{
+      is_mention: false,
+      mention: {
+        name: "",
+        photo: "",
+        id: null, 
+      },
       view_image: false,
       is_blob: false,
       from_image: false,
@@ -118,12 +137,64 @@ export default{
       message_text: "",
       photo: null,
       send_photo: null,
-      shop_info: [],
+      shop_info: null,
       currentUser: null,
       messages: [],
     }
   },
   methods: {
+      returnFormatActivedTime(datetime) {
+        const current = new Date();
+        const time = new Date(datetime);
+
+        const diffInMs = current - time;
+        const diffInSeconds = Math.floor(diffInMs / 1000);
+
+        if (diffInSeconds < 60) {
+          return `${diffInSeconds} seconds ago`;
+        }
+
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) {
+          return `${diffInMinutes} minutes ago`;
+        }
+
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) {
+          return `${diffInHours} hours ago`;
+        }
+
+        const diffInDays = Math.floor(diffInHours / 24);
+        return `${diffInDays} days ago`;
+    },
+    goShop(id){
+      this.$router.push({name: "ShopAbout", params: {id: id}});
+    },
+    goCancelMention(){
+
+      let id = this.$route.params.id;
+      this.resetMention();
+      this.$router.push({name: "BuyerConversation", params: {id: id}});
+    },
+    async goProduct(id){
+      const data = new FormData();
+      data.append('id',id);
+      const res = await axios.post('/return/product', data);
+      
+      if(res.data.message === "successful"){
+        const store = useDataStore();
+        store.setSelectedProduct(res.data.product);
+        this.$router.push({name: 'BuyerProduct', params: {id: id}});
+      }
+    },
+    resetMention(){
+      this.mention = {
+          name: "",
+          photo: "",
+          id: null, 
+        };
+      this.is_mention = false;
+    },
     viewImagefromUser(){
       this.view_image = true;
     },
@@ -198,12 +269,23 @@ export default{
         await this.editMessage();
         return;
       }
+
+      let id;
+      if(this.is_mention){
+          id = this.mention.id;
+      }
+      else{
+        id = null;
+      }
+
+
       const data = new FormData();
       const date = new Date();
-      data.append('receiver_id', this.shop_info.user_id);
+      data.append('receiver_id', this.shop_info.shop.user_id);
       data.append('sender_id', this.currentUser.id);
       data.append('message_text', this.message_text);
       data.append('photo', this.send_photo);
+      data.append('mention_id', id);
 
       console.log('photo: ', this.send_photo);
 
@@ -211,6 +293,8 @@ export default{
       console.log(res.data.message);
       if(res.data.message === "successful"){
         let id = this.$route.params.id;
+        this.resetMention();
+        this.$router.push({name: "BuyerConversation", params: {id: id}});
         await this.returnUserInfo(id);
       }
 
@@ -223,6 +307,20 @@ export default{
       this.send_photo = null;
     },
 
+    async returnInfo(id){
+
+      const res = await axios.get('/shop/info', {
+        params: {
+          id: id
+        }
+      });
+
+      console.log(res.data.user);
+
+      this.shop_info.is_active = res.data.user.is_active;
+      this.shop_info.time_logout = res.data.user.time_logout;
+    },
+
     async returnUserInfo(id){
       try{
         this.loading = true;
@@ -232,6 +330,7 @@ export default{
 
         const res = await axios.post("/shop/return-info", data);
         this.shop_info = res.data.info;
+        console.log(this.shop_info);
         this.messages = res.data.messages;
         console.log(this.messages);
         this.loading = false;
@@ -243,8 +342,25 @@ export default{
     }
   },
   async mounted(){
+
+    Echo.channel(`active-notify`)
+      .listen('.active.sent', async (event) => {
+
+          let id = this.$route.params.id;
+          await this.returnInfo(id)
+          console.log('NEEEH AGIIIIIII');
+    });
+
     const store = useDataStore();
     this.currentUser = store.currentUser_info;
+
+    let product_id = this.$route.query.product_id;
+    if(product_id){
+      this.mention.id = product_id;
+      this.mention.photo = this.$route.query.photo;
+      this.mention.name = this.$route.query.name;
+      this.is_mention = true;
+    }
 
     let id = this.$route.params.id;
     await this.returnUserInfo(id);
@@ -450,6 +566,10 @@ export default{
 }
 
 .last-active {
+  gap: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
   font-size: 12px;
   color: #888;
 }

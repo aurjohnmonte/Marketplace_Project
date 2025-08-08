@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string("message_pic", 200)->nullable();
             $table->boolean('seen');
             $table->dateTime('seen_at')->nullable();
+            $table->integer('mention')->default(null);
 
             $table->foreign('from_id')->references('id')->on('users');
             $table->foreign('to_id')->references('id')->on('users');

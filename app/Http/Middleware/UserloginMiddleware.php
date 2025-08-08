@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Events\ActiveEvent;
 use App\Models\User;
 use Closure;
 use Illuminate\Http\Request;
@@ -24,6 +25,12 @@ class UserloginMiddleware
 
         if($user){
             if(Hash::check($password, $user->password)){
+
+                $user->is_active = true;
+
+                $user->save();
+                
+                broadcast(new ActiveEvent());
 
                 $request->session()->put(['email' => $user->email,
                                           'user_type' => $user->role ]);

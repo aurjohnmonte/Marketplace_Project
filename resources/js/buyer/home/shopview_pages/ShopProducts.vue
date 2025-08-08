@@ -3,49 +3,45 @@
     <!-- Category Header -->
     <div class="shop-products-header-wrapper">
       <div class="shop-products-header">
-        <label>KITCHENWARE</label>
-        <label>MUSICAL INSTRUMENT</label>
-        <label>DECORATIVE ITEMS</label>
-        <label>GAMES</label>
-        <label>OTHER</label>
-        <label>MORE ITEMS</label>
+        <label :style="{color: returnColor('all')}" @click="goCategory('all')">ALL</label>
+        <label :style="{color: returnColor(c)}" v-for="c in category" :key="c" @click="goCategory(c)">{{ c.toUpperCase() }}</label>
       </div>
     </div>
 
     <!-- Filter/Search Section -->
     <div class="filter-search">
-      <input placeholder="Search product name ..." />
-      <select>
-        <option>Latest</option>
-        <option>Popular</option>
-        <option>Trending</option>
+      <input placeholder="Search product name ..." v-model="search_filter.text"/>
+      <select v-model="search_filter.filter">
+        <option value="" disabled>Filter</option>
+        <option value="latest">Latest</option>
+        <option value="popular">Popular</option>
       </select>
     </div>
 
     <!-- Product List -->
     <div class="buyer-browse-content">
-      <div class="item-content" v-for="index in 6" :key="index">
+      <div class="item-content" v-for="(product, index) in products" :key="index">
         <div class="item-pic">
-          <img src="../../../../images/images.jpg" alt="Product Image">
+          <img :src="'/'+product.photos[0].filename" alt="Product Image">
         </div>
-        <div class="item-info" @click="goProduct">
+        <div class="item-info" @click="goProduct(product)">
           <div class="item-rate">
-            <img src="../../../../images/star.png" class="star-rate" v-for="turn in rate.start" :key="turn">
-            <img src="../../../../images/half-star.png" class="star-rate" v-if="rate.half">
-            <img src="../../../../images/no-star.png" class="star-rate" v-for="turn in rate.no_star" :key="turn">
-            <label>(7.5)</label>
+            <img src="../../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+            <img src="../../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+            <img src="../../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+            <label>({{ product.overall_rate }})</label>
           </div>
           <div class="item-comment">
-            <label>99+ Comments</label>
+            <label>{{ product.reviews.length }} Reviews</label>
           </div>
           <div class="item-shopname">
-            <label>Soysoy's Furniture cheap</label>
+            <label>{{ shop.name }}</label>
           </div>
           <div class="item-name">
-            <label>Wooden Chair</label>
+            <label>{{ product.name }}</label>
           </div>
           <div class="item-price">
-            <label>PHP 700.00</label>
+            <label>PHP {{ product.price }}</label>
           </div>
         </div>
       </div>
@@ -56,13 +52,86 @@
 <script>
 import { useDataStore } from '../../../stores/dataStore';
 export default {
+  watch: {
+
+    'search_filter.filter': function (newval){
+      
+      this.products = this.store.selected_shop.products;
+
+      if(this.products.length > 0){
+        this.haveSearchContent(newval, 'filter');
+        return;
+      }
+
+    },
+
+    'search_filter.category': function (newval){
+
+      this.search_content = [];
+      this.products = [];
+
+      if(newval === 'all'){
+        this.products = this.store.selected_shop.products;
+        this.search_content = this.store.selected_shop.products;
+        this.search_filter.text = '';
+        this.search_filter.filter = 'latest';
+        return;
+      }
+      
+      let partial = [];
+      this.store.selected_shop.products.forEach(product => {
+
+        if(product.category === newval){
+          partial.push(product);
+        }
+      });
+      this.products = partial;
+      this.search_content = partial;
+      this.search_filter.text = '';
+      this.search_filter.filter = 'latest';
+    },
+
+    'search_filter.text': function (newval){
+
+      if(this.products.length > 0){
+        this.haveSearchContent(newval, 'text');
+        return;
+      }
+
+      if(newval === ''){
+        this.products = this.search_content;
+        return;
+      }
+
+      let partial = [];
+
+      this.store.selected_shop.products.forEach(product => {
+
+        if(product.name.toLowerCase().includes(newval.toLowerCase())){
+          partial.unshift(product);
+        }
+
+        this.products = partial;
+      });
+    }
+  },
   data() {
     return {
+      store: useDataStore(),
+      search_content: [],
       rate: {
         start: 3,
         half: true,
         no_star: 1
       },
+      search_filter: {
+        category: '',
+        filter: '',
+        text: '',
+      },
+      category: [],
+      shop: null,
+      products: null,
       product: {
         name: "Wood Bed neh soysoy men",
         description: "Just a bed that made of wood",
@@ -75,15 +144,136 @@ export default {
     };
   },
   methods: {
-    goProduct(){
-        const store = useDataStore();
-        store.setSelectedProduct(this.product);
+    haveSearchContent(newval, type){
+      console.log('newval: ', newval);
+      if(this.products.length > 0){
+        console.log('here')
+        let partial = [];
+        if(type === 'text'){
+          this.products.forEach(content => {
 
-        console.log("hello");
-        this.$router.push({name: "BuyerProduct", 
-                           params: {id: 1},
-                           query: {}});
-      },
+            if(content.name.toLowerCase().includes(newval.toLowerCase())){
+              partial.unshift(content);
+            }
+          });
+        }
+        else if(type === "filter"){
+
+          partial = this.products;
+
+          if(newval === 'latest'){
+
+            console.log('neh agi')
+
+            console.log('products: ', this.products);
+
+
+            let swapped;
+
+            do {
+              swapped = false;
+              console.log('partial: ', partial);
+
+              for (let i = 0; i < partial.length - 1; i++) {
+                console.log('1')
+                if (partial[i].id < partial[i + 1].id) {
+                  // ✅ Proper swap
+                  let temp = partial[i];
+                  partial[i] = partial[i + 1];
+                  partial[i + 1] = temp;
+
+                  swapped = true;
+                }
+              }
+
+            } while (swapped);
+
+            this.products = partial;
+
+          }
+          else{
+            let swapped;
+
+            do {
+              swapped = false;
+              console.log('partial: ', partial);
+
+              for (let i = 0; i < partial.length - 1; i++) {
+                console.log('1')
+                if (partial[i].overall_rate < partial[i + 1].overall_rate) {
+                  // ✅ Proper swap
+                  let temp = partial[i];
+                  partial[i] = partial[i + 1];
+                  partial[i + 1] = temp;
+
+                  swapped = true;
+                }
+              }
+
+            } while (swapped);
+            this.products = partial;
+          }
+        }
+
+      }
+    },
+    returnColor(c){
+      if(c === this.search_filter.category){
+        return "#d25e27";
+      }
+    },
+    goCategory(category){
+      this.search_filter.category = category;
+    },
+    async goProduct(product){
+
+      console.log('product neh: ', product);
+      this.store.setSelectedProduct(product);
+      this.$router.push({name: 'BuyerProduct', params: {id: product.id}});
+    },
+    isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+
+    returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+  },
+  mounted(){
+    console.log('shop: ', this.store.selected_shop);
+    this.products = this.store.selected_shop.products;
+    console.log('products: ', this.products);
+    this.shop = this.store.selected_shop;
+
+    this.products.forEach(p => {
+
+      if(!this.category.includes(p.category)){
+        this.category.push(p.category);
+      }
+    });
+
+    console.log('cate: ', this.category);
+    this.search_filter.filter = "latest";
   }
 };
 </script>
@@ -101,13 +291,13 @@ export default {
 }
 
 .shop-products-header {
+  width: 100%;
   display: flex;
   gap: 25px;
   padding: 20px;
   background-color: white;
   border-top: 10px solid gray;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  width: max-content;
 }
 
 .shop-products-header label {

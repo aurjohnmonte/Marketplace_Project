@@ -2,7 +2,7 @@
   <div class="buyer-message-container">
     <div class="buyer-message-header">
       <h2>Chats</h2>
-      <input type="text" placeholder="Search name..." />
+      <input type="text" placeholder="Search name..." v-model="search_text"/>
     </div>
 
     <div class="buyer-message-list">
@@ -15,6 +15,10 @@
           <div class="profile-info-text">
             <div class="name-text">{{ message[0].name }}</div>
             <div class="message-text">{{ message[1].messages }}</div>
+            <div class="last-active">
+              <div style="width: 7px; height: 7px; border-radius: 12px; background-color: green;" v-if="message[0].user.is_active === 1"></div>
+              <label>Active {{ (message[0].user.is_active === 1 ? "now" : returnFormatActivedTime(message[0].user.time_logout)) }}</label>
+            </div>
           </div>
         </div>
         <div class="minute-text">{{ returnTime(message[1].updated_at) }}</div>
@@ -31,10 +35,54 @@ export default {
   data(){
     return{
       loading: false,
+      store: useDataStore(),
       messages: [],
+      orig_messages: [],
+      search_text: "",
+    }
+  },
+  watch: {
+    search_text(){
+
+      let dummy = [];
+
+      this.orig_messages.forEach(mes => {
+
+        if(mes[0].name.includes(this.search_text)){
+          dummy.unshift(mes);
+        }
+      });
+
+      this.messages = dummy;
     }
   },
   methods: {
+    returnFormatActivedTime(datetime) {
+      const current = new Date();
+      const time = new Date(datetime);
+
+      const diffInMs = current - time;
+      const diffInSeconds = Math.floor(diffInMs / 1000);
+
+      if (diffInSeconds < 60) {
+        return `${diffInSeconds} seconds ago`;
+      }
+
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes} minutes ago`;
+      }
+
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) {
+        return `${diffInHours} hours ago`;
+      }
+
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
+    },
+
+
     returnTime(updated_at){
 
       const date = new Date(updated_at);
@@ -62,6 +110,8 @@ export default {
           i = -1;                         // reset loop (next iteration = 0)
         }
       }
+
+      this.orig_messages = this.messages;
     },
 
 
@@ -100,7 +150,16 @@ export default {
     }
   },
   async mounted() {
+
+    Echo.channel(`active-notify`)
+      .listen('.active.sent', async (event) => {
+
+          await this.returMessage();
+          console.log('NEEEH AGIIIIIII');
+    });
+    
     await this.returMessage();
+    console.log('hey neh agi sab')
     window.scrollTo(0, 0);
     let path = this.$route.path;
     let new_path = path.slice(7);
@@ -111,6 +170,14 @@ export default {
 </script>
 
 <style scoped>
+.last-active {
+  gap: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  font-size: 12px;
+  color: #888;
+}
 .loading-content img{
     width: 100px;
     height: 100px;
@@ -191,7 +258,7 @@ export default {
 .profile-info-text {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 5px;
 }
 
 .name-text {

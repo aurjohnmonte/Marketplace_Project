@@ -4,6 +4,12 @@ export const useDataStore = defineStore('data', {
   state: () => ({
     selectedProduct: null,
     currentUser_info: null,
+    selected_shop: null,
+    selectedCoordinate: {
+      latitude: null,
+      longitude: null,
+    },
+    products: [],
     nearbyShops: null,
     user_location: {
       latitude: null,
@@ -11,8 +17,25 @@ export const useDataStore = defineStore('data', {
     }
   }),
   actions: {
+    setSelectedShop(shop){
+      this.selected_shop = shop;
+    },
     setSelectedProduct(product) {
       this.selectedProduct = product;
+    },
+    resetSelectedCoordinate(){
+      this.selectedCoordinate = {
+        latitude: null,
+        longitude: null,
+      };
+    },
+    setSelectedCoordinate(lat, long){
+
+      this.selectedCoordinate.latitude = lat;
+      this.selectedCoordinate.longitude = long;
+    },
+    setProducts(products){
+      this.products = products;
     },
     setUserInfo(user){
       this.currentUser_info = user;
@@ -34,6 +57,12 @@ export const useDataStore = defineStore('data', {
         longitude: null
       };
       this.nearbyShops = null;
+      this.selectedCoordinate = {
+        latitude: null,
+        longitude: null,
+      };
+      this.selected_shop = null;
+      this.products = [];
     }
   },
   persist: true

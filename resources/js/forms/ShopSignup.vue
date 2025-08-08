@@ -155,12 +155,12 @@ export default {
                     name: 'shop_category',
                     id: 'shop_category',
                     options: [
-                        { value: 'fashion', label: 'Fashion' },
-                        { value: 'electronics', label: 'Electronics' },
-                        { value: 'home', label: 'Home & Living' },
-                        { value: 'beauty', label: 'Beauty & Health' },
-                        { value: 'sports', label: 'Sports & Outdoors' },
-                        { value: 'food', label: 'Food & Beverage' }
+                        { value: 'Kitchenware', label: 'Kitchenware' },
+                        { value: 'Musical Instrument', label: 'Musical Instrument' },
+                        { value: 'Decorative Items', label: 'Decorative Items' },
+                        { value: 'Games', label: 'Games' },
+                        { value: 'Outdoor Decor', label: 'Outdoor Decor' },
+                        { value: 'Home Decor', label: 'Home Decor' }
                     ]
                 },
                 {label: 'Shop Description', type: 'textarea', name: 'shop_description', id: 'shop_description' },

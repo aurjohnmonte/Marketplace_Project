@@ -10,8 +10,13 @@
           <select v-model="search_info.category">
               <option value="" disabled>Category</option>
               <option value="Any">Any</option>
-              <option value="game">Game</option>
-              <option value="furniture">Furniture</option>
+              <option value="Furniture">Furniture</option>
+              <option value="Kitchenware">Kitchenware</option>
+              <option value="Musical Instrument">Musical Instrument</option>
+              <option value="Decorative Items">Decorative Items</option>
+              <option value="Games">Games</option>
+              <option value="Outdoor Decor">Outdoor Decor</option>
+              <option value="Home Decor">Home Decor</option>
           </select>
           <select v-model="search_info.filter">
               <option value="" disabled>Filter</option>
@@ -32,13 +37,13 @@
     <div class="buyer-browse-content" v-else>
         <div class="item-content" v-for="shop in result" :key="shop">
           <div class="option-icon">
-            <img src="../../../images/location.png">
+            <img src="../../../images/location.png" @click="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
             <img src="../../../images/send.png" @click="goMessage(shop.user_id)">
           </div>
           <div class="item-pic">
-            <img :src="'/' + shop.profile">
+            <img :src="'/' + shop.profile_photo" @click="goShop(shop.id)">
           </div>
-          <div class="item-info" @click="goProduct">
+          <div class="item-info" @click="goShop(shop.id)">
             <div class="item-rate">
               <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',shop.overall_rate)" :key="turn">
               <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',shop.overall_rate)" :key="turn">
@@ -91,16 +96,25 @@ export default {
         }
     },
     methods: {
+      goLocation(lat, long){
+      console.log(lat + " " + long);
+      const store = useDataStore();
+      store.setSelectedCoordinate(lat, long);
+      this.$router.push({name: 'BuyerMap'});
+    },
+      goShop(id){
+        this.$router.push({name: "ShopAbout", params: {id: id}});
+      },
       goMessage(user_id){
         console.log("go message");
         this.$router.push({name: "BuyerConversation", params: {"id": user_id}});
       },
-        goProduct(){
+        goProduct(product){
             const store = useDataStore();
-            store.setSelectedProduct(this.product);
+            store.setSelectedProduct(product);
 
             console.log("hello");
-            this.$router.push({name: "BuyerProduct", 
+            this.$router.push({name: "BuyerShops", 
                             params: {id: 1},
                             query: {}});
         },
@@ -157,6 +171,7 @@ export default {
         }
     },
     mounted(){
+        this.$emit("changepathtext", "home");
         window.scrollTo(0, 0);
         this.initialize_params();
         this.returnSearchShops();
@@ -252,9 +267,16 @@ export default {
     gap: 30px;
     padding-left: 20px;
 }
+.filter-search-browse form{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 5px;
+}
 .filter-search-browse select{
     padding: 5px;
     font-size: 10px;
+    width: 60px;
     border: 1px solid #D25E27;
 }
 .filter-search-browse input{
@@ -262,7 +284,7 @@ export default {
     font-size: 12px;
     padding-left: 10px;
     border: 1px solid #D25E27;
-    width: 130px;
+    width: 100%;
 }
 .filter-search-browse{
     display: flex;
