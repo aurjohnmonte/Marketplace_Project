@@ -8,7 +8,9 @@
                 </div>
                 <div class="notification-body">
                     <div v-if="notificationData.username" class="username">
+                        <hr>
                         <strong>{{ notificationData.username }}</strong>
+                        <hr>
                     </div>
                     <p class="message">{{ notificationData.message || notifymessage || 'Notification details will be displayed here' }}</p>
                     <div v-if="notificationData.timestamp" class="timestamp">
@@ -123,6 +125,9 @@ export default{
   flex: 1;
   font-size: 1em;
   color: #706a6a;
+  padding: .8em;
+  background-color: #e0ccc0;
+  border-radius: .5em;
 }
 
 .timestamp {
