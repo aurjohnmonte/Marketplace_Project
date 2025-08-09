@@ -20,7 +20,7 @@
                 <div v-if="showProfileBox" class="floating-box profile-box">
                     <p>Profile Options</p>
                     <router-link to="/seller/settings">Account Setting</router-link>
-                    <form method="GET" action="/seller/logout">
+                    <form @submit.prevent="goLogout">
                         <button type="submit">Logout</button>
                     </form>
                 </div>
@@ -61,7 +61,10 @@
                     </button>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <button :class="{ active: $route.name === 'Notification' }">
+                    <button :class="{ active: $route.name === 'Notification' }" style="position: relative;">
+                        <div style="width: 25px; height: 25px; border-radius: 25px; background-color: red; position: absolute; top: -10px; right: -10px;" v-if="unread_notif">
+
+                        </div>
                         <i class="fa-solid fa-bell"></i>
                         Notifications
                     </button>
@@ -124,7 +127,7 @@
         </div>
         <!-- THIS IS WHERE THE COMPONENT APPEAR WHEN CLICKED ROUTER-LINK / OR THE RESULT WHEN CLICKED. -->
         <div class="content">
-            <router-view></router-view>
+            <router-view @checknotif="checknotif"></router-view>
         </div>
 
     </div>
@@ -145,12 +148,13 @@ export default{
     data(){
         return{
             is_visible: false,
-            notifymessage: 'Notification: New Message',
+            notifymessage: 'You have new notification',
             page: 'Dashboard',
             showMenu: true,
             user: [],
             showProfileBox: false,
             showNotifBox: false,
+            unread_notif: false,
             isMobile: false
         }
     },
@@ -158,11 +162,21 @@ export default{
         this.checkScreenSize();
         window.addEventListener('resize', this.checkScreenSize);
         this.initializeUser();
+
+        this.checkNotifications();
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
+        checknotif(){
+            this.checkNotifications();
+        },
+        goLogout(){
+            const store = useDataStore();
+            store.reset();
+            window.location.href = "/seller/logout";
+        },
         goLogout(){
             
             console.log('here')
@@ -176,9 +190,11 @@ export default{
 
             const store = useDataStore();
 
-            console.log(res.data.message);
+            console.log('user: ',res.data.message);
+            console.log('shop: ', res.data.shop);
             this.user = res.data.message;
             store.setUserInfo(res.data.message);
+            store.setSelectedShop(res.data.shop);
             console.log('id: ', store.currentUser_info.id);
         },
         changePage(switchPage) {
@@ -201,15 +217,36 @@ export default{
                 this.showMenu = false;
             }
         },
+        
+        async checkNotifications(){
+            const store = useDataStore();
+            const res = await axios.get('/check/notification', {
+                params: {
+                    id: store.currentUser_info.id,
+                    type: 'seller',
+                }
+            });
+
+            console.log(res.data.message);
+
+            this.unread_notif = res.data.message;
+        },
+
         async initializeUser(){
             await this.returnUserInfo();
             console.log(`message.${this.user.name}`)
 
             Echo.channel(`message.${this.user.name}`)
                 .listen('.message.sent', (event) => {
+                    this.unread_notif = true;
                     console.log('NEEEH AGIIIIIII');
-                    this.notifymessage = "Notification: New Message";
+                    this.notifymessage = "You have new notification. Check it out.";
                     this.is_visible = true;
+            });
+
+            Echo.channel(`sellernotify.${this.user.name}`)
+                .listen('.sellernotify.sent', async(event) => {
+                    console.log('HELLO WORLDDDDDD');
             });
         }
     }

@@ -45,9 +45,9 @@
 
 
           <label style="margin-top: 20px;">Credentials</label>
-          <form>
+          <form @submit.prevent="gosave_credential">
             <div class="user-info">
-              <label>Username: </label><input type="text" :value="user.name" :disabled="!edit_credential.includes('username')">
+              <label>Username: </label><input type="text" v-model="user_credential.username" :disabled="!edit_credential.includes('username')">
               <div>
                 <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px;" v-if="edit_credential.includes('username')" @click="cancel_editCredential('username')">
                 <label class="change-text" @click="addEditCredential('username')" v-else>Change</label>
@@ -79,7 +79,7 @@ import { useDataStore } from '../../stores/dataStore';
 export default {
   data(){
     return{
-      valid_password: false,
+      valid_password: true,
       message_text: "",
       show_profile: false,
       profile: {
@@ -116,6 +116,31 @@ export default {
     }
   },
   methods: {
+    async gosave_credential(){
+      
+      const data = new FormData();
+      data.append('user_info', JSON.stringify(this.user_credential));
+      data.append('email', this.user.email);
+      console.log(this.user.email);
+
+      const res = await axios.post('/buyer/edit-credential', data);
+
+      this.message_text = "";
+
+      this.user_credential = {
+        password: '',
+        confirm_password: '',
+        username: res.data.username,
+      };
+
+      this.store.setUserInfo(res.data.user);
+      this.user = this.store.currentUser_info;
+
+      this.edit_credential = [];
+
+      this.valid_password = false;
+    },
+
     async gosave_info(){
 
       const data = new FormData();
@@ -161,7 +186,14 @@ export default {
       if(info === 'password'){
         this.valid_password = true;
         this.show_confirm_pass = false;
+        
+        this.user_credential.password = "";
+        this.user_credential.confirm_password = "";
       }
+      else{
+        this.user_credential[info] = this.user[info];  
+      }
+      
       if(this.edit_credential.includes(info)){
         let arr = this.edit_credential.filter(i => i !== info);
         this.edit_credential = arr;
@@ -199,7 +231,6 @@ export default {
       const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
 
       if(newval === ""){
-        this.valid_password = false;
         this.message_text = "";
         return;
       }
@@ -235,6 +266,8 @@ export default {
     for(let key in this.user_info){
       this.user_info[key] = this.user[key];
     }
+
+    this.user_credential.username = this.user.name;
     
     let path = this.$route.path;
     let new_path = path.slice(7);

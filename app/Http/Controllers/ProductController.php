@@ -74,6 +74,7 @@ weight: ''
                 $notify->seen = false;
                 $notify->type= "product";
                 $notify->product_id = $product->id;
+                $notify->favorite = false;
 
                 if($notify->save()){
                     

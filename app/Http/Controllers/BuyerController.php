@@ -5,12 +5,14 @@ namespace App\Http\Controllers;
 use App\Events\MessageEvent;
 use App\Models\Follower;
 use App\Models\Message;
+use App\Models\Notification;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use PDO;
@@ -76,8 +78,8 @@ class BuyerController extends Controller
     public function messageSent(Request $request){
         try{
 
-            $receiver = User::where("id", $request->receiver_id)->first();
-            Log::info('username', ['username'=>$receiver->name]);
+            $receiver = User::with('shop')->where("id", $request->receiver_id)->first();
+            Log::info('username', ['username'=>$receiver]);
             if(empty($receiver)){
                 return response()->json(['message'=>'receiver not found']);
             }
@@ -106,8 +108,10 @@ class BuyerController extends Controller
             $message->seen_at = null;
 
             if($message->save()){
+                $notify = new Notification();
+                $message = $notify->addNotification('message', $request->sender_id, $request->receiver_id);
                 broadcast(new MessageEvent($receiver->name));
-                return response()->json(['message'=>'successful']);
+                return response()->json(['message'=>$message]);
             }
         }
         catch(\Exception $ex){
@@ -508,6 +512,36 @@ class BuyerController extends Controller
             if($user->save()){
                 return response()->json(['message' => 'successful',
                                          'info'=> $info,
+                                         'user' => $user]);
+            }
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function editCredential(Request $req){
+        try{
+
+            $info = json_decode($req->user_info);
+            $user = User::where('email', $req->email)->first();
+
+            if(!$user){
+                return response()->json(['message'=>'not exist']);
+            }
+
+            $user->name = $info->username;
+
+            Log::info('username',['username'=>$info->username]);
+
+            if($info->password !== "" && $info->password){
+
+                $user->password = Hash::make($info->password);
+            }
+
+            if($user->save()){
+                return response()->json(['message' => 'successful',
+                                         'username'=> $user->name,
                                          'user' => $user]);
             }
         }

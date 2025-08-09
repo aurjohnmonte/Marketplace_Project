@@ -9,14 +9,22 @@ export const useDataStore = defineStore('data', {
       latitude: null,
       longitude: null,
     },
+    selectedNotification: null,
     products: [],
     nearbyShops: null,
     user_location: {
       latitude: null,
       longitude: null,
-    }
+    },
+    notifications: [],
   }),
   actions: {
+    setNotifications(notifications){
+      this.notifications = notifications;
+    },
+    setSelectedNotification(notification){
+      this.selectedNotification = notification;
+    },
     setSelectedShop(shop){
       this.selected_shop = shop;
     },
@@ -63,6 +71,8 @@ export const useDataStore = defineStore('data', {
       };
       this.selected_shop = null;
       this.products = [];
+      this.selectedNotification = null;
+      this.notifications = [];
     }
   },
   persist: true

@@ -1,18 +1,18 @@
 <template>
     <div class="notification-wrapper">
         <div class="notification-card">
-            <div class="notification-content">
+            <div class="notification-content" v-if="notificationData">
                 <div class="notification-header">
-                    <span class="notification-title">{{ notificationData.title || 'New Notification' }}</span>
+                    <span class="notification-title">Notification</span>
                     <button class="close-btn" @click="hidenotify">×</button>
                 </div>
                 <div class="notification-body">
-                    <div v-if="notificationData.username" class="username">
-                        <strong>{{ notificationData.username }}</strong>
+                    <div v-if="notificationData.users" class="username">
+                        <strong>{{ notificationData.users.firstname }} {{ notificationData.users.lastname }}</strong>
                     </div>
-                    <p class="message">{{ notificationData.message || notifymessage || 'Notification details will be displayed here' }}</p>
-                    <div v-if="notificationData.timestamp" class="timestamp">
-                        {{ notificationData.timestamp }}
+                    <p class="message">{{ notificationData.text || notifymessage || 'Notification details will be displayed here' }}</p>
+                    <div v-if="notificationData.created_at" class="timestamp">
+                        {{ returnFormatTime(notificationData.created_at) }}
                     </div>
                 </div>
             </div>
@@ -22,24 +22,16 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
 
 export default{
-    props: {
-        notificationData: {
-            type: Object,
-            default: () => ({
-                title: 'Message',
-                username: 'Customer1',
-                message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.',
-                timestamp: 'August 1',
-                type: 'chat'
-            })
-        }
-    },
     data(){
         return{
+          store: useDataStore(),
+          notificationData: null,
         }
-    },
+    },  
     computed: {
         notificationTypeClass() {
             return `notification-${this.notificationData.type || 'chat'}`;
@@ -56,22 +48,27 @@ export default{
         }
     },
     methods: {
+        returnFormatTime(date){
+
+            return new Date(date).toLocaleDateString();
+        },
         hidenotify(){
             this.$router.push({ name: 'Notification' });
-        }
+        },
+    },
+    mounted(){
+      this.notificationData = this.store.selectedNotification;
     }
 }
 </script>
 
 <style scoped>
 .notification-wrapper {
-  position: relative;
-  margin: 2rem 0;
-  padding: 1rem;
+  position: fixed;
   width: 100%;
   height: 100%;
-  align-content: center;
-  justify-content: center;
+  left: 40%;
+  top: 30%;
 }
 
 .notification-card {
@@ -83,9 +80,7 @@ export default{
   display: flex;
   gap: 1rem;
   align-items: center;
-  min-width: 400px;
-  max-width: 600px;
-  margin: 0 auto;
+  width: 400px;
 }
 
 .notification-content {

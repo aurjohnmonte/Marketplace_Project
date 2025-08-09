@@ -19,3 +19,7 @@ Broadcast::channel("notify", function(){
     return true;
 });
 
+Broadcast::channel("sellernotify.{username}", function($user, $username){
+    return true;
+});
+

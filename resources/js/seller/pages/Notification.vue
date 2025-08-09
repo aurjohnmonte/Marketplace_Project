@@ -1,6 +1,9 @@
 <template>
     <div class="notification-container">
-        <div class="notif-header">
+        <div class="overlay" v-if="!orig_notifications">
+            <img src="../../../images/kOnzy.gif">
+        </div>
+        <div class="notif-header" v-else>
             <h5>All Notifications</h5>
             <div class="reader">
                 <div class="filter-options">
@@ -9,7 +12,7 @@
                         :class="{ active: currentFilter === 'all' }"
                         class="filter-btn"
                     >
-                        All ({{ notifications.length }})
+                        All ({{ orig_notifications.length }})
                     </button>
                     <button
                         @click="setFilter('unread')"
@@ -31,42 +34,47 @@
                         type="checkbox"
                         name="all"
                         id="all"
-                        v-model="selectAll"
                         @change="toggleSelectAll"
                     >
                     <p>Select All</p>
                 </div>
-                <button @click="markAsRead" :disabled="!hasSelectedNotifications">Mark as Read</button>
-                <button @click="toggleFavoriteSelected" :disabled="!hasSelectedNotifications">
-                    {{ hasFavoritedSelected ? 'Unfavorite' : 'Favorite' }} Selected
+                <!-- <button @click="markAsRead" :disabled="!hasSelectedNotifications">Mark as Read</button> -->
+                <button @click="goDelete" :disabled="!hasSelectedNotifications">
+                    Delete
                 </button>
             </div>
         </div>
 
         <hr>
-
         <div class="notif-contents">
-            <div class="notif-box" v-for="notif in filteredNotifications" :key="notif.id">
+            <div class="overlay" v-if="!orig_notifications">
+                <img src="../../../images/kOnzy.gif">
+            </div>
+            <div v-else-if="orig_notifications.length === 0">
+                <h3 style="color: red;">No notification</h3>
+            </div>
+            <div class="notif-box" :style="{backgroundColor: returnColor(notif)}" v-for="notif in filteredNotifications" :key="notif.id" v-else>
                 <div class="checkbox">
                     <input
                         type="checkbox"
                         name="select"
                         id="select"
                         v-model="notif.selected"
+                        :value="notif.id"
                         @change="updateSelectAll"
                     >
                 </div>
                 <div class="fav">
                     <button
-                        v-if="!notif.favorite"
-                        @click="toggleFavorite(notif)"
+                        v-if="notif.favorite === 0"
+                        @click="toggleFavorite(notif, 'fav')"
                         class="star-btn unfavorited"
                     >
                         <i class="fa-regular fa-star"></i>
                     </button>
                     <button
                         v-else
-                        @click="toggleFavorite(notif)"
+                        @click="toggleFavorite(notif, 'notfav')"
                         class="star-btn favorited"
                     >
                         <i class="fa-solid fa-star"></i>
@@ -75,20 +83,20 @@
 
                 <div class="main-section" @click="openMessage(notif)">
                     <div class="profile">
-                        <div v-if="notif.type === 'chat'">
-                            <img :src="profile" alt="Profile Picture">
+                        <div v-if="notif.type === 'message'">
+                            <img :src="'/'+notif.users.profile" alt="Profile Picture">
                         </div>
-                        <div v-else-if="notif.type === 'notif'">
-                            <img :src="systemProfile" alt="System Notification">
+                        <div v-else>
+                            <img :src="'/'+notif.users.profile" alt="System Notification">
                         </div>
                     </div>
 
                     <div class="message" :class="{ unread: !notif.read }">
                         <div>
-                            <h6>{{ notif.recipient }} - </h6>
-                            <p>{{ notif.message }}</p>
+                            <h6>{{ notif.users.firstname }} {{ notif.users.lastname }} - </h6>
+                            <p>{{ notif.text }}</p>
                         </div>
-                        <p>{{ notif.time }}</p>
+                        <p>{{ returnFormatTime(notif.created_at) }}</p>
                     </div>
                 </div>
             </div>
@@ -103,6 +111,8 @@
 
 <script>
 import systemLogo from '../../../images/Logo1.svg'
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
 
 export default {
     data() {
@@ -110,13 +120,12 @@ export default {
             selectedNotification: null,
             profile: "https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3",
             systemProfile: systemLogo,
-            notifications: [
-                {id: 1, recipient: 'Customer1', type: 'chat', favorite: false, message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.', time: '1 August 2026', read: false, selected: false},
-                {id: 2, recipient: 'Timbershoppe', type: 'notif', favorite: true, message: '2', time: '5 August 2020', read: true, selected: false},
-                {id: 3, recipient: 'Timbershoppe', type: 'notif', favorite: true, message: '1', time: '1 August 2025', read: false, selected: false}
-            ],
+            notifications: [],
+            selected_notif: [],
             currentFilter: 'all',
-            selectAll: false
+            orig_notifications: null,
+            selectAll: false,
+            store: useDataStore(),
         }
     },
     computed: {
@@ -127,9 +136,9 @@ export default {
             if (this.currentFilter === 'all') {
                 return this.notifications;
             } else if (this.currentFilter === 'unread') {
-                return this.notifications.filter(notif => !notif.read);
+                return this.notifications.filter(notif => notif.seen === 0);
             } else if (this.currentFilter === 'favorited') {
-                return this.notifications.filter(notif => notif.favorite);
+                return this.notifications.filter(notif => notif.favorite === 1);
             }
             return this.notifications;
         },
@@ -142,8 +151,41 @@ export default {
         }
     },
     methods: {
-        openMessage(notification) {
-            this.selectedNotification = this.selectedNotification === notification ? null : notification;
+        returnFormatTime(date){
+
+            return new Date(date).toLocaleDateString();
+        },
+        async changeSeen(id){
+
+          const res = await axios.get('/change-seen', {
+            params: {
+              id: id
+            }
+          });
+
+          console.log(res.data.message);
+
+          if(res.data.message === 'successful'){
+
+            this.$emit('checknotif');
+
+                for(let notify of this.orig_notifications){
+                    
+                    if(notify.id === id){
+                        notify.seen = 1;
+                        return;
+                    }
+                }
+            }
+        },
+        async openMessage(notification) {
+
+            this.store.setSelectedNotification(notification);
+
+            if(notification.seen === 0){
+                await this.changeSeen(notification.id);
+            }
+
             this.$router.push({ name: 'ViewNotification' });
         },
         removeNotification(index) {
@@ -153,16 +195,66 @@ export default {
             this.currentFilter = filter;
             this.selectAll = false; // Reset select all when changing filter
             // Reset all selections when changing filter
-            this.notifications.forEach(notif => {
-                notif.selected = false;
-            });
+            if(filter === 'favorited'){
+                let dummy = [];
+                this.orig_notifications.forEach(notif => {
+                    
+                    if(notif.favorite === 1){
+                        dummy.push(notif);
+                    }
+                });
+                this.notifications = dummy;
+            }
+            else if(filter === 'all'){
+                this.notifications = this.orig_notifications;
+            }
+            else{
+                let dummy = [];
+                this.orig_notifications.forEach(notif => {
+                    
+                    if(notif.seen === 0){
+                        dummy.push(notif);
+                    }
+                });
+                this.notifications = dummy;
+            }
         },
-        toggleSelectAll() {
+        toggleSelectAll(e) {
+
+            let value;
+            
+            if(e.target.checked){
+                value = true;
+            }
+            else{
+                value = false;
+            }
+
             this.filteredNotifications.forEach(notif => {
-                notif.selected = this.selectAll;
+                notif.selected = value;
+
+                if(value){
+                    this.selected_notif.push(notif.id);
+                }
+                else{
+                    this.selected_notif = [];
+                }
             });
+
+            console.log('selected notif: ', this.selected_notif);
         },
-        updateSelectAll() {
+        updateSelectAll(e) {
+            console.log(e.target.checked);
+            
+            if(e.target.checked){
+                this.selected_notif.push(e.target.value);
+            }
+            else{
+                this.selected_notif = this.selected_notif.filter(id => e.target.value !== id);
+            }
+            
+            console.log('selected notif: ', this.selected_notif);
+
             const visibleNotifications = this.filteredNotifications;
             this.selectAll = visibleNotifications.length > 0 && visibleNotifications.every(notif => notif.selected);
         },
@@ -175,44 +267,125 @@ export default {
             });
             this.selectAll = false; // Reset select all after marking
         },
-        toggleFavorite(notification) {
-            notification.favorite = !notification.favorite;
+        
+        async toggleFavorite(notification, type) {
+
+            let star;
+
+            console.log(type);
+
+            const data = new FormData();
+            data.append('notif_id', notification.id);
+            data.append('type', type);
+
+            const res = await axios.post('/action-notification', data);
+
+            if(res.data.message === 'successful'){
+
+                if(type === 'fav'){
+                    star = 1;
+                }
+                else{
+                    star = 0;
+                }
+
+                for(let notify of this.notifications){
+                    
+                    if(notification.id === notify.id){
+                        notify.favorite = star;
+                    }
+                }
+            }
+
+            console.log(res.data.message);
+
+            return;
 
             // Show feedback to user
             const action = notification.favorite ? 'favorited' : 'unfavorited';
             console.log(`Notification ${action}: ${notification.recipient}`);
         },
-        toggleFavoriteSelected() {
-            const selectedNotifications = this.notifications.filter(notif => notif.selected);
-            if (selectedNotifications.length === 0) return;
+        async goDelete() {
 
-            // Determine if we should favorite or unfavorite based on current state
-            const shouldFavorite = !this.hasFavoritedSelected;
+            if(this.selected_notif < 1){
+                window.alert("No notification selected for deletion");
+                return;
+            }
 
-            selectedNotifications.forEach(notif => {
-                notif.favorite = shouldFavorite;
-                notif.selected = false; // Deselect after action
-            });
+            console.log('selected notif: ', this.selected_notif);
 
-            this.selectAll = false; // Reset select all after action
+            const data = new FormData();
 
-            // Show feedback
-            const action = shouldFavorite ? 'favorited' : 'unfavorited';
-            console.log(`${selectedNotifications.length} notification(s) ${action}`);
+            data.append('data', JSON.stringify(this.selected_notif));
+
+            const res = await axios.post('/delete-notif', data);
+
+            window.alert(res.data.message);
+
+            await this.returnNotifications();
         },
         // Method to get favorite count for display
         getFavoriteCount() {
-            return this.notifications.filter(notif => notif.favorite).length;
+            return this.orig_notifications.filter(notif => notif.favorite).length;
         },
         // Method to get unread count for display
         getUnreadCount() {
-            return this.notifications.filter(notif => !notif.read).length;
+            return this.orig_notifications.filter(notif => !notif.seen).length;
+        },
+        //return notifications
+        async returnNotifications(){
+            const store = useDataStore();
+            const res = await axios.get('/return/notifications', {
+                params: {
+                    id: store.currentUser_info.id,
+                    type: 'seller',
+                }
+            });
+            console.log(res.data.message);
+            this.notifications = res.data.message;
+            this.orig_notifications = res.data.message;
+        },
+
+        returnColor(notif){
+
+            if(notif.seen === 0){
+                return '#dfdfdf';
+            }
+            else{
+                return 'transparent';
+            }
         }
+    },
+    async mounted(){
+        
+        await this.returnNotifications();
+
+        const store = useDataStore();
+
+        console.log(store.currentUser_info);
+        console.log(store.selected_shop);
+
+
+        Echo.channel(`message.${this.store.currentUser_info.name}`)
+            .listen('.message.sent', async (event) => {
+                await this.returnNotifications();
+        });
     }
 }
 </script>
 
 <style scoped>
+.overlay{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.overlay img{
+    width: 100px;
+    height: 100px;
+}
 .notif-header {
     display: flex;
     justify-content: space-between;
@@ -291,7 +464,7 @@ export default {
     gap: 1em;
     align-items: center;
     padding: 1em;
-    border: 1px solid #eee;
+    border: 1px solid #cdcdcd;
     background-color: #dfdfdf;
     margin-bottom: 0.5em;
     border-radius: 0.5em;

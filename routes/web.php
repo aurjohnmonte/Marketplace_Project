@@ -135,6 +135,8 @@ Route::middleware('buyercheck')->group(function() {
     Route::post('/user/change-profile', [BuyerController::class, 'changeProfile']);
     //user edit info
     Route::post('/buyer/edit-info', [BuyerController::class, 'editinfo']);
+    //user edit credential
+    Route::post('/buyer/edit-credential', [BuyerController::class, 'editCredential']);
 
     //LOGOUT
     Route::get('/buyer/logout', function(Request $request) {
@@ -219,8 +221,8 @@ Route::middleware('usercheck')->group(function() {
     Route::get('/seller/{p}/{c?}', function(){
 
         return view('seller_pages.seller_home');
-    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product'])
-      ->whereIn("c", ["add"]);//put all the components in the 2nd parameter in whereIn
+    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product', 'notifications'])
+      ->whereIn("c", ["add", "view"]);//put all the components in the 2nd parameter in whereIn
 
     //return seller info
     Route::post("/return/user-seller/info", [SellerController::class, "returnProfile_info"]);
@@ -235,6 +237,13 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/delete/product', [ProductController::class, 'deleteProduct']);
     //search product
     Route::post('/seller/search/product', [ProductController::class, "searchProduct"]);
+    ///action-notification
+    Route::post('/action-notification', [NotificationController::class, 'actionNotify']);
+    //change seen
+    Route::get('/change-seen', [NotificationController::class, 'changeSeen']);
+    Route::get('/check/notification', [NotificationController::class, 'checkNotify']);
+
+
 
     Route::get('/seller/logout', function(Request $request) {
 
@@ -265,6 +274,8 @@ Route::middleware('usercheck')->group(function() {
 Route::get('/return/notifications', [NotificationController::class, 'returnNotifications']);
 //change seen in  notification
 Route::get('/seen-notify', [NotificationController::class, "modifySeen"]);
+//delete notification
+Route::post('/delete-notif', [NotificationController::class, "deleteNotif"]);
 
 Route::get('/logout', function(Request $request){
     session()->flush();

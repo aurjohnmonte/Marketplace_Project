@@ -1,11 +1,12 @@
 <template>
-  <div class="main-container">
+  <div class="main-container" v-if="user">
     <ProfileModal v-if="show_profile" @goexit="goexit" @changepathtext="changepathtext" @stopLocation="stopLocation"/>
     <BuyerNotification v-if="show_notify" @goexit="goexit" @changepathtext="changepathtext" @modifyseen="modifyseen" :notifications="notifications"/>
     <header :class="{hidden: ishidden}">
       <div class="header1" style="cursor: pointer;" @click="show_profile = true; show_notify = false;">
         <div class="profile-pic">
           <img :src="'/'+store.currentUser_info.profile">
+
         </div>
         <div class="profile-info" style="cursor: pointer;">
           <label style="cursor: pointer;">{{ user.name }}</label>
@@ -94,7 +95,7 @@ export default {
             ishidden: false,
             notifications: [],
             shops: null,
-            user: [],
+            user: null,
             watchID: null,
         }
     },
@@ -163,7 +164,8 @@ export default {
 
         const res = await axios.get('/return/notifications', {
           params: {
-            id: this.store.currentUser_info.id
+            id: this.store.currentUser_info.id,
+            type: 'buyer',
           }
         });
         this.notifications = res.data.message;

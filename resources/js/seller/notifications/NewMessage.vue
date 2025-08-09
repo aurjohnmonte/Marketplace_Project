@@ -30,7 +30,9 @@ export default{
 
 <style scoped>
 .notification-wrapper {
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 40%;
   margin: 2rem 0;
   padding: 1rem;
 }
