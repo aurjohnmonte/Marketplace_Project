@@ -103,7 +103,7 @@
         </div>
 
         <!-- Add router-view for child routes -->
-        <div v-if="showOverlay" class="overlay-background">
+        <div v-if="showOverlay" class="overlay-background" @click="closeModal">
             <router-view></router-view>
         </div>
     </div>
@@ -185,7 +185,12 @@ export default {
             if(notification.seen === 0){
                 await this.changeSeen(notification.id);
             }
-
+        },
+        closeModal() {
+            this.$router.push({ name: 'Notification' });
+        },
+        openMessage(notification) {
+            this.selectedNotification = this.selectedNotification === notification ? null : notification;
             this.$router.push({ name: 'ViewNotification' });
         },
         removeNotification(index) {

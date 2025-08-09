@@ -10,6 +10,11 @@
                     <div v-if="notificationData.users" class="username">
                         <strong>{{ notificationData.users.firstname }} {{ notificationData.users.lastname }}</strong>
                     </div>
+                    <div v-if="notificationData.username" class="username">
+                        <hr>
+                        <strong>{{ notificationData.username }}</strong>
+                        <hr>
+                    </div>
                     <p class="message">{{ notificationData.text || notifymessage || 'Notification details will be displayed here' }}</p>
                     <div v-if="notificationData.created_at" class="timestamp">
                         {{ returnFormatTime(notificationData.created_at) }}
@@ -118,6 +123,9 @@ export default{
   flex: 1;
   font-size: 1em;
   color: #706a6a;
+  padding: .8em;
+  background-color: #e0ccc0;
+  border-radius: .5em;
 }
 
 .timestamp {

@@ -25,6 +25,7 @@ import ShopReview from "../buyer/home/shopview_pages/ShopReview.vue";
 import BuyerShops from "../buyer/home/BuyerShops.vue";
 import AddProduct from "../seller/pages/AddProduct.vue";
 import ViewNotification from "../seller/notifications/ViewNotification.vue";
+import Chats from "../seller/messages/Chats.vue";
 
 const routes = [
     {
@@ -106,11 +107,17 @@ const routes = [
         name: "Profile",
         component: Profile
     },
-        {
+    {
+        path: "/seller/messages/chats",
+        name: "Chats",
+        component: Chats
+    },
+    {
         path: "/seller/messages",
         name: "Messages",
         component: Messages
-    },    {
+    },
+    {
         path: "/seller/map",
         name: "Map",
         component: Map
