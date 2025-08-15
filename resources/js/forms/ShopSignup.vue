@@ -25,12 +25,11 @@
                 </div>
             </div>
         </teleport>
-        
+
         <div class="form-header">
             <h1>Sign up</h1>
             <p>Shop Details</p>
         </div>
-
         <div class="input-container">
             <div v-for="details in shopInfo" :key="details.id" class="input-box">
                 <!-- template for img upload -->
@@ -80,8 +79,9 @@
                 </template>
 
                 <template v-else-if="details.type === 'checkbox'">
+                    <hr>
                     <div class="category-label">
-                        <h5 style="margin-bottom: 6px;">{{ details.label }}</h5>
+                        <h5>{{ details.label }}</h5>
                         <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%;">
                             <template v-for="(option, idx) in details.options" :key="idx">
                                 <div style="display: flex; align-items: center; width: 48%; margin-bottom: 4px;">
@@ -96,6 +96,7 @@
                             </template>
                         </div>
                     </div>
+                    <hr>
                 </template>
 
                 <template v-else>
@@ -115,17 +116,18 @@
                     </span>
                 </template>
             </div>
-        <div class="terms">
-            <div class="checkbox">
-                <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
-                <label @click="show_permission = true">Allow location access to the nearest shop.</label>
-            </div>
+            <hr>
+            <div class="terms">
+                <div class="checkbox">
+                    <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
+                    <label @click="show_permission = true">Allow location access to the nearest shop.</label>
+                </div>
 
-            <div class="checkbox">
-                <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
-                <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+                <div class="checkbox">
+                    <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
+                    <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+                </div>
             </div>
-        </div>
         </div>
         <button class="form-btn style" id="next-btn" type="submit">Sign Up</button>
     </form>
@@ -155,12 +157,12 @@ export default {
                     name: 'shop_category',
                     id: 'shop_category',
                     options: [
-                        { value: 'fashion', label: 'Fashion' },
-                        { value: 'electronics', label: 'Electronics' },
-                        { value: 'home', label: 'Home & Living' },
-                        { value: 'beauty', label: 'Beauty & Health' },
-                        { value: 'sports', label: 'Sports & Outdoors' },
-                        { value: 'food', label: 'Food & Beverage' }
+                        { value: 'Furniture', label: 'furniture' },
+                        { value: 'Home Decor', label: 'home decor' },
+                        { value: 'Kitchen Essentials', label: 'kitchen essentials' },
+                        { value: 'Toys & games', label: 'toys & games' },
+                        { value: 'Personal accessories,', label: 'personal accessories' },
+                        { value: 'Outdoor enhancements', label: 'outdoor enhancements' }
                     ]
                 },
                 {label: 'Shop Description', type: 'textarea', name: 'shop_description', id: 'shop_description' },
@@ -240,7 +242,7 @@ export default {
         },
         goCancel(){
             this.show_permission = false;
-        },  
+        },
         handleFileUpload(event, name) {
             const file = event.target.files[0];
             if (file) {
@@ -290,22 +292,22 @@ export default {
 
 <style scoped>
 .map-container{
-    width: 100vw; 
+    width: 100vw;
     height: 100vh;
-    position: absolute; 
-    background-color: rgba(0, 0, 0, 0.781); 
-    left: 0; 
-    top: 0; 
-    z-index: 3000; 
-    display: flex; 
-    align-items: center; 
+    position: absolute;
+    background-color: rgba(0, 0, 0, 0.781);
+    left: 0;
+    top: 0;
+    z-index: 3000;
+    display: flex;
+    align-items: center;
     justify-content: center;
 }
 .form-content {
-    max-width: 400px;
+    max-width: 500px;
     width: 100%;
     margin: 0 auto;
-    padding: 32px 32px 24px 32px;
+    padding: 40px;
     box-sizing: border-box;
     border-radius: 8px;
 }
@@ -340,8 +342,14 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     color: #333;
-    margin-top: 4px;
-    margin-bottom: 0;
+    margin: 1em 0;
+    text-transform: capitalize;
+    font-size: .9em;
+}
+
+.input-box .category-label h5{
+    font-size: 1em;
+    margin-bottom: .5em;
 }
 
 .shop-btns {
@@ -407,7 +415,7 @@ export default {
 
 .desc-label {
     font-size: .9rem;
-    font-weight: 500;
+    font-weight: 600;
     margin-bottom: 6px;
     color: #333333;
 }
@@ -435,7 +443,7 @@ export default {
     margin-top: 10px;
 }
 .checkbox label{
-    color: blue;
+    color: rgb(57, 57, 218);
     text-decoration: underline;
     cursor: pointer;
 }
@@ -444,5 +452,9 @@ export default {
     height: 100%;
     width: 100%;
     position: relative;
+}
+
+hr {
+    width: 100%;
 }
 </style>
