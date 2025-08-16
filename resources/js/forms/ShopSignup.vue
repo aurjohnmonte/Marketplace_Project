@@ -162,13 +162,9 @@ export default {
                         { value: 'Decorative Items', label: 'Decorative Items' },
                         { value: 'Games', label: 'Games' },
                         { value: 'Outdoor Decor', label: 'Outdoor Decor' },
-                        { value: 'Home Decor', label: 'Home Decor' }
+                        { value: 'Home Decor', label: 'Home Decor' },
                         { value: 'Furniture', label: 'furniture' },
                         { value: 'Home Decor', label: 'home decor' },
-                        { value: 'Kitchen Essentials', label: 'kitchen essentials' },
-                        { value: 'Toys & games', label: 'toys & games' },
-                        { value: 'Personal accessories,', label: 'personal accessories' },
-                        { value: 'Outdoor enhancements', label: 'outdoor enhancements' }
                     ]
                 },
                 {label: 'Shop Description', type: 'textarea', name: 'shop_description', id: 'shop_description' },
