@@ -87,10 +87,12 @@ export default{
             categories: {
                 furniture: 'Furniture',
                 homeDecor: 'Home decor',
-                kitchenEssentials: 'Kitchen essentials',
+                kitchenware: 'Kitchenware',
                 toysandGames: 'Toys & games',
                 personalAccessories: 'Personal accessories',
-                outdoorEnhancements: 'Outdoor enhancements'
+                outdoorEnhancements: 'Outdoor enhancements',
+                musicalIndtruments: 'Musical Instrument',
+                officeSupplies: 'Office Supplies'
             },
             productCategory: 'Furniture',
             filterBy: {

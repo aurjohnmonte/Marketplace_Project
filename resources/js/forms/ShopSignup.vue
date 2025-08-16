@@ -162,7 +162,9 @@ export default {
                         { value: 'Kitchen Essentials', label: 'kitchen essentials' },
                         { value: 'Toys & games', label: 'toys & games' },
                         { value: 'Personal accessories,', label: 'personal accessories' },
-                        { value: 'Outdoor enhancements', label: 'outdoor enhancements' }
+                        { value: 'Outdoor enhancements', label: 'outdoor enhancements' },
+                        { value: 'Musical Instrument', label: 'musical instrument' },
+                        { value: 'Office Supplies', label: 'Office supplies' }
                     ]
                 },
                 {label: 'Shop Description', type: 'textarea', name: 'shop_description', id: 'shop_description' },

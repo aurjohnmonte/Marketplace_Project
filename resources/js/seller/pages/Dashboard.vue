@@ -12,12 +12,9 @@
                 <select name="filter" id="filter">
                     <option value="">Filter by Category</option>
                     <option value="all">All</option>
-                    <option value="furniture">Furniture</option>
-                    <option value="accessory">Accessory</option>
-                    <option value="decoration">Decoration</option>
-                    <option value="kitchen">Kitchen</option>
-                    <option value="bathroom">Bathroom</option>
-                    <option value="outdoor">Outdoor</option>
+                    <option v-for="category in productCategory" :key="category" :value="category">
+                        {{ category }}
+                    </option>
                 </select>
             </div>
         </div>
@@ -60,6 +57,20 @@
 
 <script>
 export default {
+    data() {
+        return {
+            productCategory: [
+                'Furniture',
+                'Kitchenware',
+                'Musical Instrument',
+                'Toys & Games',
+                'Office Supplies',
+                'Home Decor',
+                'Personal accessories',
+                'Outdoor enhancements'
+            ]
+        }
+    }
 }
 </script>
 

@@ -31,13 +31,9 @@
                             <label for="product-category">Category *</label>
                             <select id="product-category" v-model="productData.category">
                                 <option value="">Select Category</option>
-                                <option value="Furniture">Furniture</option>
-                                <option value="Kitchenware">Kitchenware</option>
-                                <option value="Musical Instrument">Musical Instrument</option>
-                                <option value="Decorative Items">Decorative Items</option>
-                                <option value="Games">Games</option>
-                                <option value="Outdoor Decor">Outdoor Decor</option>
-                                <option value="Home Decor">Home Decor</option>
+                                <option v-for="category in productCategory" :key="category" :value="category">
+                                    {{ category }}
+                                </option>
                             </select>
                         </div>
 
@@ -184,6 +180,16 @@ export default {
         return {
             is_overlay_loading: false,
             store: useDataStore(),
+            productCategory: [
+                'Furniture',
+                'Kitchenware',
+                'Musical Instrument',
+                'Toys & Games',
+                'Office Supplies',
+                'Home Decor',
+                'Personal accessories',
+                'Outdoor enhancements'
+            ],
             productData: {
                 name: '',
                 description: '',
