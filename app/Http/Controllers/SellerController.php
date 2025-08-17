@@ -6,6 +6,7 @@ use App\Events\MessageEvent;
 use App\Events\NotifyEvent;
 use App\Models\Message;
 use App\Models\Notification;
+use App\Models\Product;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,7 +23,7 @@ class SellerController extends Controller
 
             $user = User::returnProfileInfo($email);
 
-            $shop = Shop::with(['products', 'products.photos','reviews', 'products.reviews', 'user.followers'])->where('shops.user_id',$user['id'])->first();
+            $shop = Shop::with(['products', 'products.shop', 'products.photos','reviews', 'products.reviews', 'user.followers.followedBy', 'reviews.user'])->where('shops.user_id',$user['id'])->first();
 
             return response()->json(['message'=>$user, 'shop'=>$shop]);
         }
@@ -136,6 +137,18 @@ class SellerController extends Controller
             $message->delete();
             
             return response()->json(['message'=>'successful']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function returnDashboardProducts(Request $req){
+        try{
+
+            $products = Product::with(['reviews'])->where('shop_id', $req->shop_id)->get();
+
+            return response()->json(['message'=>$products]);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex]);

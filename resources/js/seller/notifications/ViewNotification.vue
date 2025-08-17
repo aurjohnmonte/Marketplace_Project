@@ -67,6 +67,7 @@ export default{
                 this.goViewMessage(notify.users.name);
                 break;
               case 'rate shop':
+                this.$router.push({name: 'Profile'});
                 break;
               case 'rate product':
                 break;

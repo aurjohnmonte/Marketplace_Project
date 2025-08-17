@@ -323,6 +323,8 @@ Route::middleware('usercheck')->group(function() {
     Route::get('/message/seller-edit', [SellerController::class, "editMessage"]);
     //seller delete message
     Route::get('/seller/delete-message', [SellerController::class, 'deleteMessage']);
+    //seller return product to dashboard
+    Route::get('/seller/dashboard/return-products', [SellerController::class, 'returnDashboardProducts']);
 
 
     Route::get('/seller/logout', function(Request $request) {

@@ -48,6 +48,7 @@ class Review extends Model
 
             if($req->type === "product"){
                 $this->product_id = $req->to_id;
+                $this->shop_id = $req->shop_id;
             }
             else if($req->type === "shop"){
                 $this->shop_id = $req->to_id;

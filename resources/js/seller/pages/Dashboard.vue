@@ -7,19 +7,6 @@
             <div class="dashboard-header-left">
                 <h3>Welcome {{ user.name }},</h3>
                 <p>Your dashboard overview</p>
-                <div class="search-product">
-                    <div class="search-input-wrapper">
-                        <input type="search" name="search" id="search" placeholder="Search your product..." @input="searchProduct">
-                        <i class="fa fa-search search-icon"></i>
-                    </div>
-                    <select name="filter" id="filter">
-                        <option value="">Filter by Category</option>
-                        <option value="all">All</option>
-                        <option v-for="category in productCategory" :key="category" :value="category">
-                            {{ category }}
-                        </option>
-                    </select>
-                </div>
             </div>
             <div class="header-right">
                 <router-link to="/seller/map">
@@ -36,43 +23,35 @@
                     <div class="card-header">
                         <h6>Total Shop Reviews</h6>
                         <i class="fi fi-rr-thumbs-up-trust"></i>
-                        <p><span>{{ user.reviews }}</span> Reviews</p>
+                        <p><span>{{ shop_reviews.total }}</span> Reviews</p>
                     </div>
                     <div class="card-content">
                         <canvas id="genderViewsChart" class="gender-chart"></canvas>
-                        <div class="info-container">
-                            <h6>Top Reviews from follower</h6>
-                            <img :src=" follower.profilepic" alt="Follower">
-                            <div class="details">
-                                <p>{{ follower.username }}</p>
-                                <p>{{ follower.reviews }} reviews</p>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="card-group-2 cards">
                     <div class="card-header">
                         <h6>Total Products</h6>
                         <i class="fi fi-rr-box-open-full"></i>
-                        <p><span>{{ user.totalProducts }}</span> Products</p>
+                        <p><span>{{ total_products.total }}</span> Products</p>
                     </div>
                     <div class="product-container">
                         <div class="review-section">
                             <div class="section-header">
-                                <h6>Top product with high reviews</h6>
+                                <h6>Top product with highest reviews</h6>
                                 <a href="#" class="view-all">view all</a>
                             </div>
                             <div class="product-list">
-                                <div class="product-item" v-for="(product, index) in highReviewProducts" :key="index">
+                                <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
                                     <div class="product-icon">
-                                        <i class="fi fi-rr-box-open"></i>
+                                       <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                     <div class="product-details">
                                         <p class="product-name">{{ product.name }}</p>
-                                        <p class="review-count" v-if="product.reviewCount">{{ product.reviewCount }} reviews</p>
+                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
                                     </div>
                                     <div class="rating-info">
-                                        <span class="rating-score">{{ product.rating }}</span>
+                                        <span class="rating-score">{{ product.overall_rate }}</span>
                                         <i class="fi fi-sr-star filled"></i>
                                     </div>
                                 </div>
@@ -81,20 +60,20 @@
 
                         <div class="review-section">
                             <div class="section-header">
-                                <h6>Top product with low reviews</h6>
+                                <h6>Top product with lowest reviews</h6>
                                 <a href="#" class="view-all">view all</a>
                             </div>
                             <div class="product-list">
-                                <div class="product-item" v-for="(product, index) in lowReviewProducts" :key="index">
+                                <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
                                     <div class="product-icon">
-                                        <i class="fi fi-rr-box-open"></i>
+                                        <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
                                     <div class="product-details">
                                         <p class="product-name">{{ product.name }}</p>
-                                        <p class="review-count" v-if="product.reviewCount">{{ product.reviewCount }} reviews</p>
+                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
                                     </div>
                                     <div class="rating-info">
-                                        <span class="rating-score">{{ product.rating }}</span>
+                                        <span class="rating-score">{{ product.overall_rate }}</span>
                                         <i class="fi fi-sr-star filled"></i>
                                     </div>
                                 </div>
@@ -102,32 +81,52 @@
                         </div>
                     </div>
                 </div>
-                <div class="graph cards">
+                <div class="graph cards" style="height: 440px; overflow: hidden;">
+                    <LineGraph/>
                 </div>
                 <div class="chart cards">
                     <div class="chart-header">
                         <div class="header-left">
-                            <h4>Top Categories</h4>
+                            <h4>All Categories Reviews</h4>
                         </div>
-                        <a href="#" class="view-all">view all</a>
                     </div>
                     <div class="category-content">
-
+                        <RadialGraph :products_data_radial="products_data_radial" v-if="show"/>
                     </div>
                 </div>
             </div>
             <div class="card-container-2">
-                <div class="follower-card cards">
+                <div class="follower-card cards" style="">
                     <div class="follower-stats">
                         <h4>Follower Statistics</h4>
-                        <p class="total-followers"><span>{{ user.totalFollowers }}</span> total followers</p>
+                        <p class="total-followers"><span>{{ follower_statistics.total }}</span> total followers</p>
                     </div>
                     <div class="stats-content">
                         <div class="stat-item">
-                            <span class="stat-label">gender</span>
+                            <span class="stat-label" style="font-weight: bolder;">Gender</span>
+                            
+                            <div style="display: flex; flex-direction: column; margin-top: 10px;">
+                                <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+                                    <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
+                                        <div class="follower-gender-male" :style="{width: `${computemalepercent}%`}"></div>
+                                    </div>
+                                    <label style="margin: 0;">Male - ({{ computemalepercent }}%)</label>
+                                </div>
+                                <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+                                    <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
+                                        <div class="follower-gender-female" :style="{width: `${computefemalepercent}%`}"></div>
+                                    </div>
+                                    <label style="margin: 0;">Female - ({{ computefemalepercent }}%)</label>
+                                </div>
+                            </div>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">age</span>
+                            <span class="stat-label" style="font-weight: bolder;">Age</span>
+                            <div style="display: grid; grid-template-columns: 100px 60px 10px; font-size: 10px;">
+                                <label>below 18</label><label>-</label><label>{{ follower_statistics.below_18 }}</label>
+                                <label>18 - 25</label><label>-</label><label>{{ follower_statistics.middle }}</label>
+                                <label>above 25</label><label>-</label><label>{{ follower_statistics.above_25 }}</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -159,25 +158,25 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Category</th>
-                                            <th>Total Products Sold</th>
-                                            <th>Rating</th>
-                                            <th>Total Reviews</th>
-                                            <th>Followers</th>
+                                            <th>Description</th>
+                                            <th>Overall Rate</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr v-for="(result, index) in searchResults" :key="index" class="table-row">
                                             <td class="product-name-cell">{{ result.name }}</td>
                                             <td class="category-cell">{{ result.category }}</td>
-                                            <td class="sales-cell">{{ result.totalSold || 0 }}</td>
+                                            <td class="sales-cell">{{ result.description }}</td>
                                             <td class="rating-cell">
                                                 <div class="rating-display">
-                                                    <span class="rating-score">{{ result.rating }}</span>
+                                                    <span class="rating-score">{{ result.overall_rate }}</span>
                                                     <i class="fi fi-sr-star filled"></i>
                                                 </div>
                                             </td>
-                                            <td class="reviews-cell">{{ result.reviewCount || 0 }}</td>
-                                            <td class="followers-cell">{{ result.followers || 0 }}</td>
+                                            <td class="reviews-cell">{{ result.price || 0 }}</td>
+                                            <td class="followers-cell">{{ result.status || 0 }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -228,25 +227,22 @@
                     <div class="chart-header">
                         <div class="header-left">
                             <h4>Recent Notification</h4>
-                            <span v-if="unreadNotificationsCount > 0" class="unread-badge">{{ unreadNotificationsCount }}</span>
+                            <span v-if="unread > 0" class="unread-badge">{{ unread }}</span>
                         </div>
-                        <a href="#" class="view-all">view all</a>
+                        <a href="#" class="view-all" @click="$router.push({name: 'Notification'})">view all</a>
                     </div>
                     <div class="notification-content">
                         <div
                             class="notification-item"
                             :class="notification.status"
-                            v-for="(notification, index) in recentNotifications"
+                            v-for="(notification, index) in notifications"
                             :key="index"
                             @click="markAsRead(index)"
-                            :style="{ cursor: notification.status === 'unread' ? 'pointer' : 'default' }"
+                            :style="{ cursor: notification.status === 'unread' ? 'pointer' : 'default', backgroundColor: returnColor(notification) }"
                         >
-                            <div class="notification-icon">
-                                <i :class="notification.icon"></i>
-                            </div>
                             <div class="notification-details">
-                                <p class="notification-title">{{ notification.title }}</p>
-                                <p class="notification-message">{{ notification.message }}</p>
+                                <p class="notification-title">{{ notification.type }}</p>
+                                <p class="notification-message">{{ notification.text }}</p>
                                 <span class="notification-time">{{ notification.time }}</span>
                             </div>
                             <div class="notification-status" :class="notification.status">
@@ -265,10 +261,45 @@
 </template>
 
 <script>
+import RadialGraph from '../graph/RadialGraph.vue';
+import LineGraph from '../graph/LineGraph.vue';
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
 
 export default {
+    components: {
+        RadialGraph,
+        LineGraph
+    },
     data() {
         return {
+            orig_products: [],
+            notifications: [],
+            unread: 0,
+            show: false,
+            products_data_radial: {
+                labels: [],
+                data: {},
+            },
+            shop_reviews: {
+                total: 0,
+                unique_total: 0,
+                male: 0,
+                female: 0,
+            },
+            total_products: {
+                total: 0,
+                high_reviews: [],
+                low_reviews: [],
+            },
+            follower_statistics: {
+                total: 0,
+                male: 0,
+                female: 0,
+                below_18: 0,
+                middle: 0,
+                above_25: 0,
+            },
             searchQuery: '',
             searchResults: [],
             isSearching: false,
@@ -457,11 +488,18 @@ export default {
                     followers: 98
                 }
             ],
-            follower: {
-                username: 'loloy',
-                reviews: 20,
-                profilepic: 'https://imgcdn.stablediffusionweb.com/2024/4/17/6d71579f-ecef-42de-b83e-c0cb8179130c.jpg'
-            },
+            followers: [
+                {
+                    username: 'loloy',
+                    reviews: 20,
+                    profilepic: 'https://imgcdn.stablediffusionweb.com/2024/4/17/6d71579f-ecef-42de-b83e-c0cb8179130c.jpg'
+                },
+                {
+                    username: 'yolol',
+                    reviews: 20,
+                    profilepic: 'https://imgcdn.stablediffusionweb.com/2024/4/17/6d71579f-ecef-42de-b83e-c0cb8179130c.jpg'
+                }
+            ],
             genderViews: {
                 male: 120,
                 female: 180
@@ -469,44 +507,37 @@ export default {
         }
     },
     computed: {
-        // Add computed properties for better data handling
-        totalViews() {
-            return this.genderViews.male + this.genderViews.female;
+        computefemalepercent(){
+            const result = (this.follower_statistics.female.length / this.follower_statistics.total) * 100;
+            console.log(this.follower_statistics);
+            return result.toFixed(2);
         },
-        malePercentage() {
-            return this.totalViews > 0 ? ((this.genderViews.male / this.totalViews) * 100).toFixed(1) : 0;
+        computemalepercent(){
+            const result = (this.follower_statistics.male.length / this.follower_statistics.total) * 100;
+            console.log(this.follower_statistics);
+            return result.toFixed(2);
         },
-        femalePercentage() {
-            return this.totalViews > 0 ? ((this.genderViews.female / this.totalViews) * 100).toFixed(1) : 0;
-        },
-        unreadNotificationsCount() {
-            return this.recentNotifications.filter(notification => notification.status === 'unread').length;
-        },
-        highReviewProducts() {
-            // Get products with highest ratings and review counts
-            return [...this.allProducts]
-                .sort((a, b) => {
-                    // Sort by rating first, then by review count
-                    if (b.rating !== a.rating) {
-                        return b.rating - a.rating;
-                    }
-                    return b.reviewCount - a.reviewCount;
-                })
-                .slice(0, 2)
-        },
-        lowReviewProducts() {
-            return [...this.allProducts]
-                .sort((a, b) => {
-                    // Sort by rating first, then by review count
-                    if (a.rating !== b.rating) {
-                        return a.rating - b.rating;
-                    }
-                    return a.reviewCount - b.reviewCount;
-                })
-                .slice(0, 1);
-        }
+
     },
-    mounted() {
+    async mounted() {
+
+        await this.returnProducts();
+
+        await this.returnNotifications();
+
+        const store = useDataStore();
+        const shop = store.selected_shop;
+        console.log(shop);
+
+        //compute total shop reviews
+        this.totalShopReviews();
+        //compute total of products
+        this.totalOfProducts(shop);
+        //compute follower statistics;
+        this.followerStatistics();
+        //return products category
+        await this.returnCategoriesProducts();
+
         // Load Chart.js from CDN if not already loaded
         if (!window.Chart) {
             const script = document.createElement('script');
@@ -516,52 +547,196 @@ export default {
         } else {
             this.renderGenderChart();
         }
+    
+    },
+    watch: {
+        searchQuery(newval){
+
+            if(newval === ''){
+                this.searchResults = this.orig_products;
+            }
+
+            this.searchResults = this.orig_products.filter(e => e.name.includes(newval));
+        }   
     },
     methods: {
-        // Add error handling for images
-        handleImageError(event) {
-            event.target.src = '/path/to/fallback-image.jpg'; // Add a fallback image
-            event.target.alt = 'Product image not available';
+
+        returnColor(notif){
+
+            if(!notif.seen){
+                return '#F0AE73';
+            }
         },
 
-        // Search functionality
-        handleSearch() {
-            // Clear results when query is empty
-            if (!this.searchQuery.trim()) {
-                this.searchResults = [];
-                return;
-            }
+        async returnProducts(){
 
-            // Debounce search for better performance
-            clearTimeout(this.searchTimeout);
-            this.searchTimeout = setTimeout(() => {
-                this.performSearch();
-            }, 300);
+            try{
+                const store = useDataStore();
+                const data = new FormData();
+                data.append('id', store.currentUser_info.id);
+
+                const res = await axios.post('/seller/return/products', data);
+                console.log('PRODUCTSSSS: ',res.data.message);
+                this.searchResults = res.data.message;
+                this.orig_products = res.data.message;
+            }
+            catch(error){
+                console.log(error);
+            }
         },
 
-        performSearch() {
-            if (!this.searchQuery.trim()) {
-                this.searchResults = [];
-                return;
+        async returnNotifications(){
+            const store = useDataStore();
+            const res = await axios.get('/return/notifications', {
+                params: {
+                    id: store.currentUser_info.id,
+                    type: 'seller',
+                }
+            });
+            console.log(res.data.message);
+            let count = 0;
+            for(let notif of res.data.message){
+                if(count === 10){
+                    break;
+                }
+
+                if(!notif.seen){
+                    this.unread++;
+                }
+                this.notifications.push(notif);
+                count++;
+            }
+            console.log('notif: ', this.notifications);
+        },
+
+        async returnCategoriesProducts(){
+            this.show = false;
+            const store = useDataStore();
+            const shop_id = store.selected_shop.id;
+
+            const res = await axios.get('/seller/dashboard/return-products', {
+                params: {
+                    shop_id: shop_id
+                }
+            });
+
+            console.log(res.data.message);
+            
+            for(let product of res.data.message){
+                
+                if(this.products_data_radial.labels.length < 1){
+                    this.products_data_radial.data[product.category] = 0;
+                    this.products_data_radial.labels.push(product.category);
+                }
+                else{
+
+                    if(!this.products_data_radial.labels.includes(product.category)){
+                        this.products_data_radial.labels.push(product.category);
+                        this.products_data_radial.data[product.category] = 0;
+                    }
+                }
             }
 
-            this.isSearching = true;
+            for(let product of res.data.message){
+                this.products_data_radial.data[product.category] = this.products_data_radial.data[product.category] + product.reviews.length;
+            }
 
-            // Simulate API call delay
-            setTimeout(() => {
-                const query = this.searchQuery.toLowerCase().trim();
+            console.log('category: ', this.products_data_radial);
 
-                this.searchResults = this.allProducts.filter(product =>
-                    product.name.toLowerCase().includes(query) ||
-                    product.category.toLowerCase().includes(query) ||
-                    product.totalSold.toString().includes(query) ||
-                    product.rating.toString().includes(query) ||
-                    product.reviewCount.toString().includes(query) ||
-                    product.followers.toString().includes(query)
-                );
+            
+            this.show = true;
+        },
 
-                this.isSearching = false;
-            }, 500);
+        followerStatistics(){
+
+            const store = useDataStore();
+
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!', store.selected_shop);
+
+            const followers = store.selected_shop.user.followers;
+            console.log('followers: ', followers);
+
+            this.follower_statistics.total = followers.length;
+            this.follower_statistics.male = followers.filter(f => f.followed_by.gender === 'male');
+            this.follower_statistics.female = followers.filter(f => f.followed_by.gender === 'female');
+            
+            for(let user of followers){
+                console.log('user: ', user);
+                if(user.followed_by.age < 18){
+                    this.follower_statistics.below_18 = this.follower_statistics.below_18 + 1;
+                }
+                else if(user.followed_by.age >= 18 && user.follower_statistics <= 25){
+                    this.follower_statistics.middle = this.follower_statistics.middle + 1;
+                }
+                else{
+                    this.follower_statistics.above_25 = this.follower_statistics.above_25 + 1;
+                }
+            }
+
+
+            console.log('follower statistics: ', this.follower_statistics);
+        },
+
+        totalOfProducts(shop){
+
+            //PRODUCTS ARRAY IS SORTED ASCENDING BASED ON THE OVERALL_RATE
+
+            console.log(shop);
+            this.total_products.total = shop.products.length;
+
+            let products = shop.products;
+
+            let is_continue;
+
+            do{
+                is_continue = false;
+                let dummy1, dummy2;
+                for(let i = 1; i < products.length; i++){
+
+                    dummy1= products[i];
+                    dummy2 = products[i-1];
+
+                    if(dummy2.overall_rate < dummy1.overall_rate){
+                        products[i-1] = dummy1;
+                        products[i] = dummy2;
+                        is_continue = true;
+                        break;
+                    }
+                }
+            }
+            while(is_continue);
+            
+            console.log('products: ', products);
+
+            for(let i = 0; i < 3; i++){
+                this.total_products.high_reviews.push(products[i]);
+            }
+
+            console.log(this.total_products);
+
+            this.total_products.low_reviews.unshift(products[products.length - 1]);
+
+        },
+
+        totalShopReviews() {
+
+            const store = useDataStore();
+            const shop = store.selected_shop;
+
+            const shopReviews = shop.reviews.filter(r => r.review_type === 'shop');
+
+            const arr_review = [];
+            shopReviews.forEach(r => {
+                const exists = arr_review.some(a => a.from_id === r.from_id);
+                if (!exists) arr_review.push(r);
+            });
+
+            this.shop_reviews.total = shopReviews.length;
+            this.shop_reviews.unique_total = arr_review.length;
+            this.shop_reviews.male = arr_review.filter(r => r.user.gender === 'male').length;
+            this.shop_reviews.female = arr_review.filter(r => r.user.gender === 'female').length;
+
+            console.log('shop_reviews: ', this.shop_reviews);
         },
 
         clearSearch() {
@@ -587,16 +762,21 @@ export default {
             const context = ctx.getContext('2d');
             if (!context) return;
 
+            console.log(this.shop_reviews.male)
+
+            const malePercentage = this.shop_reviews.male > 0 ? (this.shop_reviews.male / this.shop_reviews.unique_total) * 100 : 0;
+            const femalePercentage = this.shop_reviews.female > 0 ? (this.shop_reviews.female / this.shop_reviews.unique_total) * 100 : 0;
+
             new window.Chart(context, {
                 type: 'bar',
                 data: {
                     labels: [
-                        `Male (${this.malePercentage}%)`,
-                        `Female (${this.femalePercentage}%)`
+                        `Male (${malePercentage.toFixed(2)}%)`,
+                        `Female (${femalePercentage.toFixed(2)}%)`
                     ],
                     datasets: [{
                         label: 'Views by Gender',
-                        data: [this.genderViews.male, this.genderViews.female],
+                        data: [malePercentage, femalePercentage],
                         backgroundColor: ['#4e79a7', '#f19393'],
                         barThickness: 6,
                         categoryPercentage: 0.3
@@ -635,6 +815,23 @@ export default {
 </script>
 
 <style scoped>
+.fill_unread{
+    background-color: red;
+}
+.follower-gender-male{
+    height: 100%;
+    background-color: blue;
+}
+.follower-gender-female{
+    height: 100%;
+    background-color: #DE18F2;
+}
+.graph.cards {
+  width: 100%;
+  max-width: 1000px;
+  overflow: visible;
+  height: 100%;
+}
 .dashboard-container {
     padding: 2em;
     display: flex;
@@ -746,7 +943,7 @@ export default {
     height: 100%;
     gap: 2em;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 16em 13em;
+    grid-template-rows: 20em 27em;
     grid-template-areas:
         'card-group-1 card-group-2  chart'
         'graph graph chart';
@@ -802,7 +999,7 @@ export default {
 }
 
 .gender-chart {
-    height: 80px !important;   /* ✅ small height */
+    height: 130px !important;   /* ✅ small height */
     width: 100% !important;    /* fills container */
     font-size: .7em;
 }
@@ -845,6 +1042,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 0.8em;
+    height: 500px;
 }
 
 .category-item {
@@ -860,7 +1058,7 @@ export default {
     height: 84vh;
     gap: 2em;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 10em 2fr;
+    grid-template-rows: 15em 2fr;
     grid-template-areas:
         'card card chart'
         'box  box  chart';
@@ -875,7 +1073,7 @@ export default {
 }
 
 .notif-card {
-    height: 41em;
+    height: 50em;
 }
 
 .chart-header {
@@ -1213,12 +1411,16 @@ export default {
 .product-icon {
     width: 2.5em;
     height: 2.5em;
-    background: #ff7300;
+    background: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+.product-icon img{
+    position: relative;
+    border-radius: 50%;
 }
 
 .product-icon i {
@@ -1286,7 +1488,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding: 1em;
-    gap: 1.5em;
+    gap: 0.5em;
     background-color: #d8bdad;
     border-radius: 1em;
 }
@@ -1309,7 +1511,6 @@ export default {
 .stat-label {
     font-size: 0.9em;
     color: #333;
-    text-transform: lowercase;
 }
 
 /* Box layout styles */
