@@ -310,11 +310,11 @@ export default {
                 'Furniture',
                 'Kitchenware',
                 'Musical Instrument',
-                'Decorative Items',
-                'Games',
+                'Toys & Games',
                 'Office Supplies',
-                'Outdoor Decor',
                 'Home Decor',
+                'Personal accessories',
+                'Outdoor enhancements'
             ],
 
 
@@ -327,27 +327,25 @@ export default {
     },
     computed: {
         filteredProducts() {
-            let filtered = this.allProducts;
+            let filtered = this.allProducts || [];
 
             // Filter by search
-            if (this.searchQuery) {
+            if (this.search.text) {
                 filtered = filtered.filter(item =>
-                    item.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                    item.cat.toLowerCase().includes(this.searchQuery.toLowerCase())
+                    item.name.toLowerCase().includes(this.search.text.toLowerCase()) ||
+                    item.category.toLowerCase().includes(this.search.text.toLowerCase())
                 );
             }
-
             // Filter by category
-            if (this.selectedCategory) {
+            if (this.search.category) {
                 filtered = filtered.filter(item =>
-                    item.cat.toLowerCase() === this.selectedCategory.toLowerCase()
+                    item.category.toLowerCase() === this.search.category.toLowerCase()
                 );
             }
-
             // Filter by status
-            if (this.selectedStatus) {
+            if (this.search.status) {
                 filtered = filtered.filter(item =>
-                    item.status === this.selectedStatus
+                    item.status === this.search.status
                 );
             }
 
