@@ -1,34 +1,36 @@
 <template>
-    <div class="about-container">
+    <div class="about-container" v-if="shop">
         <div class="desc">
             <h6>Shop Description</h6>
-            <p>{{ user.description }}</p>
+            <p>{{ shop.description }}</p>
         </div>
         <div class="about-details">
             <div class="details-container">
                 <span>Seller Name:</span>
-                <p>{{ user.sellerName }}</p>
+                <p>{{ shop.name }}</p>
             </div>
             <div class="details-container">
                 <span>Email :</span>
-                <p>{{ user.email }}</p>
+                <p>{{ shop.user.email }}</p>
             </div>
             <div class="details-container">
                 <span>Contact Number:</span>
-                <p>{{ user.contacts }}</p>
+                <p>{{ shop.user.contact_no }}</p>
             </div>
             <div class="details-container">
                 <span>Address:</span>
-                <p>{{ user.address }}</p>
+                <p>{{ shop.address }}</p>
             </div>
             <div class="row">
                 <div class="details-container">
-                    <span>Category:</span>
-                    <p>{{ user.category }}</p>
+                    <span>Category:</span><br>
+                    <div style="display: flex; flex-direction: column;" class="cat">
+                        <label v-for="cat of category" :key="cat">{{ cat }}</label>
+                    </div>
                 </div>
                 <div class="details-container">
                     <span>Total Products:</span>
-                    <p>{{ user.totalProducts }}</p>
+                    <p>{{ shop.products.length }}</p>
                 </div>
             </div>
         </div>
@@ -37,28 +39,33 @@
 
 <script>
 export default {
+    props: ['shop'],
     data() {
         return {
-            user: {
-                sellerName: 'Bravo',
-                shop: 'Budol Seller',
-                profilePicture: 'https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3',
-                coverPhoto: 'https://wallpapercave.com/wp/wp1996490.jpg',
-                email: 'bravobudol@gmail.com',
-                contacts: '090909090909',
-                address: 'balay',
-                rating: 2.5,
-                followers: 10,
-                category: 'Furniture',
-                description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.',
-                totalProducts: 10
-            }
+            category: [],
+        }
+    },
+    mounted(){
+        console.log(this.shop);
+        this.category = JSON.parse(this.shop.category);
+        console.log(this.category);
+
+        for(let cat of this.category){
+            console.log('cat: ', cat);
         }
     }
 }
 </script>
 
 <style scoped>
+.cat label{
+    background-color: orange;
+    text-align: center;
+    width: 160px;
+    color: white;
+    padding: 5px;
+    border-radius: 10px;
+}
 .about-container {
     padding: 1.5rem 1.5rem 0 1.5rem;
     display: flex;

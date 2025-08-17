@@ -7,6 +7,8 @@
       </div>
 
 
+
+
       <header>
         <h3>Profile</h3>
       </header>
@@ -66,8 +68,9 @@
       </main>
 
       <main class="main1">
-        <label class="label-setting">Account Setting</label>
-        <label class="label-setting">Change Distance (in km)</label><br>
+        <label style="margin-top: 10px; margin-bottom: 10px;">Account Setting</label>
+        <label class="label-setting" @click="$router.push({name: 'AccountSetting'})" style="color: yellowgreen;">Deactivate Account</label>
+        <label class="label-setting" @click="$router.push({name: 'DeleteAccount'})" style="color: red;">Delete Account</label><br>
         <label class="label-setting">Logout</label>
       </main>
   </div>
@@ -353,6 +356,8 @@ export default {
   padding-left: 20px;
 }
 header{
+  margin-top: 20px;
+  padding-bottom: 10px;
   border-bottom: 10px solid rgb(202, 202, 202);
 }
 </style>

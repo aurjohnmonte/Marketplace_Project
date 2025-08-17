@@ -118,7 +118,6 @@ export default {
     data() {
         return {
             selectedNotification: null,
-            profile: "https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3",
             systemProfile: systemLogo,
             notifications: [],
             selected_notif: [],
@@ -180,18 +179,18 @@ export default {
         },
         async openMessage(notification) {
 
+            console.log(notification);
+
             this.store.setSelectedNotification(notification);
 
             if(notification.seen === 0){
                 await this.changeSeen(notification.id);
             }
+
+            this.$router.push({ name: 'ViewNotification' });
         },
         closeModal() {
             this.$router.push({ name: 'Notification' });
-        },
-        openMessage(notification) {
-            this.selectedNotification = this.selectedNotification === notification ? null : notification;
-            this.$router.push({ name: 'ViewNotification' });
         },
         removeNotification(index) {
             this.notifications.splice(index, 1);
@@ -328,6 +327,8 @@ export default {
             window.alert(res.data.message);
 
             await this.returnNotifications();
+
+            this.$emit('checknotif');
         },
         // Method to get favorite count for display
         getFavoriteCount() {
@@ -373,6 +374,11 @@ export default {
 
         Echo.channel(`message.${this.store.currentUser_info.name}`)
             .listen('.message.sent', async (event) => {
+                await this.returnNotifications();
+        });
+
+        Echo.channel(`sellernotify.${this.store.currentUser_info.name}`)
+            .listen('.sellernotify.sent', async(event) => {
                 await this.returnNotifications();
         });
     }

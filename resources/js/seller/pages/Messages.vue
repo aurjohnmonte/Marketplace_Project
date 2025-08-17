@@ -4,21 +4,33 @@
         <h4>Timber Chats</h4>
 
         <div class="search-bar">
-            <input type="search" name="search" id="search" @input="searchChat">
+            <input type="search" name="search" id="search" v-model="searchTerm">
             <i class="fa fa-search search-icon"></i>
         </div>
     </div>
 
-    <div class="messages">
-        <div class="chat-box" v-for="chat in filteredChats" @click="openChat(chat)">
-            <img :src="chat.profile" alt="Profile">
-            <div class="chat-details">
-                <h6>{{ chat.username }}</h6>
-                <p>{{ chat.message }}</p>
+    <div class="overlay" v-if="!chats">
+        <img src="../../../images/kOnzy.gif">
+    </div>
+
+    <div class="messages" v-else>
+        <div class="chat-box" v-for="chat in chats" :key="chat" @click="openChat(chat)">
+            <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+                <img :src="'/'+chat[1].profile" alt="Profile">
+                <div class="chat-details">
+                    <h6>{{ chat[1].firstname }} {{ chat[1].lastname }}</h6>
+                    <p>{{ chat[0].messages }}</p>
+
+                    <div style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
+                        <div style="width: 15px; height: 15px; border-radius: 15px; background-color: green;" v-if="chat[1].is_active === 1"></div>
+                        <label style="font-size: 12px; margin: 0;">Active {{ (chat[1].is_active === 1 ? "now" : returnFormatActivedTime(chat[1].time_logout)) }}</label>
+                    </div>
+                </div>
             </div>
+            <label style="font-size: 12px;">{{ returnFormatDate(chat[0].updated_at) }}</label>
         </div>
 
-        <div v-if="filteredChats.length === 0" style="margin: 0 1em;">
+        <div v-if="chats.length === 0" style="margin: 0 1em;">
             <p v-if="searchTerm.trim() === ''">No chats available</p>
             <p v-else>No chats found matching "{{ searchTerm }}"</p>
         </div>
@@ -27,14 +39,18 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
+
 export default {
     data() {
         return {
-            chats: [
-                {username: 'buyer1', profile: "https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3", message: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.'},
-                {username: 'buyer2', profile: 'https://wallpapercave.com/wp/wp1996490.jpg', message: 'sdaf dsfa'}
-            ],
-            searchTerm: ''
+            show_conversation: true,
+            chats: null,
+            orig_chats: null,
+            searchTerm: '',
+            store: useDataStore(),
+            conversation: [],
         }
     },
     computed: {
@@ -47,46 +63,127 @@ export default {
         }
     },
     methods: {
+        returnFormatActivedTime(datetime) {
+            if(!datetime){
+                return "";
+            }
+      const current = new Date();
+      const time = new Date(datetime);
+
+      const diffInMs = current - time;
+      const diffInSeconds = Math.floor(diffInMs / 1000);
+
+      if (diffInSeconds < 60) {
+        return `${diffInSeconds} seconds ago`;
+      }
+
+      const diffInMinutes = Math.floor(diffInSeconds / 60);
+      if (diffInMinutes < 60) {
+        return `${diffInMinutes} minutes ago`;
+      }
+
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) {
+        return `${diffInHours} hours ago`;
+      }
+
+      const diffInDays = Math.floor(diffInHours / 24);
+      return `${diffInDays} days ago`;
+    },
+        returnFormatDate(date){
+
+
+            return new Date(date).toLocaleDateString();
+        },
+        async returnMessageList(id){
+
+            console.log('seller: ',this.store.currentUser_info);
+
+            const res = await axios.get('/seller/return-message/list', {
+                params: {
+                    id: id
+                }
+            });
+
+            console.log(res.data.messages);
+            this.chats = res.data.messages;
+            this.orig_chats = res.data.messages;
+
+        },
         openChat(chat) {
             // Redirect to Chats component with chat data as query parameters
+            this.$emit('returnActiveStatus', chat[1].is_active);
+
             console.log('Opening chat:', chat);
             console.log('Current route:', this.$route);
 
-            const queryParams = {
-                username: chat.username,
-                profile: chat.profile,
-                message: chat.message
-            };
+            const username = chat[1].name;
 
-            console.log('Query params:', queryParams);
+            console.log('Query:', username);
 
             // Try using route name first, then fallback to path
-            this.$router.push({
-                name: 'Chats',
-                query: queryParams
-            }).then(() => {
-                console.log('Navigation successful');
-            }).catch(err => {
-                console.error('Navigation error with name, trying path:', err);
-                // Fallback to path
-                this.$router.push({
-                    path: '/seller/messages/chats',
-                    query: queryParams
-                }).then(() => {
-                    console.log('Navigation successful with path');
-                }).catch(pathErr => {
-                    console.error('Navigation error with path:', pathErr);
-                });
-            });
+
+            this.$router.push({name: 'Chats', query: {username: username}});
         },
         searchChat(event) {
             this.searchTerm = event.target.value;
         }
+    },
+    watch: {
+        searchTerm(newval){
+
+            let searchtext = newval.toLowerCase();
+
+            console.log(newval);
+            if(newval === ""){
+                this.chats = this.orig_chats;
+                return;
+            }
+            console.log(this.orig_chats);
+            console.log(this.orig_chats[1][1].firstname);
+
+            this.chats = this.orig_chats.filter(e => `${e[1].firstname} ${e[1].lastname}`.toLowerCase().includes(searchtext));
+            console.log('chats: ', this.chats);
+        }
+    },
+    async mounted(){
+        await this.returnMessageList(this.store.currentUser_info.id);
+        console.log(this.store.currentUser_info);
+
+        let id = this.store.currentUser_info.id;
+        let username = this.store.currentUser_info.name;
+
+
+        Echo.channel(`active-notify`)
+        .listen('.active.sent', async (event) => {
+
+            await this.returnMessageList(id);
+            console.log('NEEEH AGIIIIIII');
+        });
+
+        Echo.channel(`message.${username}`)
+            .listen('.message.sent', async (event) => {
+                console.log('ne agi diria');
+                await this.returnMessageList(id);
+        });
     }
 }
 </script>
 
 <style scoped>
+.overlay{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px;
+}
+.overlay img{
+    width: 100px;
+    height: 100px;
+
+}
 .message-container {
     display: flex;
     flex-direction: column;
@@ -154,6 +251,7 @@ export default {
     display: flex;
     gap: 1em;
     align-items: center;
+    justify-content: space-between;
     padding: 1em;
     border-radius: .8em;
     background-color: #dfdfdf;

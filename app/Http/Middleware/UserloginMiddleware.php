@@ -27,6 +27,10 @@ class UserloginMiddleware
             if(Hash::check($password, $user->password)){
 
                 $user->is_active = true;
+                
+                if($user->is_deactivate){
+                    $user->is_deactivate = 0;
+                }
 
                 $user->save();
                 

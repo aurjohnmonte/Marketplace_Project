@@ -102,7 +102,7 @@ class User extends Authenticatable
 
     public static function returnProfileInfo($email){
         try{
-            $user = self::where('email','=',$email)->first();
+            $user = self::with('shop')->where('email','=',$email)->first();
 
             if(empty($user)){
                 return [];

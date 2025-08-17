@@ -6,8 +6,8 @@
           <label class="header-profile-text">Profile</label>
         </div>
         <div class="profile-content">
-          <label>Account Information</label>
-          <label>Account Setting</label>
+          <label @click="$router.push({name: 'BuyerProfile'})">Account Information</label>
+          <label @click="$router.push({name: 'BuyerProfile'})">Account Setting</label>
         </div>
         <div class="profile-content" style="position: absolute; bottom: 0; margin-bottom: 20px;">
           <label @click="goLogout">Logout</label>

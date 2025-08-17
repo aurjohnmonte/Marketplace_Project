@@ -15,7 +15,7 @@ Broadcast::channel("active-notify", function($user){
     return true;
 });
 
-Broadcast::channel("notify", function(){
+Broadcast::channel("notify.{username}", function($user, $username){
     return true;
 });
 

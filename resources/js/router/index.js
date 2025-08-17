@@ -26,6 +26,9 @@ import BuyerShops from "../buyer/home/BuyerShops.vue";
 import AddProduct from "../seller/pages/AddProduct.vue";
 import ViewNotification from "../seller/notifications/ViewNotification.vue";
 import Chats from "../seller/messages/Chats.vue";
+import AccountSetting from "../buyer/profile/AccountSetting.vue";
+import DeleteAccount from "../buyer/profile/DeleteAccount.vue";
+import ViewAllNotification from "../buyer/pages/ViewAllNotification.vue";
 
 const routes = [
     {
@@ -54,6 +57,11 @@ const routes = [
         path: "/buyer/message/conversation/:id",
         name: "BuyerConversation",
         component: BuyerConversation,
+    },
+    {
+        path: "/buyer/notification/view-all",
+        name: "ViewAllNotification",
+        component: ViewAllNotification
     },
     {
         path: "/buyer/product/:id",
@@ -156,6 +164,16 @@ const routes = [
         path: "/buyer/profile",
         name: "BuyerProfile",
         component: BuyerProfile
+    },
+    {
+        path: "/buyer/profile/deactivate",
+        name: "AccountSetting",
+        component: AccountSetting,
+    },
+    {
+        path: "/buyer/profile/delete",
+        name: "DeleteAccount",
+        component: DeleteAccount,
     },
     {
         path: '/seller/product/add',

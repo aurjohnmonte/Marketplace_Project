@@ -35,6 +35,7 @@ export default{
   left: 40%;
   margin: 2rem 0;
   padding: 1rem;
+  z-index: 3000;
 }
 
 .notification-card {

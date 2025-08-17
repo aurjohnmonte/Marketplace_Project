@@ -41,7 +41,6 @@ Route::get('/', function () {
 //BUYER SIDE
 Route::middleware('buyercheck')->group(function() {
 
-
     Route::get('/buyer', function(){
 
         return view('buyer_home');
@@ -76,10 +75,11 @@ Route::middleware('buyercheck')->group(function() {
         return view('buyer_home');
     })->where('id', '[0-9]+');
 
-    Route::get('/buyer/{p}', function(){
+    Route::get('/buyer/{p}/{c?}', function(){
 
         return view('buyer_home');
-    })->whereIn("p", ["home", "message", "profile", "following", "map"]);
+    })->whereIn("p", ["home", "message", "profile", "following", "map", "notification"])
+      ->whereIn("c", ['account-setting', 'deactivate', 'delete', 'view-all']);
 
     //buyer blade view
     Route::get('/buyer/home', function() {
@@ -137,6 +137,8 @@ Route::middleware('buyercheck')->group(function() {
     Route::post('/buyer/edit-info', [BuyerController::class, 'editinfo']);
     //user edit credential
     Route::post('/buyer/edit-credential', [BuyerController::class, 'editCredential']);
+    //buyer mark as read the notification
+    Route::post('/buyer/mark-as-read/notification', [NotificationController::class, 'mark_as_read_many']);
 
     //LOGOUT
     Route::get('/buyer/logout', function(Request $request) {
@@ -154,12 +156,80 @@ Route::middleware('buyercheck')->group(function() {
         $user->time_logout = now();
 
         if($user->save()){
+            broadcast(new ActiveEvent());
             session()->flush();
             return redirect()->route('home');
         }
         
         return "Something went wrong ...";
     });
+});
+
+//validate otp
+    Route::post('/verify-otp', function(Request $req){
+
+        $type = $req->type;
+
+        $user = User::where('email', $req->email)->first();
+        Log::info('user', ['user'=>$user]);
+
+        if($user){
+
+            $otp = Otp::where('from_user', $user->id)->first();
+
+            Log::info('otp', ['otp'=>$otp]);
+
+            if($otp->otp === $req->otp){
+
+                $otp->delete();
+
+                if($type === "deactivate"){
+
+                    $user->is_deactivate = 1;
+
+                    if($user->save()){
+                        return response()->json(['message'=>'successful']);
+                    }
+                }else{
+
+                    Log::info('m', ['m'=>'DELETIOOOOON OF THE ACCOUNT']);
+                    if($user->save()){
+                        return response()->json(['message'=>'successful']);
+                    }
+                }
+                return response()->json(['message'=>'type not exist']);
+            }
+        }
+
+        return response()->json(['message'=>'error']);
+
+    });
+
+Route::post('/create-otp', function(Request $req){
+    
+    $code = mt_rand(100000, 999999);
+
+    $user = User::where('email', $req->email)->first();
+
+    if(session('email') !== $req->email){
+        return response()->json(['message'=>'error']);
+    }
+
+    if(!$user){
+        return response()->json(['message'=>'not exist']);
+    }
+            
+    $otp = new Otp();
+    $otp->otp = $code;
+    $otp->from_user = $user->id;
+
+    if($otp->save()){
+        //send email to user thru gmail
+        Mail::to($req->email)->send(new OtpMail($code));
+
+        return response()->json(['message'=>'Successfully']);
+    }
+    return response()->json(['message'=>'error']);
 });
 
 
@@ -222,7 +292,7 @@ Route::middleware('usercheck')->group(function() {
 
         return view('seller_pages.seller_home');
     })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product', 'notifications'])
-      ->whereIn("c", ["add", "view"]);//put all the components in the 2nd parameter in whereIn
+      ->whereIn("c", ["add", "view", 'chats']);//put all the components in the 2nd parameter in whereIn
 
     //return seller info
     Route::post("/return/user-seller/info", [SellerController::class, "returnProfile_info"]);
@@ -241,8 +311,18 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/action-notification', [NotificationController::class, 'actionNotify']);
     //change seen
     Route::get('/change-seen', [NotificationController::class, 'changeSeen']);
+    //check notification if there is unread
     Route::get('/check/notification', [NotificationController::class, 'checkNotify']);
-
+    //return message list
+    Route::get('/seller/return-message/list', [NotificationController::class, "return_messageList"]);
+    //return conversation
+    Route::get('/return/conversation', [SellerController::class, 'returnConversation']);
+    //seller sent a message
+    Route::post('/seller/sent-message', [SellerController::class, 'sentMessage']);
+    //seller edit message
+    Route::get('/message/seller-edit', [SellerController::class, "editMessage"]);
+    //seller delete message
+    Route::get('/seller/delete-message', [SellerController::class, 'deleteMessage']);
 
 
     Route::get('/seller/logout', function(Request $request) {

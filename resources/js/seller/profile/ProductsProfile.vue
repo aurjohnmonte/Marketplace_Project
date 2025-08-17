@@ -9,32 +9,35 @@
 
             <div class="filter-box">
                 <div class="search-bar">
-                    <input type="search" name="search" id="search" placeholder="Search your product...">
+                    <input type="search" name="search" v-model="searchtext" id="search" placeholder="Search your product...">
                     <i class="fa-solid fa-search search-icon"></i>
                 </div>
                 <div class="select">
-                    <select name="filter" id="filter">
+                    <select name="filter" id="filter" v-model="filter">
                         <option value="">Filter</option>
-                        <option v-for="filter in filterBy" :key="filter" value="filter">{{ filter }}</option>
+                        <option v-for="filter in filterBy" :key="filter" :value="filter">{{ filter }}</option>
                     </select>
                 </div>
             </div>
         </div>
 
-        <div class="product-body" v-if="productCategory">
+        <div class="product-body">
             <div class="row">
-                <div class="item-card" v-for="item in filteredProducts" :key="item.id" @click="toggleDescription(item.id)">
-                    <img :src="item.productImage" alt="Product Image" style="width:11em; object-fit: cover; border-radius: 1em; user-select: none;">
-                    <div class="item-info">
-                        <p>{{ item.productName }}</p>
-                        <i :class="[getStatusIcon(item.status), getStatusClass(item.status)]"></i>
-                        <p>₱ {{ item.productPrice }}</p>
-                        <p><i class="fa-solid fa-star" style="color: #ec8906;"></i> : {{ item.productRatings }}/5</p>
-                        <div class="product-description" :class="{ 'expanded': expandedItems.includes(item.id) }">
-                            <p>{{ item.productDescription }}</p>
-                            <small class="click-hint" v-if="!expandedItems.includes(item.id)">Click to expand</small>
+                <div class="item-card" v-for="product in products" :key="product.id" @click="toggleDescription(product.id)">
+                    <img :src="'/'+product.photos[0].filename" alt="Product Image" style="width:11em; object-fit: cover; border-radius: 1em; user-select: none;">
+                    <div class="item-info" style="height: 500px;">
+                        <p>{{ product.name }}</p>
+                        <i :class="[getStatusIcon(product.status), getStatusClass(product.status)]"></i>
+                        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                            <label>₱ {{ product.price }}</label>
+                            <label><i class="fa-solid fa-star" style="color: #ec8906;"></i> : {{ product.overall_rate }}/5</label>
+                        </div>
+                        <div class="product-description" :class="{ 'expanded': expandedItems.includes(product.id) }">
+                            <p>{{ product.description }}</p>
+                            <small class="click-hint" v-if="!expandedItems.includes(product.id)">Click to expand</small>
                         </div>
                     </div>
+                    <label>Created at: {{ returnFormatDate(product.created_at) }}</label>
                 </div>
             </div>
         </div>
@@ -44,77 +47,160 @@
 
 <script>
 export default{
+    props: ['shop'],
+    watch: {
+
+        filter(newval){
+
+            this.haveSearchContent(this.filter);
+        },
+
+        searchtext(newval){
+
+            if(newval === ""){
+                this.category_filter();
+                return;
+            }
+
+            this.products = this.products.filter(p => p.name.includes(newval));
+            console.log('p: ', this.products);
+        },
+        productCategory(newval){
+
+            this.filter = 'latest';
+
+            if(this.productCategory === "Any"){
+
+                this.products = this.shop.products;       
+            }
+            else{
+
+                this.products = this.shop.products.filter(product => product.category.includes(this.productCategory));
+            }
+            console.log('hey')
+        }
+    },
     data() {
         return {
             expandedItems: [],
+            cat_result: [],
             showModal: false,
             selectedItem: {},
-            user: {
-                sellerName: 'Bravo',
-                shop: 'Budol Seller',
-                profilePicture: 'https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3',
-                coverPhoto: 'https://wallpapercave.com/wp/wp1996490.jpg',
-                email: 'bravobudol@gmail.com',
-                contacts: '090909090909',
-                address: 'balay',
-                rating: 2.5,
-                followers: 10,
-                category: 'Furniture',
-                description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.',
-                totalProducts: 10,
-                allProducts: [
-                    {id: 101, productName: 'Custom Pen', productImage: 'https://i.etsystatic.com/22836928/r/il/e2656f/2264726362/il_1588xN.2264726362_1ps7.jpg', itemCategory: 'Home decor', productPrice: 10, productRatings: 4, productViews: 100, productDescription: 'Suspendisse vel nisi sed felis dictum lobortis.', status: 'on-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 2, productViews: 200, productDescription: 'High quality wooden chair.', status: 'on-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Kawayan Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                    {id: 102, productName: 'Wooden Chair', productImage: 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308', itemCategory: 'Furniture', productPrice: 50, productRatings: 5, productViews: 200, productDescription: 'High quality wooden chair.', status: 'out-of-stock' },
-                ]
-            },
             categories: {
+                Any: 'Any',
                 furniture: 'Furniture',
-                homeDecor: 'Home decor',
-                kitchenEssentials: 'Kitchen essentials',
-                toysandGames: 'Toys & games',
-                personalAccessories: 'Personal accessories',
-                outdoorEnhancements: 'Outdoor enhancements'
+                homeDecor: 'Home Decor',
+                kitchenEssentials: 'Kitchenware',
+                toysandGames: 'Musical Instrument',
+                personalAccessories: 'Games',
+                outdoorEnhancements: 'Outdoor Decor',
+                DecorativeItems: 'Decorative Items',
             },
-            productCategory: 'Furniture',
+            productCategory: 'Any',
+            filter: 'latest',
+            products: [],
+            searchtext: '',
             filterBy: {
-                latest: 'Latest',
-                popular: 'Popular',
-                trending: 'Trending'
+                latest: 'latest',
+                popular: 'popular',
             }
         }
     },
     computed: {
-        filteredProducts() {
-            return this.user.allProducts.filter(item => item.itemCategory === this.productCategory);
-        }
+
     },
     methods: {
+        returnFormatDate(date){
+
+            return new Date(date).toLocaleDateString();
+        },
+        haveSearchContent(newval){
+      console.log('newval: ', newval);
+      if(this.products.length > 0){
+        console.log('here')
+        let partial = [];
+
+          partial = this.products;
+
+          if(newval === 'latest'){
+
+            console.log('neh agi')
+
+            console.log('products: ', this.products);
+
+
+            let swapped;
+
+            do {
+              swapped = false;
+              console.log('partial: ', partial);
+
+              for (let i = 0; i < partial.length - 1; i++) {
+                console.log('1')
+                if (partial[i].id < partial[i + 1].id) {
+
+                  let temp = partial[i];
+                  partial[i] = partial[i + 1];
+                  partial[i + 1] = temp;
+
+                  swapped = true;
+                }
+              }
+
+            } while (swapped);
+
+            this.products = partial;
+
+          }
+          else{
+            let swapped;
+
+            do {
+              swapped = false;
+              console.log('partial: ', partial);
+
+              for (let i = 0; i < partial.length - 1; i++) {
+                console.log('1')
+                if (partial[i].overall_rate < partial[i + 1].overall_rate) {
+                  // ✅ Proper swap
+                  let temp = partial[i];
+                  partial[i] = partial[i + 1];
+                  partial[i + 1] = temp;
+
+                  swapped = true;
+                }
+              }
+
+            } while (swapped);
+            this.products = partial;
+          }
+        }
+    },
+        category_filter(){
+            if(this.productCategory === "Any"){
+
+                this.products = this.shop.products;       
+            }
+            else{
+
+                this.products = this.shop.products.filter(product => product.category.includes(this.productCategory));
+            }
+            console.log('hey')
+        },
+        filteredProducts() {
+
+           this.products = this.shop.products;
+           this.haveSearchContent(this.filter);
+        },
         selectCategory(category) {
             this.productCategory = category;
             console.log('Selected category:', category);
         },
         getStatusIcon(status) {
-            return status === 'on-stock' ? 'fa-solid fa-circle-check' : 'fa-solid fa-circle-xmark';
+            return status === 'Out of Stock' ? 'fa-solid fa-circle-xmark' : 'fa-solid fa-circle-check';
         },
         getStatusClass(status) {
-            return status === 'on-stock' ? 'status-on-stock' : 'status-out-of-stock';
+            return status === 'Out of Stock' ? 'status-out-of-stock' : 'status-on-stock';
         },
         toggleDescription(itemId) {
             const index = this.expandedItems.indexOf(itemId);
@@ -124,6 +210,9 @@ export default{
                 this.expandedItems.push(itemId);
             }
         }
+    },
+    mounted(){
+        this.filteredProducts();
     }
 }
 </script>
@@ -259,15 +348,15 @@ export default{
 .row {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(12em, 1fr));
+    grid-template-columns: repeat(5, minmax(12em, 1fr));
     gap: 1em;
     padding: .5em;
 }
 
 .item-card {
-    width: 14em;
+    width: 16em;
     max-width: 90vh;
-    height: 20em;
+    height: 25em;
     border-radius: 1em;
     padding: 1em;
     background-color: #f3e1d2;

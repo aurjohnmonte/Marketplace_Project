@@ -39,6 +39,8 @@ export default {
       messages: [],
       orig_messages: [],
       search_text: "",
+      activeListener: null,
+      messageListener: null,
     }
   },
   watch: {
@@ -151,20 +153,43 @@ export default {
   },
   async mounted() {
 
-    Echo.channel(`active-notify`)
-      .listen('.active.sent', async (event) => {
+    let username = this.store.currentUser_info.name;
+
+    this.activeListener = Echo.channel(`active-notify`);
+    this.messageListener = Echo.channel(`message.${username}`);
+
+    this.activeListener.listen('.active.sent', async (event) => {
 
           await this.returMessage();
           console.log('NEEEH AGIIIIIII');
     });
+
+    this.messageListener.listen('.message.sent', async (event) => {
+            console.log('ne agi diria');
+            
+            await this.returMessage();
+    });
     
     await this.returMessage();
     console.log('hey neh agi sab')
-    window.scrollTo(0, 0);
+
     let path = this.$route.path;
     let new_path = path.slice(7);
     this.$emit("changepathtext", new_path);
 
+  },
+  unmounted(){
+
+    if(this.activeListener){
+      Echo.leave('active-notify');
+      this.activeListener = null;
+    }
+    
+    if(this.messageListener){
+      let username = this.store.currentUser_info.name;
+      Echo.leave(`message.${username}`);
+      this.messageListener = null;
+    }
   }
 };
 </script>

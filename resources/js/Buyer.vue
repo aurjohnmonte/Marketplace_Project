@@ -97,6 +97,7 @@ export default {
             shops: null,
             user: null,
             watchID: null,
+            messageListener: null,
         }
     },
 
@@ -112,15 +113,17 @@ export default {
 
         console.log(`message.${this.user.name}`)
 
-        Echo.channel(`message.${this.user.name}`)
-            .listen('.message.sent', (event) => {
-                console.log('HAAAAAAAAAAA NEH AGI DIRIAAAAAAAAAAAAAAAAAAAA');
-        });
+        this.messageListener = Echo.channel(`message.${this.user.name}`);
 
-        Echo.channel(`notify`)
-            .listen('.notify.sent', async(event) => {
+        this.messageListener.listen('.message.sent', async (event) => {
+                console.log('HAAAAAAAAAAA NEH AGI DIRIAAAAAAAAAAAAAAAAAAAA');
                 await this.returnNotifications();
         });
+
+        // Echo.channel(`notify.${this.user.name}`)
+        //     .listen('.notify.sent', async(event) => {
+        //         console.log('neh agi diria soysoy pangit');
+        // });
 
         window.addEventListener('scroll', this.handleScroll);
         this.show_content = true;
@@ -169,6 +172,9 @@ export default {
           }
         });
         this.notifications = res.data.message;
+
+        this.store.setNotifications(res.data.message);
+        
         console.log(res.data.message);
         this.checkNotify();
       },
@@ -190,7 +196,7 @@ export default {
             const shopLatLng = L.latLng(shop.latitude, shop.longitude);
             const distance = userLatLng.distanceTo(shopLatLng); // in meters
 
-            return distance >= 1000; // 1 km
+            return distance <= 1000; // 1 km
           });
           console.log("nearby shops: ", nearbyShops);
 

@@ -13,7 +13,6 @@
           <select v-model="search_info.name">
             <option value="Product">Product name</option>
             <option value="Shop">Shop name</option>
-            <option value="Seller">Seller name</option>
           </select>
           <input placeholder="Search ..." v-model="search_text">
           <!-- <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" > -->
@@ -60,7 +59,7 @@
         </div>
       </template>
       <template v-else>
-        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN 1 KM <br>(Please click the location icon at the top)</label>
+        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN 1 KM</label>
       </template>
     </div>
 
@@ -73,6 +72,53 @@
         <div class="header2" @click="goSearch(search_info={name:'Product',category:'Any',filter:'Popular'})">
           <label class="view-all">VIEW ALL</label>
         </div>
+      </div>
+
+      <div class="header1" style="margin-bottom: 10px;">
+        <label class="popular" style="font-size: 12px;">All Product</label>
+      </div>
+
+      <div class="content">
+        <template v-if="!loading_popular">
+          <div class="item-content" v-for="(product, index) in popular" :key="index">
+            <div class="option-icon">
+              <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+              <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
+            </div>
+            <div class="item-pic">
+              <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
+            </div>
+            <div class="item-info">
+              <div class="item-rate">
+                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                <label>{{ product.overall_rate }}</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ product.reviews.length }} Reviews</label>
+              </div>
+              <div class="item-shopname" @click="goShop(product.shop.id)">
+                <label>{{ product.shop.name }}</label>
+              </div>
+              <div class="item-name">
+                <label style="text-decoration: underline;" @click="goProduct(product)">{{ product.name }}</label>
+              </div>
+              <div class="item-price">
+                <label>PHP {{ product.price }}</label>
+              </div>
+            </div>
+          </div>
+        </template>
+        <template v-else>
+          <div class="overlay">
+            <img src="../../../images/kOnzy.gif">
+          </div>
+        </template>
+      </div>
+
+      <div class="header1" style="margin-bottom: 10px; margin-top: 20px;">
+        <label class="popular" style="font-size: 12px;">Followed Products</label>
       </div>
 
       <div class="content">

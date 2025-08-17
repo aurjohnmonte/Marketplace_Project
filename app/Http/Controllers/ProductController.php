@@ -99,7 +99,7 @@ weight: ''
                 return response()->json(['message'=>'shop not found']);
             }
 
-            $products = Product::with('photos')
+            $products = Product::with('photos', 'reviews', 'reviews.user', 'reviews.reviewphotos')
                                ->where('shop_id', $shop->id)
                                ->orderBy('created_at','desc')->get();
 

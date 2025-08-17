@@ -237,6 +237,7 @@ export default {
             });
             data.append('type', 'product');
             data.append('to_id', this.product.id);
+            data.append('user_id', this.product.shop.user_id);
             data.append('from_id', store.currentUser_info.id);
 
             const res = await axios.post('/buyer/add/review', data);

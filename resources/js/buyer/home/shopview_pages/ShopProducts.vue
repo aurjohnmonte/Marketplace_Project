@@ -177,7 +177,7 @@ export default {
               for (let i = 0; i < partial.length - 1; i++) {
                 console.log('1')
                 if (partial[i].id < partial[i + 1].id) {
-                  // ✅ Proper swap
+
                   let temp = partial[i];
                   partial[i] = partial[i + 1];
                   partial[i + 1] = temp;

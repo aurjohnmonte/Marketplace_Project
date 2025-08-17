@@ -112,12 +112,36 @@
                                 </div>
                             </div>
                             <div class="comments-section">
-                                <h4>User Comments</h4>
+                                <h4>User Comments - ({{ item.reviews.length }} reviews)</h4>
                                 <div class="comments-list">
-                                    <div v-if="item.comments && item.comments.length">
-                                        <div v-for="(comment, idx) in item.comments" :key="idx" class="comment">
-                                            <span class="comment-user">{{ comment.user }}:</span>
-                                            <span class="comment-text">{{ comment.text }}</span>
+                                    <div v-if="item.reviews && item.reviews.length">
+                                        <div v-for="(comment, idx) in item.reviews" :key="idx" class="comment">
+                                            <div style="display: flex; flex-direction: row; gap: 10px; align-items: center;">
+                                                <img :src="'/'+comment.user.profile" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid gray; padding: 2px;">
+                                                <span class="comment-user">{{ comment.user.firstname }} {{ comment.user.lastname }}</span>
+                                            </div>
+                                            <span class="comment-text">
+                                                <label>
+                                                    {{ comment.comment }}
+                                                </label>
+
+                                                <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
+                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                                        <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
+                                                    </div>  
+                                                </div>
+                                                <label>
+                                                    {{ returnformatTime(comment.created_at) }}
+                                                </label>
+                                            </span>
+                                            <div class="rating" style="margin-left: 20px;">
+                                                <span
+                                                    v-for="star in 5"
+                                                    :key="star"
+                                                    class="fa fa-star"
+                                                    :class="{ checked: star <= comment.rate }"
+                                                ></span>
+                                            </div>
                                         </div>
                                     </div>
                                     <div v-else>
@@ -331,6 +355,9 @@ export default {
         }
     },
     methods: {
+        returnformatTime(date){
+            return new Date(date).toLocaleDateString();
+        },
         async goSearch(){
             this.is_loading = true;
             const data = new FormData();
@@ -974,7 +1001,7 @@ export default {
 
 .toggle-details {
     position: absolute;
-    top: 50%;
+    top: 70%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50vw;
@@ -1182,8 +1209,6 @@ export default {
     display: flex;
     align-items: center;
     gap: 0.5em;
-    margin-top: 1em;
-    padding: 0.5em 1em;
     background: rgba(255, 255, 255, 0.1);
     border-radius: 0.5em;
     width: fit-content;
@@ -1228,6 +1253,8 @@ export default {
     max-height: 150px;
     overflow-y: auto;
     margin-top: 0.5em;
+    display: flex;
+
 }
 .comments-section h4 {
     margin: 0 0 0.5em 0;
@@ -1238,6 +1265,9 @@ export default {
 .comment {
     margin-bottom: 0.5em;
     font-size: 0.95em;
+    margin-bottom: 30px;
+    position: relative;
+
 }
 .comment-user {
     font-weight: 600;
@@ -1246,6 +1276,10 @@ export default {
 }
 .comment-text {
     color: #252525;
+    left: 20px;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Modal styles for zoomed images */

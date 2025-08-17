@@ -127,7 +127,7 @@
         </div>
         <!-- THIS IS WHERE THE COMPONENT APPEAR WHEN CLICKED ROUTER-LINK / OR THE RESULT WHEN CLICKED. -->
         <div class="content">
-            <router-view @checknotif="checknotif"></router-view>
+            <router-view @checknotif="checknotif" @returnActiveStatus="returnActiveStatus" :active_status="active_status"></router-view>
         </div>
 
     </div>
@@ -155,13 +155,14 @@ export default{
             showProfileBox: false,
             showNotifBox: false,
             unread_notif: false,
-            isMobile: false
+            isMobile: false,
+            active_status: null,
         }
     },
-    mounted() {
+    async mounted() {
         this.checkScreenSize();
         window.addEventListener('resize', this.checkScreenSize);
-        this.initializeUser();
+        await this.initializeUser();
 
         this.checkNotifications();
     },
@@ -169,6 +170,10 @@ export default{
         window.removeEventListener('resize', this.checkScreenSize);
     },
     methods: {
+        returnActiveStatus(active_status){
+            this.active_status = active_status;
+            console.log('active status: ',this.active_status);
+        },
         checknotif(){
             this.checkNotifications();
         },
@@ -247,6 +252,10 @@ export default{
             Echo.channel(`sellernotify.${this.user.name}`)
                 .listen('.sellernotify.sent', async(event) => {
                     console.log('HELLO WORLDDDDDD');
+                    this.unread_notif = true;
+                    console.log('NEEEH AGIIIIIII');
+                    this.notifymessage = "You have new notification. Check it out.";
+                    this.is_visible = true;
             });
         }
     }

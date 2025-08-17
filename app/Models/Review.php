@@ -75,6 +75,8 @@ class Review extends Model
 
             if($this->save()){
 
+                $notify = new Notification();
+
                 if($req->type === "product"){
 
                     $reviews_product = $this->select('rate')->where('product_id', $req->to_id)->get();
@@ -82,13 +84,28 @@ class Review extends Model
                     Log::info('reviews', ['reviews'=>$reviews_product]);
                     $result = $this->calculate_averate_rate($reviews_product);
                     $data = Product::where('id', $req->to_id)->first();
+
+
+                    //ADD NEW NOTIFICATION WHEN BUYER RATE PRODUCT
+                    $message = $notify->addNotification('rate product', $req->from_id, $req->to_id, $req->user_id, $this->id);
+
+                    Log::info('message', ['message'=>$message]);
                 }
                 else if($req->type === "shop"){
                     
                     $reviews_shop = $this->select('reviews.rate')->where('shop_id', $req->to_id)->get();
 
                     $result = $this->calculate_averate_rate($reviews_shop);
+
+                    //get the shop
                     $data = Shop::where('id', $req->to_id)->first();
+
+                    //get the seller
+                    $seller = User::where('id', $data->user_id)->first();
+
+                    //ADD NEW NOTIFICATION WHEN BUYER RATE SHOP
+                    $message = $notify->addNotification('rate shop', $req->from_id, null, $seller->id, $this->id);
+                    Log::info('message', ['message'=>$message]);
                 }
 
                 if($result === 'empty'){

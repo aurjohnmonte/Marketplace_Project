@@ -4,7 +4,7 @@
       <div class="notify-container">
         <div class="notify-header">
             <label style="font-weight: bolder;">Notification</label>
-            <label style="font-size: 12px; text-decoration: underline;">View all</label>
+            <label style="font-size: 12px; text-decoration: underline;" @click="$router.push({name: 'ViewAllNotification'}); $emit('goexit')">View all</label>
         </div><br>
         <div class="notify-content">
             <div class="notify-item" v-for="notif in notifications" :key="notif" @click="goNavigate(notif)">
@@ -64,14 +64,14 @@ export default {
           case 'product':
             this.store.setSelectedProduct(notif.products);
             this.$router.push({name: 'BuyerProduct', params: {id: notif.products.id}});
+            this.$emit("goexit");
+          case 'message':
+            this.$router.push({name: 'BuyerConversation', params: {id: notif.users.id}});
         }
       }
     },
     
     mounted(){
-        let path = this.$route.path;
-        let new_path = path.slice(7);
-        this.$emit("changepathtext", new_path);
     }
 }
 </script>

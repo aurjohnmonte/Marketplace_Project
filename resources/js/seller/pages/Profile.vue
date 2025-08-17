@@ -1,9 +1,9 @@
 <template>
-    <div class="profile-container" @click="handleClickOutside">
+    <div class="profile-container" @click="handleClickOutside" v-if="shop">
         <div class="profile-box">
             <div class="profile-header" :style="{ backgroundImage: `url(${user.coverPhoto})` }">
                 <div class="profile-img">
-                    <img :src="user.profilePicture" alt="">
+                    <img :src="'/'+shop.profile_photo" alt="">
                 </div>
 
                 <div class="settings-menu" @click.stop>
@@ -17,12 +17,8 @@
                             <span>Change Profile Photo</span>
                             <span class="change-link">Change</span>
                         </div>
-                        <div class="menu-item" @click="changeShopName">
-                            <span>Change Shop Name</span>
-                            <span class="change-link">Change</span>
-                        </div>
                         <div class="menu-item" @click="changeShopDescription">
-                            <span>Shop Description</span>
+                            <span>Shop Details</span>
                             <span class="change-link">Change</span>
                         </div>
                     </div>
@@ -30,24 +26,24 @@
             </div>
 
             <div class="profile-details">
-                <h4>{{ user.shop }}</h4>
+                <h4>{{ shop.name }}</h4>
                 <div class="profile-info">
                     <div class="rating">
                         <h6 class="deta">Overall Rating: </h6>
-                        <p>({{ user.rating }}/5)</p>
+                        <p>({{ shop.overall_rate }}/5)</p>
                         <div class="stars">
-                            <i class="fa-solid fa-star filled star-rate" v-for="turn in calculateStar.start" :key="turn"></i>
-                            <span v-if="calculateStar.half" class="half-star star-rate">
+                            <i class="fa-solid fa-star filled star-rate" v-for="turn in (Math.floor(shop.overall_rate))" :key="turn"></i>
+                            <span v-if="isFloat(shop.overall_rate)" class="half-star star-rate">
                                 <i class="fa-solid fa-star grey"></i>
                                 <span class="clip"><i class="fa-solid fa-star filled"></i></span>
                             </span>
-                            <i class="fa-solid fa-star no-star star-rate" v-for="turn in calculateStar.no_star" :key="turn"></i>
+                            <i class="fa-solid fa-star no-star star-rate" v-for="turn in (5 - Math.floor(shop.overall_rate))" :key="turn"></i>
                         </div>
                     </div>
 
                     <div class="followers">
                         <h6>Followers: </h6>
-                        <p>{{ user.followers }}</p>
+                        <p>{{ shop.user.followers.length }}</p>
                     </div>
                 </div>
             </div>
@@ -62,10 +58,10 @@
                 <h5 @click="details = 'review'" :class="{ active: details === 'review' }">SHOP'S REVIEW</h5>
             </div>
             <div class="body-details" v-if="details === 'about'">
-                <About/>
+                <About :shop="shop"/>
             </div>
             <div class="body-details" v-else-if="details === 'product'">
-                <ProductsProfile/>
+                <ProductsProfile :shop="shop"/>
             </div>
             <div class="body-details" v-else-if="details === 'review'">
                 <ShopReview/>
@@ -133,6 +129,8 @@
 import ProductsProfile from '../profile/ProductsProfile.vue';
 import About from '../profile/About.vue';
 import ShopReview from '../profile/ShopReview.vue';
+import axios from 'axios';
+import { useDataStore } from '../../stores/dataStore';
 
 export default {
     components: {
@@ -142,6 +140,7 @@ export default {
     },
     data() {
         return {
+            store: useDataStore(),
             user: {
                 sellerName: 'Bravo',
                 shop: 'Budol Seller',
@@ -161,6 +160,7 @@ export default {
                 half: true,
                 no_star: 2,
             },
+            shop: null,
             details: 'about',
             showMenu: false,
             showShopNameModal: false,
@@ -184,6 +184,10 @@ export default {
         }
     },
     methods: {
+        isFloat(rate){
+
+            return (rate % 1) !== 0 ? true : false;
+        },
         toggleMenu() {
             this.showMenu = !this.showMenu;
         },
@@ -258,6 +262,10 @@ export default {
                 this.closeMenu();
             }
         }
+    },
+    mounted(){
+        this.shop = this.store.selected_shop;
+        console.log('this shop: ', this.shop);
     }
 }
 </script>

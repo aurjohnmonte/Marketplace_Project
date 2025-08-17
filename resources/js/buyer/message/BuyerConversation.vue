@@ -140,6 +140,8 @@ export default{
       shop_info: null,
       currentUser: null,
       messages: [],
+      activeListener: null,
+      messageListener: null,
     }
   },
   methods: {
@@ -187,6 +189,12 @@ export default{
         this.$router.push({name: 'BuyerProduct', params: {id: id}});
       }
     },
+    scrollDown(){
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth' // optional, for smooth animation
+      });
+    },
     resetMention(){
       this.mention = {
           name: "",
@@ -229,6 +237,8 @@ export default{
       data.append('id', this.selected_id);
 
       const res = await axios.post('/delete/message', data);
+
+      console.log(res.data.message);
       
       this.messages.splice(this.selected_index, 1);
     },
@@ -323,7 +333,7 @@ export default{
 
     async returnUserInfo(id){
       try{
-        this.loading = true;
+        this.messages = [];
         const data = new FormData();
         data.append('id', id);
         data.append('sender_id', this.currentUser.id);
@@ -333,7 +343,6 @@ export default{
         console.log(this.shop_info);
         this.messages = res.data.messages;
         console.log(this.messages);
-        this.loading = false;
       }
       catch(error){
         this.loading = false;
@@ -343,16 +352,16 @@ export default{
   },
   async mounted(){
 
-    Echo.channel(`active-notify`)
-      .listen('.active.sent', async (event) => {
+    const store = useDataStore();
+    this.currentUser = store.currentUser_info;
+
+    this.activeListener = Echo.channel(`active-notify`);
+    this.activeListener.listen('.active.sent', async (event) => {
 
           let id = this.$route.params.id;
           await this.returnInfo(id)
           console.log('NEEEH AGIIIIIII');
     });
-
-    const store = useDataStore();
-    this.currentUser = store.currentUser_info;
 
     let product_id = this.$route.query.product_id;
     if(product_id){
@@ -368,6 +377,29 @@ export default{
     let path = "message";
     this.$emit("changepathtext", path);
     console.log(path);
+
+    this.messageListener = Echo.channel(`message.${this.currentUser.name}`);
+    this.messageListener.listen('.message.sent', async (event) => {
+            console.log('ne agi diria');
+            let id = this.$route.params.id;
+            await this.returnUserInfo(id);
+            this.scrollDown();
+    });
+
+    this.scrollDown();
+  },
+
+  unmounted(){
+
+    if(this.activeListener){
+      Echo.leave(`active-notify`);
+      this.activeListener = null;
+    }
+
+    if(this.messageListener){
+      Echo.leave(`message.${this.currentUser.name}`);
+      this.messageListener = null;
+    }
   }
 }
 </script>
@@ -448,7 +480,7 @@ export default{
 .more-option{
   background-color: white;
   border-radius: 5px;
-  position: absolute;
+  position: fixed;
   left: 40%;
   top: 40%;
   padding: 10px;
@@ -472,7 +504,8 @@ export default{
 .message-content{
   width: 100%;
   height: auto;
-  padding-bottom: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -514,7 +547,7 @@ export default{
 .message-page {
   display: flex;
   flex-direction: column;
-  height: 80vh;
+  height: auto;
   font-family: "Segoe UI", sans-serif;
   background-color: #f9f9f9;
   padding-top: 60px;
@@ -527,6 +560,9 @@ export default{
   background-color: white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.1);
   justify-content: space-between;
+  position: fixed;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .back-btn {
@@ -586,6 +622,8 @@ export default{
   flex: 1;
   padding: 10px;
   overflow-y: auto;
+  margin-top: 80px;
+  margin-bottom: 100px;
 }
 
 .message-input {

@@ -3,22 +3,24 @@
         <div class="notification-card">
             <div class="notification-content" v-if="notificationData">
                 <div class="notification-header">
-                    <span class="notification-title">Notification</span>
+                    <span class="notification-title"><label>{{ returnLabel(notificationData.type) }}</label></span>
                     <button class="close-btn" @click="hidenotify">×</button>
                 </div>
                 <div class="notification-body">
                     <div v-if="notificationData.users" class="username">
-                        <strong>{{ notificationData.users.firstname }} {{ notificationData.users.lastname }}</strong>
+                       <img :src="'/'+notificationData.users.profile" style="width: 50px; height: 50px; background-color: white; border-radius: 50%; padding: 5px; margin-right: 10px;"> <strong>{{ notificationData.users.firstname }} {{ notificationData.users.lastname }}</strong>
                     </div>
-                    <div v-if="notificationData.username" class="username">
-                        <hr>
-                        <strong>{{ notificationData.username }}</strong>
-                        <hr>
+                    <p class="message">{{ returnText(notificationData)}}</p>
+                    <div class="rate-star" v-if="notificationData.type === 'rate shop' || notificationData.type === 'rate product'">
+                      <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',notificationData.reviews.rate)" :key="turn">
+                      <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',notificationData.reviews.rate)" :key="turn">
+                      <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',notificationData.reviews.rate)" :key="turn">
+                      <label>{{ notificationData.reviews.rate }} star</label>
                     </div>
-                    <p class="message">{{ notificationData.text || notifymessage || 'Notification details will be displayed here' }}</p>
                     <div v-if="notificationData.created_at" class="timestamp">
-                        {{ returnFormatTime(notificationData.created_at) }}
+                        {{ returnFormatTime(notificationData.created_at) }} 
                     </div>
+                    <label style="text-align: end; color: blue; text-decoration: underline; font-style: italic; cursor: pointer;" @click.stop="goView(notificationData)">View</label>
                 </div>
             </div>
         </div>
@@ -53,6 +55,71 @@ export default{
         }
     },
     methods: {
+      goViewMessage(username){
+
+        this.$router.push({name: 'Chats', query: {username: username}});
+      },
+      goView(notify){
+
+        switch(notify.type){
+              case 'message':
+
+                this.goViewMessage(notify.users.name);
+                break;
+              case 'rate shop':
+                break;
+              case 'rate product':
+                break;
+          }
+      },
+      isFloat(num){
+          return (Number(num) === num) && (num % 1 !== 0);
+        },
+
+    returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+      returnText(notify){
+          switch(notify.type){
+              case 'message':
+                return notify.messages.messages;
+              case 'rate shop':
+                return notify.reviews.comment;
+              case 'rate product':
+                return notify.reviews.comment;
+          }
+      },
+      returnLabel(status){
+
+        switch(status){
+          case 'message':
+            return "Sent a message";
+          case 'rate shop':
+            return "Rate Shop";
+          case 'rate product':
+            return "Rate Product";
+        }
+      },
         returnFormatTime(date){
 
             return new Date(date).toLocaleDateString();
@@ -68,6 +135,19 @@ export default{
 </script>
 
 <style scoped>
+.rate-star{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+.rate-star img{
+  width: 20px; height: 20px;
+}
+.rate-star label{
+  padding-left: 10px;
+  margin: 0;
+  font-size: 12px;
+}
 .notification-wrapper {
   position: fixed;
   width: 100%;

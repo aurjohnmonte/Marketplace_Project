@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageEvent;
+use App\Events\SellerNotifyEvent;
 use App\Models\Follower;
 use App\Models\Message;
 use App\Models\Notification;
@@ -109,7 +110,7 @@ class BuyerController extends Controller
 
             if($message->save()){
                 $notify = new Notification();
-                $message = $notify->addNotification('message', $request->sender_id, $request->receiver_id);
+                $message = $notify->addNotification('message', $request->sender_id, null, $request->receiver_id, null, $message->id);
                 broadcast(new MessageEvent($receiver->name));
                 return response()->json(['message'=>$message]);
             }
@@ -194,7 +195,15 @@ class BuyerController extends Controller
                 return response()->json(['message'=>'message not exist']);
             }
 
+            $notification = Notification::where('message_id', $id)->first();
+
+            if($notification){
+
+                $notification->delete();
+            }
+
             if($message->delete()){
+            
                 return response()->json(['message'=>'successful']);
             }
             return response()->json(['message'=>'not successful']);
@@ -297,14 +306,23 @@ class BuyerController extends Controller
     public function returnReviews(Request $request){
         try{    
 
+            // $seller_username = Product::select('users.name')
+            //                ->join('shops', 'products.shop_id','=','shops.id')
+            //                ->join('users', 'shops.user_id', '=', 'users.id')
+            //                ->where('products.id', $request->product_id)
+            //                ->first();
+
+            // Log::info('seller', ['seller' => $seller_username]);
+
             if($request->type === "product"){
+
                 $reviews = Review::with(['user', 'reviewphotos'])
                                  ->where('product_id', $request->product_id)
                                  ->where('to',$request->type)
-                                 ->orderBy('created_at', 'desc')
                                  ->get();
             }
             else if($request->type === "shop"){
+
                 $reviews = Review::with('shop')
                                  ->where('shop_id', $request->shop_id)
                                  ->where('to',$request->type)
