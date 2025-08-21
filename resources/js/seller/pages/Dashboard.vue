@@ -104,7 +104,7 @@
                     <div class="stats-content">
                         <div class="stat-item">
                             <span class="stat-label" style="font-weight: bolder;">Gender</span>
-                            
+
                             <div style="display: flex; flex-direction: column; margin-top: 10px;">
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
                                     <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
@@ -315,7 +315,8 @@ export default {
                 'Outdoor enhancements'
             ],
 
-
+            /* Palihog kog review diri nga part bai then apil na ang graphs kay wala ni display sa akoa maski
+            nag add nakog products */
             user: {
                 name: 'Borlolot',
                 reviews: 32,
@@ -547,7 +548,7 @@ export default {
         } else {
             this.renderGenderChart();
         }
-    
+
     },
     watch: {
         searchQuery(newval){
@@ -557,7 +558,7 @@ export default {
             }
 
             this.searchResults = this.orig_products.filter(e => e.name.includes(newval));
-        }   
+        }
     },
     methods: {
 
@@ -621,9 +622,9 @@ export default {
             });
 
             console.log(res.data.message);
-            
+
             for(let product of res.data.message){
-                
+
                 if(this.products_data_radial.labels.length < 1){
                     this.products_data_radial.data[product.category] = 0;
                     this.products_data_radial.labels.push(product.category);
@@ -643,7 +644,7 @@ export default {
 
             console.log('category: ', this.products_data_radial);
 
-            
+
             this.show = true;
         },
 
@@ -659,7 +660,7 @@ export default {
             this.follower_statistics.total = followers.length;
             this.follower_statistics.male = followers.filter(f => f.followed_by.gender === 'male');
             this.follower_statistics.female = followers.filter(f => f.followed_by.gender === 'female');
-            
+
             for(let user of followers){
                 console.log('user: ', user);
                 if(user.followed_by.age < 18){
@@ -705,7 +706,7 @@ export default {
                 }
             }
             while(is_continue);
-            
+
             console.log('products: ', products);
 
             for(let i = 0; i < 3; i++){
@@ -833,10 +834,10 @@ export default {
   height: 100%;
 }
 .dashboard-container {
-    padding: 2em;
+    padding: 1em;
     display: flex;
     flex-direction: column;
-    gap: 2em;
+    gap: 1em;
 }
 
 .dashboard-header {
@@ -1797,6 +1798,346 @@ export default {
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Mobile First - Small devices */
+@media (max-width: 480px) {
+    .dashboard-container {
+        padding: 0.5rem;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem 0.5rem;
+    }
+
+    .dashboard-header-left h3 {
+        font-size: 1.2rem;
+    }
+
+    .dashboard-header-left p {
+        font-size: 0.9rem;
+    }
+
+    .card-container {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .cards {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .card-header h6 {
+        font-size: 0.9rem;
+    }
+
+    .card-header p {
+        font-size: 0.8rem;
+    }
+
+    .product-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .product-item {
+        padding: 0.5rem;
+        gap: 0.5rem;
+    }
+
+    .product-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .product-name {
+        font-size: 0.8rem;
+    }
+
+    .review-count {
+        font-size: 0.7rem;
+    }
+
+    .rating-score {
+        font-size: 0.8rem;
+    }
+
+    .follower-stats {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .follower-count {
+        font-size: 1.5rem;
+    }
+
+    .follower-label {
+        font-size: 0.8rem;
+    }
+
+    .search-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+        font-size: 0.9rem;
+    }
+
+    .search-btn {
+        width: 100%;
+        padding: 0.75rem;
+    }
+
+    .table-container {
+        overflow-x: auto;
+    }
+
+    .dashboard-table {
+        font-size: 0.8rem;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        padding: 0.5rem 0.25rem;
+    }
+}
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+    .dashboard-container {
+        padding: 1rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem 1rem;
+    }
+
+    .card-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .cards {
+        padding: 1.5rem;
+    }
+
+    .product-container {
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .follower-stats {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .search-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .search-input {
+        width: 100%;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .table-container {
+        overflow-x: auto;
+        margin: 0 -1rem;
+        padding: 0 1rem;
+    }
+
+    .dashboard-table {
+        min-width: 600px;
+    }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .dashboard-container {
+        padding: 1.5rem;
+    }
+
+    .card-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+    }
+
+    .graph.cards {
+        grid-column: span 2;
+    }
+
+    .chart.cards {
+        grid-column: span 2;
+    }
+
+    .follower-card {
+        grid-column: span 2;
+    }
+
+    .search-container {
+        gap: 1rem;
+    }
+
+    .search-input {
+        flex: 1;
+    }
+
+    .search-btn {
+        min-width: 120px;
+    }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .card-container {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .graph.cards {
+        grid-column: span 2;
+    }
+
+    .chart.cards {
+        grid-column: span 1;
+    }
+
+    .follower-card {
+        grid-column: span 1;
+    }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+    .dashboard-container {
+        padding: 2.5rem;
+    }
+
+    .card-container {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2.5rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5rem;
+    }
+
+    .graph.cards {
+        grid-column: span 2;
+    }
+
+    .chart.cards {
+        grid-column: span 1;
+    }
+
+    .follower-card {
+        grid-column: span 1;
+    }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .dashboard-header {
+        flex-direction: row;
+        text-align: left;
+        padding: 1rem;
+    }
+
+    .card-container {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .card-container-2 {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .cards {
+        border-radius: 12px;
+    }
+
+    .product-icon img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .cards {
+        min-height: 44px;
+    }
+
+    .search-btn,
+    .view-all {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .product-item {
+        min-height: 44px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .dashboard-container {
+        padding: 0;
+    }
+
+    .cards {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .search-container,
+    .header-right {
+        display: none;
+    }
 }
 </style>
 

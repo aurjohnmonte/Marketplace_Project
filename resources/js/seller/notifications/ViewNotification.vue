@@ -18,7 +18,7 @@
                       <label>{{ notificationData.reviews.rate }} star</label>
                     </div>
                     <div v-if="notificationData.created_at" class="timestamp">
-                        {{ returnFormatTime(notificationData.created_at) }} 
+                        {{ returnFormatTime(notificationData.created_at) }}
                     </div>
                     <label style="text-align: end; color: blue; text-decoration: underline; font-style: italic; cursor: pointer;" @click.stop="goView(notificationData)">View</label>
                 </div>
@@ -38,7 +38,7 @@ export default{
           store: useDataStore(),
           notificationData: null,
         }
-    },  
+    },
     computed: {
         notificationTypeClass() {
             return `notification-${this.notificationData.type || 'chat'}`;
@@ -91,7 +91,7 @@ export default{
               return num;
 
             case 'half':
-              
+
               return is_float ? 1 : 0;
 
             case 'none':
@@ -229,5 +229,314 @@ export default{
 
 .close-btn:hover {
   opacity: 0.8;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .notification-wrapper {
+    left: 5%;
+    top: 20%;
+    width: 90%;
+  }
+
+  .notification-card {
+    width: 100%;
+    padding: 1.5rem;
+    gap: 0.8rem;
+  }
+
+  .notification-title {
+    font-size: 14px;
+  }
+
+  .notification-body {
+    gap: 0.4rem;
+  }
+
+  .username {
+    font-size: 12px;
+  }
+
+  .message {
+    font-size: 0.9em;
+    padding: 0.6em;
+  }
+
+  .timestamp {
+    font-size: 10px;
+  }
+
+  .close-btn {
+    font-size: 1.1rem;
+  }
+
+  .rate-star img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .rate-star label {
+    font-size: 10px;
+    padding-left: 8px;
+  }
+}
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+  .notification-wrapper {
+    left: 10%;
+    top: 25%;
+    width: 80%;
+  }
+
+  .notification-card {
+    width: 100%;
+    padding: 1.8rem;
+    gap: 0.9rem;
+  }
+
+  .notification-title {
+    font-size: 15px;
+  }
+
+  .notification-body {
+    gap: 0.5rem;
+  }
+
+  .username {
+    font-size: 13px;
+  }
+
+  .message {
+    font-size: 0.95em;
+    padding: 0.7em;
+  }
+
+  .timestamp {
+    font-size: 11px;
+  }
+
+  .close-btn {
+    font-size: 1.2rem;
+  }
+
+  .rate-star img {
+    width: 18px;
+    height: 18px;
+  }
+
+  .rate-star label {
+    font-size: 11px;
+    padding-left: 9px;
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .notification-wrapper {
+    left: 25%;
+    top: 28%;
+    width: 50%;
+  }
+
+  .notification-card {
+    width: 100%;
+    padding: 2.2rem;
+    gap: 1.1rem;
+  }
+
+  .notification-title {
+    font-size: 16px;
+  }
+
+  .notification-body {
+    gap: 0.6rem;
+  }
+
+  .username {
+    font-size: 14px;
+  }
+
+  .message {
+    font-size: 1em;
+    padding: 0.8em;
+  }
+
+  .timestamp {
+    font-size: 12px;
+  }
+
+  .close-btn {
+    font-size: 1.25rem;
+  }
+
+  .rate-star img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rate-star label {
+    font-size: 12px;
+    padding-left: 10px;
+  }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+  .notification-wrapper {
+    left: 40%;
+    top: 30%;
+    width: 400px;
+  }
+
+  .notification-card {
+    width: 400px;
+    padding: 2rem;
+    gap: 1rem;
+  }
+
+  .notification-title {
+    font-size: 16px;
+  }
+
+  .notification-body {
+    gap: 0.5rem;
+  }
+
+  .username {
+    font-size: 14px;
+  }
+
+  .message {
+    font-size: 1em;
+    padding: 0.8em;
+  }
+
+  .timestamp {
+    font-size: 12px;
+  }
+
+  .close-btn {
+    font-size: 1.25rem;
+  }
+
+  .rate-star img {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rate-star label {
+    font-size: 12px;
+    padding-left: 10px;
+  }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+  .notification-wrapper {
+    left: 42%;
+    top: 28%;
+    width: 450px;
+  }
+
+  .notification-card {
+    width: 450px;
+    padding: 2.5rem;
+    gap: 1.2rem;
+  }
+
+  .notification-title {
+    font-size: 18px;
+  }
+
+  .notification-body {
+    gap: 0.6rem;
+  }
+
+  .username {
+    font-size: 15px;
+  }
+
+  .message {
+    font-size: 1.1em;
+    padding: 1em;
+  }
+
+  .timestamp {
+    font-size: 13px;
+  }
+
+  .close-btn {
+    font-size: 1.4rem;
+  }
+
+  .rate-star img {
+    width: 22px;
+    height: 22px;
+  }
+
+  .rate-star label {
+    font-size: 13px;
+    padding-left: 12px;
+  }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .notification-wrapper {
+    left: 15%;
+    top: 15%;
+    width: 70%;
+  }
+
+  .notification-card {
+    padding: 1.5rem;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .notification-card {
+    border-radius: 12px;
+  }
+
+  .rate-star img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .close-btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .notification-card {
+    min-height: 120px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .notification-wrapper {
+    position: static;
+    width: 100%;
+    height: auto;
+    left: auto;
+    top: auto;
+  }
+
+  .notification-card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .close-btn {
+    display: none;
+  }
 }
 </style>

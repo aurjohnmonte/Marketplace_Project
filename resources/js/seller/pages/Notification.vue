@@ -169,7 +169,7 @@ export default {
             this.$emit('checknotif');
 
                 for(let notify of this.orig_notifications){
-                    
+
                     if(notify.id === id){
                         notify.seen = 1;
                         return;
@@ -202,7 +202,7 @@ export default {
             if(filter === 'favorited'){
                 let dummy = [];
                 this.orig_notifications.forEach(notif => {
-                    
+
                     if(notif.favorite === 1){
                         dummy.push(notif);
                     }
@@ -215,7 +215,7 @@ export default {
             else{
                 let dummy = [];
                 this.orig_notifications.forEach(notif => {
-                    
+
                     if(notif.seen === 0){
                         dummy.push(notif);
                     }
@@ -226,7 +226,7 @@ export default {
         toggleSelectAll(e) {
 
             let value;
-            
+
             if(e.target.checked){
                 value = true;
             }
@@ -249,14 +249,14 @@ export default {
         },
         updateSelectAll(e) {
             console.log(e.target.checked);
-            
+
             if(e.target.checked){
                 this.selected_notif.push(e.target.value);
             }
             else{
                 this.selected_notif = this.selected_notif.filter(id => e.target.value !== id);
             }
-            
+
             console.log('selected notif: ', this.selected_notif);
 
             const visibleNotifications = this.filteredNotifications;
@@ -271,7 +271,7 @@ export default {
             });
             this.selectAll = false; // Reset select all after marking
         },
-        
+
         async toggleFavorite(notification, type) {
 
             let star;
@@ -294,7 +294,7 @@ export default {
                 }
 
                 for(let notify of this.notifications){
-                    
+
                     if(notification.id === notify.id){
                         notify.favorite = star;
                     }
@@ -363,7 +363,7 @@ export default {
         }
     },
     async mounted(){
-        
+
         await this.returnNotifications();
 
         const store = useDataStore();

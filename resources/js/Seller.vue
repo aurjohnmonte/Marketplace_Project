@@ -12,7 +12,7 @@
                 </button>
                 <h3 class="brand-title">Timbershoppe</h3>
             </div>
-            <a class="navbar-brand">{{ $route.name === 'AddProduct' ? 'Products' : $route.name }}</a>
+            <a class="navbar-brand">{{ displayTitle }}</a>
             <div class="navbar-right">
                 <div class="profile-circle" @click="toggleProfileBox">
                     <i class="fa-regular fa-circle-user" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.4);"></i>
@@ -61,7 +61,7 @@
                     </button>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <button :class="{ active: $route.name === 'Notification' }" style="position: relative;">
+                    <button :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" style="position: relative;">
                         <div style="width: 25px; height: 25px; border-radius: 25px; background-color: red; position: absolute; top: -10px; right: -10px;" v-if="unread_notif">
 
                         </div>
@@ -106,7 +106,7 @@
                     <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }" title="Products"></i>
                 </router-link>
                 <router-link to="/seller/notifications">
-                    <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' }" title="Notifications"></i>
+                    <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" title="Notifications"></i>
                 </router-link>
                 <router-link to="/seller/messages">
                     <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' }" title="Messages"></i>
@@ -159,12 +159,28 @@ export default{
             active_status: null,
         }
     },
+    computed: {
+        displayTitle(){
+            if(this.$route.name === 'AddProduct'){
+                return 'Products';
+            }
+            if(this.$route.name === 'ViewNotification'){
+                return 'Notification';
+            }
+            return this.$route.name;
+        }
+    },
     async mounted() {
         this.checkScreenSize();
         window.addEventListener('resize', this.checkScreenSize);
         await this.initializeUser();
 
         this.checkNotifications();
+
+        // Ensure sidebar is expanded on desktop by default
+        if (!this.isMobile) {
+            this.showMenu = true;
+        }
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkScreenSize);
@@ -183,7 +199,7 @@ export default{
             window.location.href = "/seller/logout";
         },
         goLogout(){
-            
+
             console.log('here')
             const store = useDataStore();
             let id = store.currentUser_info.id;
@@ -220,9 +236,12 @@ export default{
             this.isMobile = window.innerWidth <= 768;
             if (this.isMobile) {
                 this.showMenu = false;
+            } else {
+                // Ensure sidebar is expanded on desktop by default
+                this.showMenu = true;
             }
         },
-        
+
         async checkNotifications(){
             const store = useDataStore();
             const res = await axios.get('/check/notification', {
@@ -334,6 +353,37 @@ export default{
     }
 }
 
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .seller-container {
+        grid-template-rows: auto 1fr;
+    }
+
+    .navbar {
+        min-height: 50px;
+        padding: 0 0.25rem;
+    }
+
+    .brand-title {
+        font-size: 1em !important;
+        margin: 0 0.25em 0 0 !important;
+    }
+
+    .navbar-right {
+        gap: 0.25em;
+    }
+
+    .floating-box {
+        right: 0.5em;
+        min-width: 140px;
+        font-size: 12px;
+    }
+
+    .profile-box {
+        right: 4em;
+    }
+}
+
 /* navbar designs */
 .navbar {
     grid-area: navbar;
@@ -432,6 +482,15 @@ export default{
         cursor: pointer;
         padding: 0.5rem;
     }
+
+    .profile-circle i,
+    .navbar-right i {
+        font-size: 1rem;
+    }
+
+    .profile-circle {
+        padding: 0.25rem;
+    }
 }
 
 @media (min-width: 769px) {
@@ -449,6 +508,17 @@ export default{
     padding: .5rem;
     box-shadow: 2px 0 12px rgba(0,0,0,0.08);
     z-index: 1200;
+    display: flex;
+    flex-direction: column;
+}
+
+@media screen and (min-width: 992px) {
+    .sidebar {
+    grid-area: sidebar;
+    min-width: 12em;
+    padding: .5rem;
+    }
+
 }
 
 /* Mobile sidebar */
@@ -477,6 +547,42 @@ export default{
         height: 100vh;
         background: rgba(0, 0, 0, 0.5);
         z-index: 1400;
+    }
+
+    .sidebar-header {
+        margin-bottom: 1.5em;
+    }
+
+    .logo {
+        width: 50px;
+    }
+
+    .sidebar-btn {
+        gap: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .sidebar-btn button {
+        width: 7rem;
+        padding: 0.8rem;
+        font-size: 11px;
+    }
+}
+
+/* Small mobile sidebar adjustments */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 180px;
+    }
+
+    .sidebar-btn button {
+        width: 6rem;
+        padding: 0.6rem;
+        font-size: 10px;
+    }
+
+    .logo {
+        width: 40px;
     }
 }
 
@@ -512,6 +618,32 @@ export default{
     width: 100%;
     height: 100%;
     gap: 1.2rem;
+    padding-bottom: 2rem;
+    overflow-y: auto;
+}
+
+/* Custom scrollbar styling to match sidebar background */
+.sidebar-btn::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sidebar-btn::-webkit-scrollbar-track {
+    background: #323232;
+}
+
+.sidebar-btn::-webkit-scrollbar-thumb {
+    background: #ca9d73;
+    border-radius: 4px;
+}
+
+.sidebar-btn::-webkit-scrollbar-thumb:hover {
+    background: #c0673e;
+}
+
+/* Firefox scrollbar styling */
+.sidebar-btn {
+    scrollbar-width: thin;
+    scrollbar-color: #ca9d73 #323232;
 }
 
 .sidebar-btn button {
@@ -531,11 +663,27 @@ export default{
   box-shadow: 6px 4px 1px rgba(37, 0, 0, 0.233);
 }
 
+@media screen and (min-width: 992px) {
+    .sidebar-btn {
+        font-size: 11px;
+        gap: 1em;
+    }
+
+    .sidebar-btn button {
+        width: 8rem;
+    }
+}
+
 /* Mobile sidebar buttons */
 @media (max-width: 768px) {
     .sidebar-btn button {
         padding: 1rem .5rem;
         font-size: 12px;
+    }
+
+    .sidebar-btn button img {
+        width: 14px;
+        margin: 0 auto 0.2em auto;
     }
 }
 
@@ -630,6 +778,13 @@ export default{
     }
 }
 
+/* Small mobile content adjustments */
+@media (max-width: 480px) {
+    .content {
+        padding: 0.25rem;
+    }
+}
+
 /* Floating boxes responsive */
 @media (max-width: 768px) {
     .floating-box {
@@ -658,6 +813,22 @@ export default{
     .brand-title {
         font-size: 1.4em !important;
     }
+
+    .navbar {
+        padding: 0 0.75rem;
+    }
+
+    .navbar-brand {
+        font-size: 1.1em;
+    }
+
+    .sidebar {
+        min-width: 10em;
+    }
+
+    .logo {
+        width: 55px;
+    }
 }
 
 /* Large screen adjustments */
@@ -670,6 +841,91 @@ export default{
         width: 9rem;
         padding: 1.2rem;
         font-size: 14px;
+    }
+
+    .navbar {
+        padding: 0 1.5rem;
+    }
+
+    .brand-title {
+        font-size: 1.8em !important;
+        margin: 0 0.8em 0 0.3em !important;
+    }
+
+    .navbar-brand {
+        font-size: 1.3em;
+    }
+
+    .sidebar {
+        min-width: 14em;
+    }
+
+    .logo {
+        width: 70px;
+    }
+
+    .sidebar-btn button img {
+        width: 18px;
+        margin: 0 auto 0.4em auto;
+    }
+}
+
+/* Landscape orientation adjustments for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .navbar {
+        min-height: 50px;
+        padding: 0 0.5rem;
+    }
+
+    .brand-title {
+        font-size: 1.1em !important;
+    }
+
+    .sidebar {
+        width: 160px;
+    }
+
+    .sidebar-btn button {
+        width: 6rem;
+        padding: 0.6rem;
+        font-size: 10px;
+        margin-bottom: 0.3rem;
+    }
+
+    .sidebar-btn {
+        gap: 0.8rem;
+        padding-bottom: 0.5rem;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .sidebar-btn button {
+        border-radius: 12px;
+    }
+
+    .logo,
+    .logo-minimized {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .sidebar-btn button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .profile-circle,
+    .mobile-menu-toggle {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .floating-box {
+        min-height: 44px;
     }
 }
 </style>

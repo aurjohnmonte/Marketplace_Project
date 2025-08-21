@@ -45,7 +45,7 @@
                     :key="index"
                     class="message-item"
                     :class="{ 'sent': message.from_id === current_id, 'received': message.to_id === current_id }"
-                >  
+                >
                     <div class="message-content" style="cursor: pointer;" @click="show_option(message.from_id === current_id, message, index)" :class="{selected: clicked === index}">
                         <label style="color: blue; text-decoration: underline;" v-if="message.mention" @click="goMention(message.mention)">View</label>
                         <p>{{ message.messages }}</p>
@@ -183,10 +183,10 @@ export default {
             this.closeOption();
         },
         goEdit(){
-            
+
             this.show_moreOption = false;
             this.newMessage = this.selected_message.messages;
-            this.is_edit = true;    
+            this.is_edit = true;
         },
         closeOption(){
 
@@ -214,7 +214,7 @@ export default {
             const reader = new FileReader();
 
             reader.onload = (e) => {
-                
+
                 this.photo = {
                     file,
                     preview: e.target.result
@@ -227,7 +227,7 @@ export default {
 
         },
         async goMention(mention_id){
-            
+
             console.log(mention_id);
         },
         async returnConversation(){
@@ -275,7 +275,7 @@ export default {
         },
 
         async save_Edit(){
-            
+
             const res = await axios.get('/message/seller-edit', {
                 params: {
                     message_id: this.selected_message.id,
@@ -286,7 +286,7 @@ export default {
             console.log(res.data.message);
 
             window.alert(res.data.message);
-            
+
             for(let message of this.messages){
                 if(this.selected_message.id === message.id){
                     message.messages = this.newMessage;
@@ -317,7 +317,7 @@ export default {
             console.log(res.data.message);
 
             if(res.data.message === 'successful'){
-                
+
             }
 
             await this.returnConversation();
@@ -634,5 +634,370 @@ export default {
 
 .send-button i {
     font-size: 0.9em;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .chat-container {
+    padding: 0.5rem;
+  }
+
+  .chat-header {
+    padding: 0.8rem;
+    gap: 0.8rem;
+  }
+
+  .chat-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .chat-header p {
+    font-size: 0.8rem;
+  }
+
+  .chat-header img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .messages-container {
+    padding: 0.5rem;
+    gap: 0.8rem;
+  }
+
+  .message-item {
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+  }
+
+  .message-content {
+    max-width: 80%;
+    padding: 0.6em 0.8em;
+    border-radius: 1em;
+  }
+
+  .message-content p {
+    font-size: 0.85em;
+    margin-bottom: 0.2em;
+  }
+
+  .message-time {
+    font-size: 0.6em;
+  }
+
+  .message-input-container {
+    padding: 0.8rem;
+  }
+
+  .input-wrapper {
+    gap: 0.4rem;
+  }
+
+  .message-input {
+    padding: 0.6em 0.8em;
+    font-size: 0.85em;
+    border-radius: 1.5em;
+  }
+
+  .send-button {
+    width: 2.2em;
+    height: 2.2em;
+    padding: 0.6em;
+  }
+
+  .send-button i {
+    font-size: 0.8em;
+  }
+}
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+  .chat-container {
+    padding: 1rem;
+  }
+
+  .chat-header {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .chat-header h3 {
+    font-size: 1.2rem;
+  }
+
+  .chat-header p {
+    font-size: 0.9rem;
+  }
+
+  .chat-header img {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  .messages-container {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .message-item {
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+  }
+
+  .message-content {
+    max-width: 75%;
+    padding: 0.7em 0.9em;
+    border-radius: 1.1em;
+  }
+
+  .message-content p {
+    font-size: 0.9em;
+    margin-bottom: 0.25em;
+  }
+
+  .message-time {
+    font-size: 0.65em;
+  }
+
+  .message-input-container {
+    padding: 1rem;
+  }
+
+  .input-wrapper {
+    gap: 0.5rem;
+  }
+
+  .message-input {
+    padding: 0.7em 0.9em;
+    font-size: 0.9em;
+    border-radius: 1.8em;
+  }
+
+  .send-button {
+    width: 2.4em;
+    height: 2.4em;
+    padding: 0.7em;
+  }
+
+  .send-button i {
+    font-size: 0.85em;
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chat-container {
+    padding: 1.5rem;
+  }
+
+  .chat-header {
+    padding: 1.2rem;
+    gap: 1.2rem;
+  }
+
+  .chat-header h3 {
+    font-size: 1.4rem;
+  }
+
+  .chat-header p {
+    font-size: 1rem;
+  }
+
+  .chat-header img {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .messages-container {
+    padding: 1.2rem;
+    gap: 1.2rem;
+  }
+
+  .message-item {
+    gap: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .message-content {
+    max-width: 70%;
+    padding: 0.8em 1em;
+    border-radius: 1.2em;
+  }
+
+  .message-content p {
+    font-size: 0.95em;
+    margin-bottom: 0.3em;
+  }
+
+  .message-time {
+    font-size: 0.7em;
+  }
+
+  .message-input-container {
+    padding: 1.2rem;
+  }
+
+  .input-wrapper {
+    gap: 0.6rem;
+  }
+
+  .message-input {
+    padding: 0.8em 1em;
+    font-size: 0.95em;
+    border-radius: 2em;
+  }
+
+  .send-button {
+    width: 2.6em;
+    height: 2.6em;
+    padding: 0.8em;
+  }
+
+  .send-button i {
+    font-size: 0.9em;
+  }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+  .chat-container {
+    padding: 2.5rem;
+  }
+
+  .chat-header {
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .chat-header h3 {
+    font-size: 1.7rem;
+  }
+
+  .chat-header p {
+    font-size: 1.2rem;
+  }
+
+  .chat-header img {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+
+  .messages-container {
+    padding: 2rem;
+    gap: 2rem;
+  }
+
+  .message-item {
+    gap: 1.2rem;
+    margin-bottom: 2rem;
+  }
+
+  .message-content {
+    max-width: 70%;
+    padding: 1em 1.2em;
+    border-radius: 1.5em;
+  }
+
+  .message-content p {
+    font-size: 1.1em;
+    margin-bottom: 0.4em;
+  }
+
+  .message-time {
+    font-size: 0.8em;
+  }
+
+  .message-input-container {
+    padding: 2rem;
+  }
+
+  .input-wrapper {
+    gap: 1rem;
+  }
+
+  .message-input {
+    padding: 1em 1.2em;
+    font-size: 1.1em;
+    border-radius: 2.5em;
+  }
+
+  .send-button {
+    width: 3em;
+    height: 3em;
+    padding: 1em;
+  }
+
+  .send-button i {
+    font-size: 1em;
+  }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .chat-header {
+    padding: 0.8rem;
+    gap: 0.8rem;
+  }
+
+  .chat-header img {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  .messages-container {
+    padding: 0.8rem;
+    gap: 0.8rem;
+  }
+
+  .message-input-container {
+    padding: 0.8rem;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .chat-header img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .send-button {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .message-input {
+    min-height: 44px;
+  }
+
+  .chat-header img {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .chat-container {
+    padding: 0;
+  }
+
+  .message-input-container {
+    display: none;
+  }
+
+  .message-item {
+    break-inside: avoid;
+  }
+
+  .message-content {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
 }
 </style>

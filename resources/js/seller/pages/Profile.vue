@@ -666,4 +666,482 @@ export default {
     background-color: #b34200;
 }
 
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+    .profile-container {
+        padding: 0.5rem;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1rem 0.5rem;
+    }
+
+    .profile-header h2 {
+        font-size: 1.2rem;
+    }
+
+    .profile-header p {
+        font-size: 0.9rem;
+    }
+
+    .profile-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .profile-card {
+        padding: 1rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.1rem;
+    }
+
+    .profile-card p {
+        font-size: 0.9rem;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .profile-actions button {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .modal {
+        width: 95vw;
+        height: 95vh;
+        margin: 2.5vh auto;
+    }
+
+    .modal-header {
+        padding: 1rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.1rem;
+    }
+
+    .modal-body {
+        padding: 1rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 0.6rem;
+        font-size: 0.9rem;
+    }
+
+    .modal-footer {
+        padding: 1rem;
+        flex-direction: column;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        width: 100%;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+    .profile-container {
+        padding: 1rem;
+    }
+
+    .profile-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+        padding: 1.5rem 1rem;
+    }
+
+    .profile-header h2 {
+        font-size: 1.4rem;
+    }
+
+    .profile-header p {
+        font-size: 1rem;
+    }
+
+    .profile-content {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .profile-card {
+        padding: 1.5rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.3rem;
+    }
+
+    .profile-card p {
+        font-size: 1rem;
+    }
+
+    .profile-actions {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .profile-actions button {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+
+    .modal {
+        width: 90vw;
+        height: 90vh;
+        margin: 5vh auto;
+    }
+
+    .modal-header {
+        padding: 1.5rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.3rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 0.8rem;
+        font-size: 1rem;
+    }
+
+    .modal-footer {
+        padding: 1.5rem;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1rem;
+    }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .profile-container {
+        padding: 1.5rem;
+    }
+
+    .profile-header {
+        padding: 2rem 1.5rem;
+    }
+
+    .profile-header h2 {
+        font-size: 1.6rem;
+    }
+
+    .profile-header p {
+        font-size: 1.1rem;
+    }
+
+    .profile-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+    }
+
+    .profile-card {
+        padding: 2rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.5rem;
+    }
+
+    .profile-card p {
+        font-size: 1.1rem;
+    }
+
+    .profile-actions {
+        gap: 1rem;
+    }
+
+    .profile-actions button {
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+    }
+
+    .modal {
+        width: 80vw;
+        height: 80vh;
+        margin: 10vh auto;
+    }
+
+    .modal-header {
+        padding: 2rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.5rem;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 1rem;
+        font-size: 1.05rem;
+    }
+
+    .modal-footer {
+        padding: 2rem;
+        gap: 1rem;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        padding: 1rem 2rem;
+        font-size: 1.1rem;
+    }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+    .profile-container {
+        padding: 2rem;
+    }
+
+    .profile-header {
+        padding: 2.5rem 2rem;
+    }
+
+    .profile-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .profile-header p {
+        font-size: 1.2rem;
+    }
+
+    .profile-content {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2.5rem;
+    }
+
+    .profile-card {
+        padding: 2.5rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.7rem;
+    }
+
+    .profile-card p {
+        font-size: 1.2rem;
+    }
+
+    .profile-actions {
+        gap: 1.5rem;
+    }
+
+    .profile-actions button {
+        padding: 1.2rem 2rem;
+        font-size: 1.2rem;
+    }
+
+    .modal {
+        width: 70vw;
+        height: 70vh;
+        margin: 15vh auto;
+    }
+
+    .modal-header {
+        padding: 2.5rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.7rem;
+    }
+
+    .modal-body {
+        padding: 2.5rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 1.2rem;
+        font-size: 1.1rem;
+    }
+
+    .modal-footer {
+        padding: 2.5rem;
+        gap: 1.5rem;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        padding: 1.2rem 2.5rem;
+        font-size: 1.2rem;
+    }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+    .profile-container {
+        padding: 2.5rem;
+    }
+
+    .profile-header {
+        padding: 3rem 2.5rem;
+    }
+
+    .profile-header h2 {
+        font-size: 2rem;
+    }
+
+    .profile-header p {
+        font-size: 1.3rem;
+    }
+
+    .profile-content {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 3rem;
+    }
+
+    .profile-card {
+        padding: 3rem;
+    }
+
+    .profile-card h3 {
+        font-size: 1.9rem;
+    }
+
+    .profile-card p {
+        font-size: 1.3rem;
+    }
+
+    .profile-actions {
+        gap: 2rem;
+    }
+
+    .profile-actions button {
+        padding: 1.5rem 3rem;
+        font-size: 1.3rem;
+    }
+
+    .modal {
+        width: 60vw;
+        height: 60vh;
+        margin: 20vh auto;
+    }
+
+    .modal-header {
+        padding: 3rem;
+    }
+
+    .modal-header h3 {
+        font-size: 1.9rem;
+    }
+
+    .modal-body {
+        padding: 3rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+        padding: 1.5rem;
+        font-size: 1.2rem;
+    }
+
+    .modal-footer {
+        padding: 3rem;
+        gap: 2rem;
+    }
+
+    .btn-cancel,
+    .btn-save {
+        padding: 1.5rem 3rem;
+        font-size: 1.3rem;
+    }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .profile-header {
+        flex-direction: row;
+        text-align: left;
+        padding: 1rem;
+    }
+
+    .profile-content {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+
+    .modal {
+        width: 95vw;
+        height: 95vh;
+        margin: 2.5vh auto;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .profile-card {
+        border-radius: 12px;
+    }
+
+    .modal {
+        border-radius: 12px;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .profile-actions button,
+    .btn-cancel,
+    .btn-save {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .close-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .profile-container {
+        padding: 0;
+    }
+
+    .profile-actions,
+    .modal {
+        display: none;
+    }
+
+    .profile-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+}
 </style>

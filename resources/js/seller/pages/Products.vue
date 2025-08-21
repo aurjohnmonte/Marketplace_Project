@@ -128,7 +128,7 @@
                                                 <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
                                                     <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
                                                         <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
-                                                    </div>  
+                                                    </div>
                                                 </div>
                                                 <label>
                                                     {{ returnformatTime(comment.created_at) }}
@@ -1553,6 +1553,318 @@ export default {
         width: 1.5em;
         height: 1.5em;
         font-size: 0.6em;
+    }
+}
+
+/* ===== ENHANCED RESPONSIVE DESIGN ===== */
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+    .product-container {
+        padding: 1.5em;
+        gap: 2em;
+    }
+
+    .product-table {
+        font-size: 0.9em;
+        overflow-x: auto;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 0.8em 0.5em;
+    }
+
+    .action-btn button {
+        padding: 0.3em 0.6em;
+        font-size: 0.8em;
+        min-width: 50px;
+    }
+
+    .toggle-details {
+        width: 95vw;
+        height: 95vh;
+        padding: 1em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.2em;
+    }
+
+    .image-container {
+        height: 20vh;
+        min-height: 150px;
+    }
+
+    .toggle-img img {
+        max-width: 8em;
+        max-height: 8em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.8em;
+        font-size: 0.9em;
+    }
+
+    .comments-section {
+        padding: 0.8em;
+    }
+
+    .comments-list {
+        max-height: 120px;
+    }
+
+    .comment {
+        font-size: 0.9em;
+    }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .product-container {
+        padding: 2em;
+        gap: 2.5em;
+    }
+
+    .product-table {
+        font-size: 0.95em;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 1em 0.8em;
+    }
+
+    .action-btn button {
+        padding: 0.4em 0.8em;
+        font-size: 0.85em;
+        min-width: 60px;
+    }
+
+    .toggle-details {
+        width: 90vw;
+        height: 90vh;
+        padding: 1.5em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.4em;
+    }
+
+    .image-container {
+        height: 25vh;
+        min-height: 180px;
+    }
+
+    .toggle-img img {
+        max-width: 10em;
+        max-height: 10em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 1em;
+        font-size: 0.95em;
+    }
+
+    .comments-section {
+        padding: 1em;
+    }
+
+    .comments-list {
+        max-height: 150px;
+    }
+
+    .comment {
+        font-size: 0.95em;
+    }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+    .product-container {
+        padding: 2.5em;
+        gap: 3em;
+    }
+
+    .product-table {
+        font-size: 1em;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 1.2em 1em;
+    }
+
+    .action-btn button {
+        padding: 0.5em 1em;
+        font-size: 0.9em;
+        min-width: 70px;
+    }
+
+    .toggle-details {
+        width: 85vw;
+        height: 85vh;
+        padding: 2em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.6em;
+    }
+
+    .image-container {
+        height: 30vh;
+        min-height: 200px;
+    }
+
+    .toggle-img img {
+        max-width: 12em;
+        max-height: 12em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 1.2em;
+        font-size: 1em;
+    }
+
+    .comments-section {
+        padding: 1.2em;
+    }
+
+    .comments-list {
+        max-height: 180px;
+    }
+
+    .comment {
+        font-size: 1em;
+    }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+    .product-container {
+        padding: 3em;
+        gap: 3.5em;
+    }
+
+    .product-table {
+        font-size: 1.1em;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 1.5em 1.2em;
+    }
+
+    .action-btn button {
+        padding: 0.6em 1.2em;
+        font-size: 1em;
+        min-width: 80px;
+    }
+
+    .toggle-details {
+        width: 80vw;
+        height: 80vh;
+        padding: 2.5em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.8em;
+    }
+
+    .image-container {
+        height: 35vh;
+        min-height: 250px;
+    }
+
+    .toggle-img img {
+        max-width: 15em;
+        max-height: 15em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 1.5em;
+        font-size: 1.1em;
+    }
+
+    .comments-section {
+        padding: 1.5em;
+    }
+
+    .comments-list {
+        max-height: 200px;
+    }
+
+    .comment {
+        font-size: 1.1em;
+    }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .toggle-details {
+        width: 98vw;
+        height: 98vh;
+        padding: 1.5em;
+    }
+
+    .image-container {
+        height: 25vh;
+        min-height: 120px;
+    }
+
+    .toggle-img img {
+        max-width: 10em;
+        max-height: 10em;
+    }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .toggle-img img {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .action-btn button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .nav-btn {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .zoom-icon {
+        min-height: 44px;
+        min-width: 44px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .product-container {
+        padding: 0;
+    }
+
+    .action-btn,
+    .toggle-details {
+        display: none;
+    }
+
+    .product-table {
+        border: 1px solid #000;
     }
 }
 </style>

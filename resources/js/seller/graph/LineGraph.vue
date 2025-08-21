@@ -76,7 +76,7 @@ export default {
                 }
             ]
         };
-        
+
         this.chartOptions = {
             responsive: true,
             plugins: {
@@ -112,7 +112,7 @@ export default {
             },
             borderColor: '#ffffff',
             borderWidth: 2,
-            borderDash: [], 
+            borderDash: [],
         };
 
 
@@ -149,7 +149,7 @@ export default {
             for(let review of product.reviews){
                 arr_reviews.push(review);
             }
-        } 
+        }
 
         console.log('arr_reviews', arr_reviews);
 
@@ -178,3 +178,102 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.line-graph-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .line-graph-container {
+    min-height: 250px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 200px;
+  }
+}
+
+/* Mobile - Medium devices */
+@media (max-width: 768px) {
+  .line-graph-container {
+    min-height: 300px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 250px;
+  }
+}
+
+/* Tablet devices */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .line-graph-container {
+    min-height: 350px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 300px;
+  }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+  .line-graph-container {
+    min-height: 400px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 350px;
+  }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+  .line-graph-container {
+    min-height: 450px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 400px;
+  }
+}
+
+/* Landscape orientation for mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+  .line-graph-container {
+    min-height: 200px;
+  }
+
+  .line-graph-container canvas {
+    max-height: 150px;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .line-graph-container canvas {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .line-graph-container {
+    min-height: 300px;
+  }
+}
+
+/* Print styles */
+@media print {
+  .line-graph-container {
+    min-height: 300px;
+    break-inside: avoid;
+  }
+}
+</style>
