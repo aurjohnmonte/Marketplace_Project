@@ -80,7 +80,10 @@ class Review extends Model
 
                 if($req->type === "product"){
 
-                    $reviews_product = $this->select('rate')->where('product_id', $req->to_id)->get();
+                    $reviews_product = $this->select('rate')
+                                            ->where('product_id', $req->to_id)
+                                            ->where('review_type', 'product')
+                                            ->get();
 
                     Log::info('reviews', ['reviews'=>$reviews_product]);
                     $result = $this->calculate_averate_rate($reviews_product);
@@ -94,7 +97,13 @@ class Review extends Model
                 }
                 else if($req->type === "shop"){
                     
-                    $reviews_shop = $this->select('reviews.rate')->where('shop_id', $req->to_id)->get();
+                    // $reviews_shop = $this->select('reviews.rate')->where('shop_id', $req->to_id)->get();
+                    $reviews_shop =  $this->select('reviews.rate')
+                                        ->where('shop_id', $req->to_id)
+                                         ->where('review_type', 'shop')
+                                         ->get();
+
+                    Log::info('reviews', ['reviews'=>$reviews_shop]);
 
                     $result = $this->calculate_averate_rate($reviews_shop);
 

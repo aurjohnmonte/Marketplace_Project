@@ -190,6 +190,14 @@ weight: ''
 
             $product = Product::where('id',$request->id)->first();
 
+            $notifications = Notification::where('product_id', $product->id)->get();
+
+            if($notifications){
+                foreach($notifications as $notify){
+                    $notify->delete();
+                }
+            }
+
             if(empty($product)){
 
                 return response()->json(['message'=>'error']);

@@ -8,13 +8,6 @@
                 <h3>Welcome {{ user.name }},</h3>
                 <p>Your dashboard overview</p>
             </div>
-            <div class="header-right">
-                <router-link to="/seller/map">
-                    <i class="fa-solid fa-location-dot"
-                        :class="{ active: $route.name === 'Map' }">
-                    </i>
-                </router-link>
-            </div>
         </div>
 
         <div class="dashboard-content">
@@ -43,14 +36,14 @@
                             </div>
                             <div class="product-list">
                                 <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
-                                    <div class="product-icon">
+                                    <div class="product-icon" v-if="product">
                                        <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
                                     </div>
-                                    <div class="product-details">
+                                    <div class="product-details" v-if="product">
                                         <p class="product-name">{{ product.name }}</p>
                                         <p class="review-count">{{ product.reviews.length }} reviews</p>
                                     </div>
-                                    <div class="rating-info">
+                                    <div class="rating-info" v-if="product">
                                         <span class="rating-score">{{ product.overall_rate }}</span>
                                         <i class="fi fi-sr-star filled"></i>
                                     </div>
@@ -63,7 +56,7 @@
                                 <h6>Top product with lowest reviews</h6>
                                 <a href="#" class="view-all">view all</a>
                             </div>
-                            <div class="product-list">
+                            <div class="product-list" v-if="total_products.low_reviews.length > 0">
                                 <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
                                     <div class="product-icon">
                                         <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
@@ -315,14 +308,7 @@ export default {
                 'Outdoor enhancements'
             ],
 
-            /* Palihog kog review diri nga part bai then apil na ang graphs kay wala ni display sa akoa maski
-            nag add nakog products */
-            user: {
-                name: 'Borlolot',
-                reviews: 32,
-                totalProducts: 200,
-                totalFollowers: 100
-            },
+            user: [],
             recentNotifications: [
                 {
                     icon: 'fi fi-sr-shopping-cart',
@@ -360,135 +346,7 @@ export default {
                     status: 'read'
                 }
             ],
-            allProducts: [
-                {
-                    name: 'Wooden Chair',
-                    category: 'Furniture',
-                    rating: 4.5,
-                    totalSold: 45,
-                    reviewCount: 23,
-                    followers: 156
-                },
-                {
-                    name: 'Kitchen Knife Set',
-                    category: 'Kitchenware',
-                    rating: 4.8,
-                    totalSold: 78,
-                    reviewCount: 34,
-                    followers: 89
-                },
-                {
-                    name: 'Acoustic Guitar',
-                    category: 'Musical Instrument',
-                    rating: 4.6,
-                    totalSold: 12,
-                    reviewCount: 8,
-                    followers: 234
-                },
-                {
-                    name: 'Board Game Collection',
-                    category: 'Toys & Games',
-                    rating: 4.3,
-                    totalSold: 67,
-                    reviewCount: 19,
-                    followers: 123
-                },
-                {
-                    name: 'Desk Organizer',
-                    category: 'Office Supplies',
-                    rating: 4.1,
-                    totalSold: 134,
-                    reviewCount: 45,
-                    followers: 67
-                },
-                {
-                    name: 'Wall Art Canvas',
-                    category: 'Home Decor',
-                    rating: 4.7,
-                    totalSold: 29,
-                    reviewCount: 12,
-                    followers: 189
-                },
-                {
-                    name: 'Leather Wallet',
-                    category: 'Personal accessories',
-                    rating: 4.4,
-                    totalSold: 89,
-                    reviewCount: 31,
-                    followers: 145
-                },
-                {
-                    name: 'Garden Bench',
-                    category: 'Outdoor enhancements',
-                    rating: 4.2,
-                    totalSold: 23,
-                    reviewCount: 7,
-                    followers: 98
-                },{
-                    name: 'Wooden Chair',
-                    category: 'Furniture',
-                    rating: 4.5,
-                    totalSold: 45,
-                    reviewCount: 23,
-                    followers: 156
-                },
-                {
-                    name: 'Kitchen Knife Set',
-                    category: 'Kitchenware',
-                    rating: 4.8,
-                    totalSold: 78,
-                    reviewCount: 34,
-                    followers: 89
-                },
-                {
-                    name: 'Acoustic Guitar',
-                    category: 'Musical Instrument',
-                    rating: 4.6,
-                    totalSold: 12,
-                    reviewCount: 8,
-                    followers: 234
-                },
-                {
-                    name: 'Board Game Collection',
-                    category: 'Toys & Games',
-                    rating: 4.3,
-                    totalSold: 67,
-                    reviewCount: 19,
-                    followers: 123
-                },
-                {
-                    name: 'Desk Organizer',
-                    category: 'Office Supplies',
-                    rating: 4.1,
-                    totalSold: 134,
-                    reviewCount: 45,
-                    followers: 67
-                },
-                {
-                    name: 'Wall Art Canvas',
-                    category: 'Home Decor',
-                    rating: 4.7,
-                    totalSold: 29,
-                    reviewCount: 12,
-                    followers: 189
-                },
-                {
-                    name: 'Leather Wallet',
-                    category: 'Personal accessories',
-                    rating: 4.4,
-                    totalSold: 89,
-                    reviewCount: 31,
-                    followers: 145
-                },
-                {
-                    name: 'Garden Bench',
-                    category: 'Outdoor enhancements',
-                    rating: 4.2,
-                    totalSold: 23,
-                    reviewCount: 7,
-                    followers: 98
-                }
-            ],
+            allProducts: [],
             followers: [
                 {
                     username: 'loloy',
@@ -509,11 +367,17 @@ export default {
     },
     computed: {
         computefemalepercent(){
+            if(this.follower_statistics.female < 1){
+                return 0;
+            }
             const result = (this.follower_statistics.female.length / this.follower_statistics.total) * 100;
             console.log(this.follower_statistics);
             return result.toFixed(2);
         },
         computemalepercent(){
+            if(this.follower_statistics.male < 1){
+                return 0;
+            }
             const result = (this.follower_statistics.male.length / this.follower_statistics.total) * 100;
             console.log(this.follower_statistics);
             return result.toFixed(2);
@@ -523,12 +387,13 @@ export default {
     async mounted() {
 
         await this.returnProducts();
-
+        await this.returnUserInfo();
         await this.returnNotifications();
 
         const store = useDataStore();
         const shop = store.selected_shop;
-        console.log(shop);
+        this.user = store.currentUser_info;
+        console.log('SHOP: ',shop);
 
         //compute total shop reviews
         this.totalShopReviews();
@@ -561,6 +426,19 @@ export default {
         }
     },
     methods: {
+
+        async returnUserInfo(){
+            const res = await axios.post("/return/user-seller/info");
+
+            const store = useDataStore();
+
+            console.log('user: ',res.data.message);
+            console.log('shop: ', res.data.shop);
+            this.user = res.data.message;
+            store.setUserInfo(res.data.message);
+            store.setSelectedShop(res.data.shop);
+            console.log('id: ', store.currentUser_info.id);
+        },
 
         returnColor(notif){
 
@@ -656,6 +534,11 @@ export default {
 
             const followers = store.selected_shop.user.followers;
             console.log('followers: ', followers);
+            if(followers.length < 1){
+                console.log('way sulod');
+                return;
+            }
+            console.log('followers: ', followers);
 
             this.follower_statistics.total = followers.length;
             this.follower_statistics.male = followers.filter(f => f.followed_by.gender === 'male');
@@ -682,8 +565,16 @@ export default {
 
             //PRODUCTS ARRAY IS SORTED ASCENDING BASED ON THE OVERALL_RATE
 
-            console.log(shop);
+            if(shop.products.length < 1){
+                console.log('return')
+                return;
+            }
+
+            console.log('SHOP DETAILS: ',shop);
+
             this.total_products.total = shop.products.length;
+
+            console.log('tota: ', this.total_products);
 
             let products = shop.products;
 

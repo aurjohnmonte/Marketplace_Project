@@ -120,7 +120,7 @@ export default {
         },
     addReview(review){
       this.store.selected_shop.reviews.unshift(review);
-      this.reviews = this.store.selected_shop.reviews;
+      this.reviews = this.store.selected_shop.reviews.filter(e => e.review_type === 'shop');
     },
     formatDate(date){
       return new Date(date).toLocaleDateString();
@@ -129,7 +129,8 @@ export default {
       return new Date(date).toLocaleTimeString();
     },
     filteredReviews() {
-        this.reviews = this.store.selected_shop.reviews;
+      console.log('reviews: ',this.store.selected_shop.reviews);
+        this.reviews = this.store.selected_shop.reviews.filter(e => e.review_type === 'shop');
     },
   },
   mounted(){

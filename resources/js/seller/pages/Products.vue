@@ -48,6 +48,9 @@
             </thead>
 
             <tbody v-if="!is_loading">
+                <tr v-if="filteredProducts.length === 0">
+                    <td>NO PRODUCTS HAVE ADDED</td>
+                </tr>
                 <tr v-for="item in filteredProducts" :key="item.id" :class="statusClass(item.status)">
                     <td class="name">{{ item.name }}</td>
                     <td class="qty">{{ item.quantity }}</td>
@@ -433,6 +436,7 @@ export default {
 
             const res = await axios.post('/seller/delete/product', data);
 
+            console.log(res.data.message);
             if(res.data.message === "successful"){
                 this.allProducts = this.allProducts.filter(item => item.id !== id);
                 this.$nextTick(() => {

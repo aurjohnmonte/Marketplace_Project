@@ -57,6 +57,7 @@ export default {
         created_at: new Date(),
         comment: this.review_info.comment,
         rate: this.review_info.rate,
+        review_type: 'shop',
         user: {
           name: store.currentUser_info.name,
           profile: store.currentUser_info.profile
