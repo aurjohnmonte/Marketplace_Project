@@ -116,49 +116,6 @@
           </div>
         </template>
       </div>
-
-      <div class="header1" style="margin-bottom: 10px; margin-top: 20px;">
-        <label class="popular" style="font-size: 12px;">Followed Products</label>
-      </div>
-
-      <div class="content">
-        <template v-if="!loading_popular">
-          <div class="item-content" v-for="(product, index) in popular" :key="index">
-            <div class="option-icon">
-              <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
-              <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
-            </div>
-            <div class="item-pic">
-              <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
-            </div>
-            <div class="item-info">
-              <div class="item-rate">
-                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
-                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
-                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
-                <label>{{ product.overall_rate }}</label>
-              </div>
-              <div class="item-comment">
-                <label>{{ product.reviews.length }} Reviews</label>
-              </div>
-              <div class="item-shopname" @click="goShop(product.shop.id)">
-                <label>{{ product.shop.name }}</label>
-              </div>
-              <div class="item-name">
-                <label style="text-decoration: underline;" @click="goProduct(product)">{{ product.name }}</label>
-              </div>
-              <div class="item-price">
-                <label>PHP {{ product.price }}</label>
-              </div>
-            </div>
-          </div>
-        </template>
-        <template v-else>
-          <div class="overlay">
-            <img src="../../../images/kOnzy.gif">
-          </div>
-        </template>
-      </div>
     </div>
 
     <div class="popular-content">

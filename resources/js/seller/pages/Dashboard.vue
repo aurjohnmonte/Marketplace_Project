@@ -2,7 +2,11 @@
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
 
-    <div class="dashboard-container">
+    <div class="loading-container" v-if="is_loading">
+        <h1>LOADING</h1>
+    </div>
+
+    <div class="dashboard-container" v-else>
         <div class="dashboard-header">
             <div class="dashboard-header-left">
                 <h3>Welcome {{ user.name }},</h3>
@@ -266,6 +270,7 @@ export default {
     },
     data() {
         return {
+            is_loading: true,
             orig_products: [],
             notifications: [],
             unread: 0,
@@ -386,6 +391,8 @@ export default {
     },
     async mounted() {
 
+        this.is_loading = true;
+
         await this.returnProducts();
         await this.returnUserInfo();
         await this.returnNotifications();
@@ -413,6 +420,8 @@ export default {
         } else {
             this.renderGenderChart();
         }
+
+        this.is_loading = false;
 
     },
     watch: {
