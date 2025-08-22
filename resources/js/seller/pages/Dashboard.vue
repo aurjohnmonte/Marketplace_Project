@@ -1,9 +1,10 @@
 <template>
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-regular-rounded/css/uicons-regular-rounded.css'>
     <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-solid-rounded/css/uicons-solid-rounded.css'>
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/3.0.0/uicons-thin-rounded/css/uicons-thin-rounded.css'>
 
     <div class="loading-container" v-if="is_loading">
-        <h1>LOADING</h1>
+        <img src="../../../images/kOnzy.gif" style="width: 100px; height: 100px;">
     </div>
 
     <div class="dashboard-container" v-else>
@@ -11,6 +12,12 @@
             <div class="dashboard-header-left">
                 <h3>Welcome {{ user.name }},</h3>
                 <p>Your dashboard overview</p>
+            </div>
+
+            <div class="dashboard-header-right">
+                <router-link :to="{ name: 'Map' }">
+                    <i class="fi fi-tr-land-location"></i>
+                </router-link>
             </div>
         </div>
 
@@ -78,7 +85,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="graph cards" style="height: 440px; overflow: hidden;">
+                <div class="graph cards" style="overflow: hidden;">
                     <LineGraph/>
                 </div>
                 <div class="chart cards">
@@ -102,7 +109,7 @@
                         <div class="stat-item">
                             <span class="stat-label" style="font-weight: bolder;">Gender</span>
 
-                            <div style="display: flex; flex-direction: column; margin-top: 10px;">
+                            <div style="display: flex; flex-direction: column; margin-top: 10px; gap: .5em; font-size: smaller;">
                                 <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
                                     <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
                                         <div class="follower-gender-male" :style="{width: `${computemalepercent}%`}"></div>
@@ -119,10 +126,10 @@
                         </div>
                         <div class="stat-item">
                             <span class="stat-label" style="font-weight: bolder;">Age</span>
-                            <div style="display: grid; grid-template-columns: 100px 60px 10px; font-size: 10px;">
-                                <label>below 18</label><label>-</label><label>{{ follower_statistics.below_18 }}</label>
+                            <div style="display: grid; grid-template-columns: 100px 60px 10px; font-size: .7em; padding-left: .5em;">
+                                <label>Below 18</label><label>-</label><label>{{ follower_statistics.below_18 }}</label>
                                 <label>18 - 25</label><label>-</label><label>{{ follower_statistics.middle }}</label>
-                                <label>above 25</label><label>-</label><label>{{ follower_statistics.above_25 }}</label>
+                                <label>Above 25</label><label>-</label><label>{{ follower_statistics.above_25 }}</label>
                             </div>
                         </div>
                     </div>
@@ -135,7 +142,8 @@
                                     type="text"
                                     v-model="searchQuery"
                                     placeholder="Search products..."
-                                    @input="handleSearch"
+                                    @keyup.enter="performSearch"
+                                    @input="handleSearchInput"
                                     class="search-input"
                                 >
                                 <i class="fi fi-sr-search search-icon"></i>
@@ -262,6 +270,7 @@ import RadialGraph from '../graph/RadialGraph.vue';
 import LineGraph from '../graph/LineGraph.vue';
 import { useDataStore } from '../../stores/dataStore';
 import axios from 'axios';
+import router from '../../router';
 
 export default {
     components: {
@@ -314,43 +323,7 @@ export default {
             ],
 
             user: [],
-            recentNotifications: [
-                {
-                    icon: 'fi fi-sr-shopping-cart',
-                    title: 'New Order Received',
-                    message: 'Order #12345 for Wooden Chair has been placed',
-                    time: '2 hours ago',
-                    status: 'unread'
-                },
-                {
-                    icon: 'fi fi-sr-star',
-                    title: 'Product Review',
-                    message: 'New 5-star review for Kitchen Knife Set',
-                    time: '4 hours ago',
-                    status: 'read'
-                },
-                {
-                    icon: 'fi fi-sr-user-add',
-                    title: 'New Follower',
-                    message: 'John Doe started following your shop',
-                    time: '6 hours ago',
-                    status: 'unread'
-                },
-                {
-                    icon: 'fi fi-sr-box',
-                    title: 'Low Stock Alert',
-                    message: 'Desk Organizer is running low on stock',
-                    time: '1 day ago',
-                    status: 'unread'
-                },
-                {
-                    icon: 'fi fi-sr-chart-line-up',
-                    title: 'Sales Milestone',
-                    message: 'Congratulations! You\'ve reached 200 total sales',
-                    time: '2 days ago',
-                    status: 'read'
-                }
-            ],
+            recentNotifications: [],
             allProducts: [],
             followers: [
                 {
@@ -424,16 +397,7 @@ export default {
         this.is_loading = false;
 
     },
-    watch: {
-        searchQuery(newval){
 
-            if(newval === ''){
-                this.searchResults = this.orig_products;
-            }
-
-            this.searchResults = this.orig_products.filter(e => e.name.includes(newval));
-        }
-    },
     methods: {
 
         async returnUserInfo(){
@@ -645,6 +609,28 @@ export default {
             this.searchResults = [];
         },
 
+        performSearch() {
+            if (this.searchQuery.trim() === '') {
+                // If search query is empty, show all products
+                this.searchResults = this.orig_products;
+                return;
+            }
+
+            // Filter products based on search query
+            this.searchResults = this.orig_products.filter(product =>
+                product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                product.category.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                product.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+            );
+        },
+
+        handleSearchInput() {
+            // Clear search results when input is cleared
+            if (this.searchQuery.trim() === '') {
+                this.searchResults = this.orig_products;
+            }
+        },
+
         markAsRead(index) {
             if (this.recentNotifications[index].status === 'unread') {
                 this.recentNotifications[index].status = 'read';
@@ -728,11 +714,19 @@ export default {
     background-color: #DE18F2;
 }
 .graph.cards {
-  width: 100%;
-  max-width: 1000px;
-  overflow: visible;
-  height: 100%;
+    width: 100%;
+    height: 100%;
+    padding: 1em;
 }
+
+.loading-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 80vh;
+
+}
+
 .dashboard-container {
     padding: 1em;
     display: flex;
@@ -752,74 +746,18 @@ export default {
     width: 50%;
 }
 
-.header-right {
+.dashboard-header-right {
     display: flex;
     align-items: center;
+    padding-right: 2em;
 }
-.header-right i {
-    font-size: 24px;
+.dashboard-header-right i {
+    font-size: 1.8em;
     color: #333;
     cursor: pointer;
-    filter: drop-shadow(0px 2px 2px rgba(0, 0, 0, 0.582));
 }
-.header-right i:hover {
+.dashboard-header-right i:hover {
     color: #ff7300;
-}
-
-.search-product {
-    display: flex;
-    align-items: center;
-    gap: 2em;
-    width: 80%;
-    font-size: .9em;
-    color: #333;
-}
-
-.search-input-wrapper {
-  position: relative;
-  display: inline-block;
-  width: 100%;
-}
-
-.search-input-wrapper input[type="search"] {
-  padding: 0.5em 2em 0.5em 1.3em;
-  border-radius: 15px;
-  border: none;
-  width: 100%;
-  box-sizing: border-box;
-  background-color: #f5f5f5;
-  outline: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.582);
-}
-
-.search-icon {
-  position: absolute;
-  right: 0.7em;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #aaa;
-  pointer-events: none;
-  font-size: 1em;
-}
-
-.search-product select {
-    padding: 0.5em 1em;
-    border-radius: 15px;
-    border: none;
-    background-color: #DDD0C8;
-    outline: 1px solid #DDD0C8;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.582);
-    transition: all 0.3s ease;
-}
-.search-product select:hover {
-    background-color: #ddd0c8bd;
-}
-.search-product select:focus {
-    background-color: #ddd0c8bd;
-}
-.search-product select:active {
-    background-color: #ddd0c8bd;
 }
 
 /* contents */
@@ -835,7 +773,7 @@ export default {
 .cards {
     border-radius: 1em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.582);
-    height: 100%;   /* fill vertical */
+    height: 100%;
     width: 100%;
 }
 .card-container {
@@ -844,7 +782,7 @@ export default {
     height: 100%;
     gap: 2em;
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 20em 27em;
+    grid-template-rows: 20em 20em;
     grid-template-areas:
         'card-group-1 card-group-2  chart'
         'graph graph chart';
@@ -942,8 +880,8 @@ export default {
     overflow: hidden;
     display: flex;
     flex-direction: column;
-    gap: 0.8em;
-    height: 500px;
+    gap: 0.5em;
+    font-size: .8em;
 }
 
 .category-item {
@@ -956,13 +894,14 @@ export default {
 
 .card-container-2 {
     display: grid;
-    height: 84vh;
+    width: 100%;
     gap: 2em;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 15em 2fr;
+    height: 100%;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 15em 25em;
     grid-template-areas:
-        'card card chart'
-        'box  box  chart';
+        'card chart'
+        'box chart';
 }
 
 .follower-card {
@@ -971,10 +910,6 @@ export default {
     display: flex;
     gap: 1em;
     padding: 1em;
-}
-
-.notif-card {
-    height: 50em;
 }
 
 .chart-header {
@@ -1032,7 +967,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 1em;
-    padding-right: 1em;
+    padding-right: .5em;
     font-size: smaller;
 }
 
@@ -1370,7 +1305,7 @@ export default {
 /* Follower Statistics styles */
 .follower-stats {
     flex: 1;
-    padding: 1em 0 1em 1em;
+    padding: 1em 1em 1em 1em;
     display: flex;
     flex-direction: column;
     background-color: #d8bdad;
@@ -1378,24 +1313,23 @@ export default {
 }
 
 .follower-stats h4 {
-    font-size: 1.1em;
+    font-size: .9em;
     font-weight: 700;
     color: #333;
     margin: 0 0 1em 0;
 }
 
 .stats-content {
-    flex: 2;
     display: flex;
     flex-direction: column;
     padding: 1em;
-    gap: 0.5em;
+    gap:1em;
     background-color: #d8bdad;
     border-radius: 1em;
 }
 
 .total-followers {
-    font-size: 0.9em;
+    font-size: 0.7em;
     color: #333;
     margin: 0;
 }
@@ -1419,7 +1353,8 @@ export default {
     grid-area: box;
     display: flex;
     flex-direction: column;
-    padding: 0;
+    padding: 1em .2em .2em .2em;
+    gap: 1.5em;
 }
 
 .search-section {
@@ -1427,7 +1362,7 @@ export default {
 }
 
 .search-bar {
-    min-height: 3em;
+    max-height: 1em;
     display: flex;
     align-items: center;
     gap: 1em;
@@ -1442,7 +1377,7 @@ export default {
 
 .search-input {
     width: 100%;
-    padding: 0.8em 2.5em 0.8em 1em;
+    padding: 0.5em 2.5em 0.5em 1em;
     border: 2px solid #e0e0e0;
     border-radius: 0.8em;
     font-size: 0.9em;
@@ -1466,7 +1401,7 @@ export default {
 }
 
 .search-button {
-    padding: 0.8em 1.5em;
+    padding: 0.7em 1.5em;
     background: #d86900;
     color: white;
     border: none;
@@ -1499,13 +1434,14 @@ export default {
     display: flex;
     justify-content: center;
     overflow: hidden;
+    user-select: none;
 }
 
 /* Table styles */
 .table-wrapper {
     width: 100%;
     border-radius: 0.8em;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: .1em;
 }
 
 /* Responsive table */
@@ -1513,10 +1449,6 @@ export default {
     .products-table {
         font-size: 0.75em;
         max-height: 400px;
-    }
-
-    .products-table tbody {
-        max-height: 350px;
     }
 
     .products-table th,
@@ -1528,9 +1460,9 @@ export default {
 .products-table {
     text-align: center;
     font-size: .95em;
-    width: 46em;
+    width: 100%;
     border-radius: 1em;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.733);
+    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.733);
     background: white;
 }
 
@@ -1558,7 +1490,7 @@ export default {
 
 .products-table tbody {
     display: block;
-    max-height: 22.4em;
+    height: 16em;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1572,7 +1504,7 @@ export default {
 }
 
 .products-table tbody tr:hover {
-    background-color: rgba(255, 115, 0, 0.05);
+    background-color: rgba(255, 115, 0, 0.288);
     transform: scale(1.01);
 }
 
@@ -1706,6 +1638,16 @@ export default {
 @media (max-width: 480px) {
     .dashboard-container {
         padding: 0.5rem;
+    }
+
+    .graph.cards {
+        min-height: 300px; /* Smaller height on mobile */
+        max-height: 400px; /* Maximum height on mobile */
+    }
+
+    .chart.cards {
+        min-height: 300px; /* Smaller height on mobile */
+        max-height: 400px; /* Maximum height on mobile */
     }
 
     .dashboard-header {
@@ -1922,14 +1864,8 @@ export default {
         padding: 2rem;
     }
 
-    .card-container {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-    }
-
-    .card-container-2 {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
+    .card-group-1 .card-header h6{
+        font-size: smaller;
     }
 
     .graph.cards {
@@ -1951,18 +1887,8 @@ export default {
         padding: 2.5rem;
     }
 
-    .card-container {
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2.5rem;
-    }
-
-    .card-container-2 {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2.5rem;
-    }
-
     .graph.cards {
-        grid-column: span 2;
+        grid-column: span 1;
     }
 
     .chart.cards {
@@ -2022,22 +1948,5 @@ export default {
     }
 }
 
-/* Print styles */
-@media print {
-    .dashboard-container {
-        padding: 0;
-    }
-
-    .cards {
-        break-inside: avoid;
-        box-shadow: none;
-        border: 1px solid #ddd;
-    }
-
-    .search-container,
-    .header-right {
-        display: none;
-    }
-}
 </style>
 

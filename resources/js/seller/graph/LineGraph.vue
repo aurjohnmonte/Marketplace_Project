@@ -1,5 +1,5 @@
 <template>
-  <div style="width: 100%; height: 400px; object-fit: contain; " v-if="chartData && chartOptions">
+  <div style="width: 100%; height: 100%; object-fit: contain; display: flex; align-items: center; justify-content: center;" v-if="chartData && chartOptions">
     <LineChart :data="chartData" :options="chartOptions" style="position: relative;"/>
   </div>
 </template>
@@ -180,11 +180,7 @@ export default {
 </script>
 
 <style scoped>
-.line-graph-container {
-  width: 100%;
-  height: 100%;
-  position: relative;
-}
+
 
 /* ===== RESPONSIVE DESIGN ===== */
 
@@ -193,20 +189,12 @@ export default {
   .line-graph-container {
     min-height: 250px;
   }
-
-  .line-graph-container canvas {
-    max-height: 200px;
-  }
 }
 
 /* Mobile - Medium devices */
 @media (max-width: 768px) {
   .line-graph-container {
     min-height: 300px;
-  }
-
-  .line-graph-container canvas {
-    max-height: 250px;
   }
 }
 
@@ -215,20 +203,12 @@ export default {
   .line-graph-container {
     min-height: 350px;
   }
-
-  .line-graph-container canvas {
-    max-height: 300px;
-  }
 }
 
 /* Desktop devices */
 @media (min-width: 1025px) {
   .line-graph-container {
     min-height: 400px;
-  }
-
-  .line-graph-container canvas {
-    max-height: 350px;
   }
 }
 
@@ -237,20 +217,12 @@ export default {
   .line-graph-container {
     min-height: 450px;
   }
-
-  .line-graph-container canvas {
-    max-height: 400px;
-  }
 }
 
 /* Landscape orientation for mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .line-graph-container {
     min-height: 200px;
-  }
-
-  .line-graph-container canvas {
-    max-height: 150px;
   }
 }
 
