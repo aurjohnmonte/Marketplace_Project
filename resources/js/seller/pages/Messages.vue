@@ -188,7 +188,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 1em;
-    padding: 1em;
+    padding: 1em 1.5em;
 }
 
 .message-header {
@@ -200,6 +200,7 @@ export default {
     background-color: #ddd0c8e5;
     border-radius: 1.2em;
 }
+
 .message-header h4 {
     margin: 0;
     padding: 0;
@@ -242,8 +243,8 @@ export default {
 .messages {
     display: flex;
     flex-direction: column;
-    gap: 2em;
-    padding: 1em;
+    gap: 1.5em;
+    padding: 1em 0;
     border-radius: 1em;
 }
 
@@ -437,60 +438,7 @@ export default {
     }
 }
 
-/* Desktop devices */
-@media (min-width: 1025px) {
-    .message-container {
-        padding: 1em;
-        gap: 1em;
-    }
-}
 
-/* Large desktop devices */
-@media (min-width: 1440px) {
-    .message-container {
-        padding: 2.5em;
-        gap: 3em;
-    }
-
-    .message-header {
-        padding: 2em 3em;
-    }
-
-    .message-header h4 {
-        font-size: 1.5rem;
-    }
-
-    .search-bar input[type="search"] {
-        padding: 1.2em 3.5em 1.2em 2.5em;
-        font-size: 1.1em;
-        border-radius: 25px;
-    }
-
-    .search-icon {
-        right: 1.5em;
-        font-size: 1.1em;
-    }
-
-    .messages {
-        gap: 3em;
-        padding: 2.5em;
-    }
-
-    .chat-box {
-        gap: 2em;
-        padding: 2em;
-        border-radius: 1.5em;
-    }
-
-    .chat-box img {
-        width: 6em;
-        height: 6em;
-    }
-
-    .chat-details p {
-        font-size: 1em;
-    }
-}
 
 /* Landscape orientation for mobile */
 @media (max-width: 768px) and (orientation: landscape) {
