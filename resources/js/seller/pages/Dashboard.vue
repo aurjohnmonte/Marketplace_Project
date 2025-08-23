@@ -23,70 +23,74 @@
 
         <div class="dashboard-content">
             <div class="card-container">
-                <div class="card-group-1 cards">
-                    <div class="card-header">
-                        <h6>Total Shop Reviews</h6>
-                        <i class="fi fi-rr-thumbs-up-trust"></i>
-                        <p><span>{{ shop_reviews.total }}</span> Reviews</p>
-                    </div>
-                    <div class="card-content">
-                        <canvas id="genderViewsChart" class="gender-chart"></canvas>
-                    </div>
-                </div>
-                <div class="card-group-2 cards">
-                    <div class="card-header">
-                        <h6>Total Products</h6>
-                        <i class="fi fi-rr-box-open-full"></i>
-                        <p><span>{{ total_products.total }}</span> Products</p>
-                    </div>
-                    <div class="product-container">
-                        <div class="review-section">
-                            <div class="section-header">
-                                <h6>Top product with highest reviews</h6>
-                                <a href="#" class="view-all">view all</a>
+                <div class="left-container">
+                    <div class="top-section">
+                        <div class="card-group-1 cards">
+                            <div class="card-header">
+                                <h6>Total Shop Reviews</h6>
+                                <i class="fi fi-rr-thumbs-up-trust"></i>
+                                <p><span>{{ shop_reviews.total }}</span> Reviews</p>
                             </div>
-                            <div class="product-list">
-                                <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
-                                    <div class="product-icon" v-if="product">
-                                       <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
-                                    </div>
-                                    <div class="product-details" v-if="product">
-                                        <p class="product-name">{{ product.name }}</p>
-                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
-                                    </div>
-                                    <div class="rating-info" v-if="product">
-                                        <span class="rating-score">{{ product.overall_rate }}</span>
-                                        <i class="fi fi-sr-star filled"></i>
-                                    </div>
-                                </div>
+                            <div class="card-content">
+                                <canvas id="genderViewsChart" class="gender-chart"></canvas>
                             </div>
                         </div>
+                        <div class="card-group-2 cards">
+                            <div class="card-header">
+                                <h6>Total Products</h6>
+                                <i class="fi fi-rr-box-open-full"></i>
+                                <p><span>{{ total_products.total }}</span> Products</p>
+                            </div>
+                            <div class="product-container">
+                                <div class="review-section">
+                                    <div class="section-header">
+                                        <h6>Top product with highest reviews</h6>
+                                        <a href="#" class="view-all">view all</a>
+                                    </div>
+                                    <div class="product-list">
+                                        <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
+                                            <div class="product-icon" v-if="product">
+                                            <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div class="product-details" v-if="product">
+                                                <p class="product-name">{{ product.name }}</p>
+                                                <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                            </div>
+                                            <div class="rating-info" v-if="product">
+                                                <span class="rating-score">{{ product.overall_rate }}</span>
+                                                <i class="fi fi-sr-star filled"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
-                        <div class="review-section">
-                            <div class="section-header">
-                                <h6>Top product with lowest reviews</h6>
-                                <a href="#" class="view-all">view all</a>
-                            </div>
-                            <div class="product-list" v-if="total_products.low_reviews.length > 0">
-                                <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
-                                    <div class="product-icon">
-                                        <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                <div class="review-section">
+                                    <div class="section-header">
+                                        <h6>Top product with lowest reviews</h6>
+                                        <a href="#" class="view-all">view all</a>
                                     </div>
-                                    <div class="product-details">
-                                        <p class="product-name">{{ product.name }}</p>
-                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
-                                    </div>
-                                    <div class="rating-info">
-                                        <span class="rating-score">{{ product.overall_rate }}</span>
-                                        <i class="fi fi-sr-star filled"></i>
+                                    <div class="product-list" v-if="total_products.low_reviews.length > 0">
+                                        <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
+                                            <div class="product-icon">
+                                                <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                            </div>
+                                            <div class="product-details">
+                                                <p class="product-name">{{ product.name }}</p>
+                                                <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                            </div>
+                                            <div class="rating-info">
+                                                <span class="rating-score">{{ product.overall_rate }}</span>
+                                                <i class="fi fi-sr-star filled"></i>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="graph cards" style="overflow: hidden;">
-                    <LineGraph/>
+                    <div class="graph cards" style="overflow: hidden;">
+                        <LineGraph/>
+                    </div>
                 </div>
                 <div class="chart cards">
                     <div class="chart-header">
@@ -228,7 +232,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="chart cards notif-card">
+                <div class="cards notif-card">
                     <div class="chart-header">
                         <div class="header-left">
                             <h4>Recent Notification</h4>
@@ -777,15 +781,25 @@ export default {
     width: 100%;
 }
 .card-container {
-    display: grid;
+    display: flex;
     width: 100%;
     height: 100%;
     gap: 2em;
-    grid-template-columns: 1fr 1fr 1fr;
-    grid-template-rows: 20em 20em;
-    grid-template-areas:
-        'card-group-1 card-group-2  chart'
-        'graph graph chart';
+    flex-wrap: wrap;
+}
+
+.left-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    height: 42em;
+}
+
+.top-section {
+    display: flex;
+    gap: 1em;
+    width: 100%;
 }
 
 .card-group-1 {
@@ -867,12 +881,14 @@ export default {
 }
 
 .chart {
-    grid-area: chart;
+    flex: 1;
     background: rgb(219, 205, 184);
     padding: 1.5em;
     display: flex;
     flex-direction: column;
     gap: 1em;
+    height: 42em;
+    width: 3em;
 }
 
 .category-content {
@@ -910,6 +926,16 @@ export default {
     display: flex;
     gap: 1em;
     padding: 1em;
+}
+
+.notif-card {
+    grid-area: 'chart';
+    background: rgb(219, 205, 184);
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    height: 42em;
 }
 
 .chart-header {
@@ -1634,20 +1660,44 @@ export default {
 
 /* ===== RESPONSIVE DESIGN ===== */
 
+/* Ensure proper flex behavior on all screen sizes */
+.card-container {
+    min-height: 0;
+}
+
+.left-container {
+    min-height: 0;
+}
+
 /* Mobile First - Small devices */
 @media (max-width: 480px) {
     .dashboard-container {
         padding: 0.5rem;
     }
 
+    .card-container {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .left-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            'card-group-1'
+            'card-group-2'
+            'graph';
+        gap: 1rem;
+    }
+
     .graph.cards {
-        min-height: 300px; /* Smaller height on mobile */
-        max-height: 400px; /* Maximum height on mobile */
+        min-height: 300px;
+        max-height: 400px;
     }
 
     .chart.cards {
-        min-height: 300px; /* Smaller height on mobile */
-        max-height: 400px; /* Maximum height on mobile */
+        min-height: 300px;
+        max-height: 400px;
     }
 
     .dashboard-header {
@@ -1663,11 +1713,6 @@ export default {
 
     .dashboard-header-left p {
         font-size: 0.9rem;
-    }
-
-    .card-container {
-        grid-template-columns: 1fr;
-        gap: 1rem;
     }
 
     .card-container-2 {
@@ -1764,13 +1809,23 @@ export default {
         padding: 1rem;
     }
 
-    .dashboard-header {
-        padding: 1.5rem 1rem;
+    .card-container {
+        flex-direction: column;
+        gap: 1.5rem;
     }
 
-    .card-container {
+    .left-container {
         grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+        grid-template-areas:
+            'card-group-1'
+            'card-group-2'
+            'graph';
         gap: 1.5rem;
+    }
+
+    .dashboard-header {
+        padding: 1.5rem 1rem;
     }
 
     .card-container-2 {
@@ -1818,13 +1873,22 @@ export default {
 }
 
 /* Tablet devices */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 991px) {
     .dashboard-container {
         padding: 1.5rem;
     }
 
     .card-container {
-        grid-template-columns: repeat(2, 1fr);
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .left-container {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: auto auto;
+        grid-template-areas:
+            'card-group-1 card-group-2'
+            'graph graph';
         gap: 1.5rem;
     }
 
@@ -1858,41 +1922,99 @@ export default {
     }
 }
 
-/* Desktop devices */
-@media (min-width: 1025px) {
+/* Laptop devices - Specific breakpoint for laptop screens */
+@media (min-width: 992px) and (max-width: 1366px) {
     .dashboard-container {
-        padding: 2rem;
+        padding: 1.5rem;
     }
 
-    .card-group-1 .card-header h6{
-        font-size: smaller;
+    .left-container {
+        height: 38em;
     }
 
-    .graph.cards {
-        grid-column: span 2;
+    .card-container {
+        gap: 1.5rem;
     }
 
-    .chart.cards {
-        grid-column: span 1;
+    .card-group-1,
+    .card-group-2 {
+        padding: 0.8em;
+    }
+
+    .chart {
+        height: 38em;
+        padding: 1.2em;
+    }
+
+    .card-container-2 {
+        gap: 1.5rem;
     }
 
     .follower-card {
-        grid-column: span 1;
+        padding: 0.8em;
+    }
+
+    .notif-card {
+        height: 41em;
+        padding: 1.2em;
+    }
+
+    /* Adjust gender bars for laptop screens */
+    .gender-stats-container div[style*="width: 300px"] {
+        width: 250px !important;
+    }
+
+    /* Adjust age stats for laptop screens */
+    .age-stats-container {
+        font-size: 0.65em;
+    }
+
+    /* Optimize card headers for laptop screens */
+    .card-header h6 {
+        font-size: 0.85em;
+    }
+
+    .card-header p {
+        font-size: 0.75em;
+    }
+
+    /* Adjust product container for laptop screens */
+    .product-container {
+        font-size: 0.8em;
+    }
+
+    .section-header h6 {
+        font-size: 0.75em;
+    }
+
+    .product-name {
+        font-size: 0.75em;
+    }
+
+    .review-count {
+        font-size: 0.65em;
+    }
+
+    /* Optimize table for laptop screens */
+    .products-table {
+        font-size: 0.9em;
+    }
+
+    .products-table th {
+        padding: 1.5em 0.6em;
+    }
+
+    .products-table td {
+        padding: 0.9em 0.6em;
     }
 }
+
+
 
 /* Large desktop devices */
 @media (min-width: 1440px) {
     .dashboard-container {
         padding: 2.5rem;
-    }
-
-    .graph.cards {
-        grid-column: span 1;
-    }
-
-    .chart.cards {
-        grid-column: span 1;
     }
 
     .follower-card {
