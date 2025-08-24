@@ -71,7 +71,7 @@ export default{
 
             if(this.productCategory === "Any"){
 
-                this.products = this.shop.products;       
+                this.products = this.shop.products;
             }
             else{
 
@@ -179,7 +179,7 @@ export default{
         category_filter(){
             if(this.productCategory === "Any"){
 
-                this.products = this.shop.products;       
+                this.products = this.shop.products;
             }
             else{
 
@@ -351,6 +351,7 @@ export default{
     grid-template-columns: repeat(5, minmax(12em, 1fr));
     gap: 1em;
     padding: .5em;
+    justify-items: center;
 }
 
 .item-card {
@@ -413,4 +414,19 @@ export default{
     display: block;
 }
 
+
+@media screen and (min-width: 1025px) {
+    .row {
+        width: 98%;
+        grid-template-columns: repeat(4, minmax(12em, 1fr));
+        padding-right: 1.5em;
+    }
+}
+
+@media (min-width: 1240px) {
+    .row {
+        width: 100%;
+        grid-template-columns: repeat(4, minmax(12em, 1fr));
+    }
+}
 </style>

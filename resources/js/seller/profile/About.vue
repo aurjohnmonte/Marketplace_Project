@@ -5,28 +5,52 @@
             <p>{{ shop.description }}</p>
         </div>
         <div class="about-details">
-            <div class="details-container">
-                <span>Seller Name:</span>
-                <p>{{ shop.name }}</p>
+            <div class="details-header">
+                <h6>Shop & Seller Information</h6>
+                <button class="edit-btn" @click="$emit('edit-seller-info')">
+                    <i class="fa-solid fa-edit"></i>
+                </button>
             </div>
-            <div class="details-container">
-                <span>Email :</span>
-                <p>{{ shop.user.email }}</p>
+            <div class="row" style="grid-template-columns: auto auto;">
+                <div class="details-container">
+                    <span>Seller Name:</span>
+                    <p>{{shop.user.firstname}} {{ shop.user.m_initial }}. {{ shop.user.lastname }}</p>
+                </div>
+                <div class="details-container">
+                    <span>Seller Age:</span>
+                    <p>{{shop.user.age}}</p>
+                </div>
             </div>
-            <div class="details-container">
-                <span>Contact Number:</span>
-                <p>{{ shop.user.contact_no }}</p>
+
+            <div class="row">
+                <div class="details-container">
+                    <span>Gender :</span>
+                    <p>{{ shop.user.gender }}</p>
+                </div>
+                <div class="details-container">
+                    <span>Birthday:</span>
+                    <p>{{ shop.user.birthday }}</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="details-container">
+                    <span>Email :</span>
+                    <p>{{ shop.user.email }}</p>
+                </div>
+                <div class="details-container">
+                    <span>Contact Number:</span>
+                    <p>{{ shop.user.contact_no }}</p>
+                </div>
             </div>
             <div class="details-container">
                 <span>Address:</span>
                 <p>{{ shop.address }}</p>
             </div>
             <div class="row">
-                <div class="details-container">
-                    <span>Category:</span><br>
-                    <div style="display: flex; flex-direction: column;" class="cat">
-                        <label v-for="cat of category" :key="cat">{{ cat }}</label>
-                    </div>
+                <div class="details-container category">
+                    <span>Category:</span>
+                    <p v-for="cat of category" :key="cat">{{ cat }}</p>
                 </div>
                 <div class="details-container">
                     <span>Total Products:</span>
@@ -58,21 +82,13 @@ export default {
 </script>
 
 <style scoped>
-.cat label{
-    background-color: orange;
-    text-align: center;
-    width: 160px;
-    color: white;
-    padding: 5px;
-    border-radius: 10px;
-}
 .about-container {
-    padding: 1.5rem 1.5rem 0 1.5rem;
+    padding: 0 1.5rem 0 1.5rem;
     display: flex;
 }
 
 .desc {
-    flex: 2;
+    flex: 1.2;
     padding: 1em;
     border-radius: 0.5em;
 }
@@ -93,18 +109,48 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1em  1.5em;
+    padding: 1em 1em 1em 0em;
     border-radius: 0.5em;
     gap: 1em;
+}
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+}
+
+.details-header h6 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.edit-btn {
+    background: none;
+    border: none;
+    color: #5c473c;
+    cursor: pointer;
+    padding: 0.4em 0.5em 0.4em .7em;
+    border-radius: 50%;
+    transition: background-color 0.2s ease;
+    font-size: 1em;
+}
+
+.edit-btn:hover {
+    color:  #fef8f4;
+    background-color: #967f70;
 }
 
 .row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 1em;
-    row-gap: 0.5em;
     align-items: center;
-    padding: 0 1em;
+    padding: 0 .9em;
 }
 
 .details-container {
@@ -134,5 +180,8 @@ export default {
     margin: 0;
     color: #666;
     overflow-wrap: anywhere;
+}
+
+@media screen and (min-width: 1025px) {
 }
 </style>

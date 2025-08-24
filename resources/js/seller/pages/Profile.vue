@@ -17,8 +17,12 @@
                             <span>Change Profile Photo</span>
                             <span class="change-link">Change</span>
                         </div>
-                        <div class="menu-item" @click="changeShopDescription">
+                        <div class="menu-item" @click="changeShopDetails">
                             <span>Shop Details</span>
+                            <span class="change-link">Change</span>
+                        </div>
+                        <div class="menu-item" @click="changeSellerInformation">
+                            <span>Seller Info</span>
                             <span class="change-link">Change</span>
                         </div>
                     </div>
@@ -58,7 +62,7 @@
                 <h5 @click="details = 'review'" :class="{ active: details === 'review' }">SHOP'S REVIEW</h5>
             </div>
             <div class="body-details" v-if="details === 'about'">
-                <About :shop="shop"/>
+                <About :shop="shop" @edit-seller-info="changeSellerInformation"/>
             </div>
             <div class="body-details" v-else-if="details === 'product'">
                 <ProductsProfile :shop="shop"/>
@@ -68,45 +72,28 @@
             </div>
         </div>
 
-        <!-- Shop Name Edit Modal -->
-        <div class="modal-overlay" v-if="showShopNameModal" @click="closeShopNameModal">
+        <!-- Shop Details Edit Modal -->
+        <div class="modal-overlay" v-if="showDetailsModal" @click="closeDetailsModal">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
-                    <h3>Change Shop Name</h3>
-                    <button class="close-btn" @click="closeShopNameModal">
+                    <h3>Change Shop Details</h3>
+                    <button class="close-btn" @click="closeDetailsModal">
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="modal-body" style="padding: 0 2em; overflow-y: hidden;">
                     <div class="form-group">
                         <label for="shopName">Shop Name:</label>
                         <input
                             type="text"
                             id="shopName"
-                            v-model="newShopName"
-                            placeholder="Enter new shop name"
-                            @keyup.enter="saveShopName"
+                            v-model="newShopNameForSeller"
+                            placeholder="Enter shop name"
+                            :class="{ 'error': shopNameError }"
                         >
+                        <span v-if="shopNameError" class="error-message">{{ shopNameError }}</span>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn-cancel" @click="closeShopNameModal">Cancel</button>
-                    <button class="btn-save" @click="saveShopName">Save</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Shop Description Edit Modal -->
-        <div class="modal-overlay" v-if="showDescriptionModal" @click="closeDescriptionModal">
-            <div class="modal-content" @click.stop>
-                <div class="modal-header">
-                    <h3>Change Shop Description</h3>
-                    <button class="close-btn" @click="closeDescriptionModal">
-                        <i class="fa-solid fa-times"></i>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label for="shopDescription">Shop Description:</label>
                         <textarea
                             id="shopDescription"
@@ -117,8 +104,115 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="closeDescriptionModal">Cancel</button>
-                    <button class="btn-save" @click="saveDescription">Save</button>
+                    <button class="btn-cancel" @click="closeDetailsModal">Cancel</button>
+                    <button class="btn-save" @click="saveDetails">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seller Information Edit Modal -->
+        <div class="modal-overlay" v-if="showSellerInfoModal" @click="closeSellerInfoModal">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h3>Edit Seller Information</h3>
+                    <button class="close-btn" @click="closeSellerInfoModal">
+                        <i class="fa-solid fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="sellerName">Seller Firstname:</label>
+                        <input
+                            type="text"
+                            id="sellerFirstname"
+                            v-model="newSellerFirstname"
+                            placeholder="Enter seller name"
+                            :class="{ 'error': sellerFirstnameError }"
+                        >
+                        <span v-if="sellerFirstnameError" class="error-message">{{ sellerFirstnameError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerName">Seller Middle Name:</label>
+                        <input
+                            type="text"
+                            id="sellerMname"
+                            v-model="newSellerMname"
+                            placeholder="Enter seller name"
+                            :class="{ 'error': sellerMnameError }"
+                        >
+                        <span v-if="sellerMnameError" class="error-message">{{ sellerMnameError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerName">Seller Lastname:</label>
+                        <input
+                            type="text"
+                            id="sellerLastname"
+                            v-model="newSellerLastname"
+                            placeholder="Enter seller name"
+                            :class="{ 'error': sellerLastnameError }"
+                        >
+                        <span v-if="sellerLastnameError" class="error-message">{{ sellerLastnameError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerEmail">Email:</label>
+                        <input
+                            type="email"
+                            id="sellerEmail"
+                            v-model="newEmail"
+                            placeholder="Enter email address"
+                            :class="{ 'error': emailError }"
+                        >
+                        <span v-if="emailError" class="error-message">{{ emailError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerContact">Contact Number:</label>
+                        <input
+                            type="tel"
+                            id="sellerContact"
+                            v-model="newContacts"
+                            placeholder="Enter contact number"
+                            :class="{ 'error': contactError }"
+                        >
+                        <span v-if="contactError" class="error-message">{{ contactError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerGender">Gender:</label>
+                        <select
+                            id="sellerGender"
+                            v-model="newGender"
+                            :class="{ 'error': genderError }"
+                        >
+                            <option value="">Select gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                        <span v-if="genderError" class="error-message">{{ genderError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerBirthday">Birthday:</label>
+                        <input
+                            type="date"
+                            id="sellerBirthday"
+                            v-model="newBirthday"
+                            :class="{ 'error': birthdayError }"
+                        >
+                        <span v-if="birthdayError" class="error-message">{{ birthdayError }}</span>
+                    </div>
+                    <div class="form-group">
+                        <label for="sellerAddress">Address:</label>
+                        <textarea
+                            id="sellerAddress"
+                            v-model="newAddress"
+                            placeholder="Enter address"
+                            rows="3"
+                            :class="{ 'error': addressError }"
+                        ></textarea>
+                        <span v-if="addressError" class="error-message">{{ addressError }}</span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-cancel" @click="closeSellerInfoModal">Cancel</button>
+                    <button class="btn-save" @click="saveSellerInformation">Save</button>
                 </div>
             </div>
         </div>
@@ -142,18 +236,7 @@ export default {
         return {
             store: useDataStore(),
             user: {
-                sellerName: 'Bravo',
-                shop: 'Budol Seller',
-                profilePicture: 'https://tse1.mm.bing.net/th/id/OIP.airZynZaLzvgWLOJFbVF6QHaE8?rs=1&pid=ImgDetMain&o=7&rm=3',
-                coverPhoto: 'https://wallpapercave.com/wp/wp1996490.jpg',
-                email: 'bravobudol@gmail.com',
-                contacts: '090909090909',
-                address: 'balay',
-                rating: 2.5,
-                followers: 10,
-                category: 'Furniture',
-                description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse vel nisi sed felis dictum lobortis. Vivamus ut justo in diam malesuada vestibulum sed in lorem. Praesent imperdiet enim in eros porta, sit amet semper nunc maximus. Phasellus mauris ligula, volutpat pretium dolor ut, mattis pulvinar felis. Duis vehicula massa velit, non sollicitudin leo facilisis et. Aliquam leo nisl, elementum sit amet sapien vitae, mattis suscipit risus. Curabitur sollicitudin fermentum mauris non pellentesque. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Aenean vehicula semper felis id posuere. Aenean finibus enim et fermentum volutpat. Etiam ac finibus sem, eget elementum ante.',
-                totalProducts: 10
+                coverPhoto: 'https://wallpapercave.com/wp/wp1996490.jpg'
             },
             rate: {
                 start: 0,
@@ -164,9 +247,28 @@ export default {
             details: 'about',
             showMenu: false,
             showShopNameModal: false,
-            showDescriptionModal: false,
+            showDetailsModal: false,
+            showSellerInfoModal: false,
             newShopName: '',
             newDescription: '',
+            newShopNameForSeller: '',
+            newSellerFirstname: '',
+            newSellerMname: '',
+            newSellerLastname: '',
+            newEmail: '',
+            newContacts: '',
+            newGender: '',
+            newBirthday: '',
+            newAddress: '',
+            shopNameError: '',
+            sellerFirstnameError: '',
+            sellerMnameError: '',
+            sellerLastnameError: '',
+            emailError: '',
+            contactError: '',
+            genderError: '',
+            birthdayError: '',
+            addressError: '',
         }
     },
     computed: {
@@ -181,7 +283,8 @@ export default {
                 no_star: emptyStars,
                 half: hasHalfStar
             };
-        }
+        },
+
     },
     methods: {
         isFloat(rate){
@@ -231,18 +334,65 @@ export default {
             this.showShopNameModal = true;
             this.closeMenu();
         },
-        changeShopDescription() {
-            this.newDescription = this.user.description;
-            this.showDescriptionModal = true;
+        changeShopDetails() {
+            if (this.shop) {
+                this.newShopNameForSeller = this.shop.name || '';
+                this.newDescription = this.shop.description || '';
+                this.showDetailsModal = true;
+            }
+            this.closeMenu();
+        },
+        changeSellerInformation() {
+            // Clear any previous errors first
+            this.shopNameError = '';
+            this.sellerFirstnameError = '';
+            this.sellerMnameError = '';
+            this.sellerLastnameError = '';
+            this.emailError = '';
+            this.contactError = '';
+            this.genderError = '';
+            this.birthdayError = '';
+            this.addressError = '';
+
+            // Initialize form with current data
+            this.newSellerFirstname = this.shop.user.firstname;
+            this.newSellerMname = this.shop.user.m_initial;
+            this.newSellerLastname = this.shop.user.lastname;
+            this.newEmail = this.shop.user.email;
+            this.newContacts = this.shop.user.contact_no;
+            this.newGender = this.shop.user.gender;
+            this.newBirthday = this.shop.user.birthday;
+            this.newAddress = this.shop.address;
+            this.showSellerInfoModal = true;
             this.closeMenu();
         },
         closeShopNameModal() {
             this.showShopNameModal = false;
             this.newShopName = '';
         },
-        closeDescriptionModal() {
-            this.showDescriptionModal = false;
+        closeDetailsModal() {
+            this.showDetailsModal = false;
             this.newDescription = '';
+            this.newShopNameForSeller = '';
+            this.shopNameError = '';
+        },
+        closeSellerInfoModal() {
+            this.showSellerInfoModal = false;
+            this.newShopNameForSeller = '';
+            this.newEmail = '';
+            this.newContacts = '';
+            this.newGender = '';
+            this.newBirthday = '';
+            this.newAddress = '';
+            this.shopNameError = '';
+            this.sellerFirstnameError = '';
+            this.sellerMnameError = '';
+            this.sellerLastnameError = '';
+            this.emailError = '';
+            this.contactError = '';
+            this.genderError = '';
+            this.birthdayError = '';
+            this.addressError = '';
         },
         saveShopName() {
             if (this.newShopName && this.newShopName.trim() !== '') {
@@ -250,28 +400,168 @@ export default {
                 this.closeShopNameModal();
             }
         },
-        saveDescription() {
-            if (this.newDescription && this.newDescription.trim() !== '') {
-                this.user.description = this.newDescription.trim();
-                this.closeDescriptionModal();
+        saveDetails() {
+            let hasError = false;
+
+            if (!this.newShopNameForSeller || this.newShopNameForSeller.trim() === '') {
+                this.shopNameError = 'Shop name is required.';
+                hasError = true;
+            } else {
+                this.shopNameError = '';
             }
+
+            if (!hasError) {
+                if (this.newDescription && this.newDescription.trim() !== '') {
+                    this.shop.description = this.newDescription.trim();
+                }
+                this.shop.name = this.newShopNameForSeller.trim();
+                this.closeDetailsModal();
+            }
+        },
+        saveSellerInformation() {
+            let hasError = false;
+
+            if (!this.newSellerFirstname || this.newSellerFirstname.trim() === '') {
+                this.sellerFirstnameError = 'Seller firstname is required.';
+                hasError = true;
+            } else {
+                this.sellerFirstnameError = '';
+            }
+
+            if (!this.newSellerMname || this.newSellerMname.trim() === '') {
+                this.sellerMnameError = 'Seller middle initial is required.';
+                hasError = true;
+            } else {
+                this.sellerMnameError = '';
+            }
+
+            if (!this.newSellerLastname || this.newSellerLastname.trim() === '') {
+                this.sellerLastnameError = 'Seller lastname is required.';
+                hasError = true;
+            } else {
+                this.sellerLastnameError = '';
+            }
+
+            if (!this.newEmail || this.newEmail.trim() === '') {
+                this.emailError = 'Email address is required.';
+                hasError = true;
+            } else if (!this.validateEmail(this.newEmail)) {
+                this.emailError = 'Please enter a valid email address.';
+                hasError = true;
+            } else {
+                this.emailError = '';
+            }
+
+            if (!this.newContacts || this.newContacts.trim() === '') {
+                this.contactError = 'Contact number is required.';
+                hasError = true;
+            } else if (!this.validatePhone(this.newContacts)) {
+                this.contactError = 'Please enter a valid contact number (e.g., 09123456789).';
+                hasError = true;
+            } else {
+                this.contactError = '';
+            }
+
+            if (!this.newGender || this.newGender.trim() === '') {
+                this.genderError = 'Gender is required.';
+                hasError = true;
+            } else {
+                this.genderError = '';
+            }
+
+            if (!this.newBirthday || this.newBirthday.trim() === '') {
+                this.birthdayError = 'Birthday is required.';
+                hasError = true;
+            } else if (!this.validateBirthday(this.newBirthday)) {
+                this.birthdayError = 'Please enter a valid birthday.';
+                hasError = true;
+            } else {
+                this.birthdayError = '';
+            }
+
+            if (!this.newAddress || this.newAddress.trim() === '') {
+                this.addressError = 'Address is required.';
+                hasError = true;
+            } else {
+                this.addressError = '';
+            }
+
+            if (!hasError) {
+                this.shop.name = this.newShopNameForSeller.trim();
+                this.shop.user.firstname = this.newSellerFirstname.trim();
+                this.shop.user.m_initial = this.newSellerMname.trim();
+                this.shop.user.lastname = this.newSellerLastname.trim();
+                this.shop.user.email = this.newEmail.trim();
+                this.shop.user.contact_no = this.newContacts.trim();
+                this.shop.user.gender = this.newGender.trim();
+                this.shop.user.birthday = this.newBirthday.trim();
+                this.shop.address = this.newAddress.trim();
+
+                this.closeSellerInfoModal();
+            }
+        },
+        validateEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        },
+        validatePhone(phone) {
+            const phoneRegex = /^09\d{9}$/; // Basic Philippine mobile number validation
+            return phoneRegex.test(phone);
+        },
+        validateBirthday(birthday) {
+            if (!birthday) return false;
+
+            const selectedDate = new Date(birthday);
+            const today = new Date();
+            const minDate = new Date('1900-01-01');
+
+            // Check if it's a valid date
+            if (isNaN(selectedDate.getTime())) return false;
+
+            // Check if birthday is not in the future
+            if (selectedDate > today) return false;
+
+            // Check if birthday is not too far in the past
+            if (selectedDate < minDate) return false;
+
+            return true;
         },
         handleClickOutside(event) {
             // Close menu if clicking outside the settings menu
             if (!event.target.closest('.settings-menu')) {
                 this.closeMenu();
             }
+        },
+
+    },
+    watch: {
+        'store.selected_shop': {
+            handler(newShop) {
+                if (newShop) {
+                    this.shop = newShop;
+                    // Initialize modal data with shop data
+                    this.newShopNameForSeller = this.shop.name;
+                    this.newDescription = this.shop.description || '';
+                }
+            },
+            immediate: true
         }
     },
-    mounted(){
+        mounted(){
         this.shop = this.store.selected_shop;
-        console.log('this shop: ', this.shop);
+
+        // Initialize modal data with shop data
+        if (this.shop) {
+            this.newShopNameForSeller = this.shop.name;
+            this.newDescription = this.shop.description || '';
+        }
     }
 }
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .profile-container {
     padding: 1.5em;
@@ -441,7 +731,7 @@ export default {
 }
 
 .body-header {
-    background-color: #534741;
+    background-color: #5c473c;
     display: flex;
     justify-content: space-evenly;
     align-items: center;
@@ -494,7 +784,13 @@ export default {
 .settings-menu i {
     font-size: 1.2em;
     color: white;
+    padding: .5em;
+    background-color: #6145388a;
+    border-radius: 50%;
     cursor: pointer;
+}
+.settings-menu i:hover {
+    background-color: #967f70;
 }
 
 .menu-dropdown {
@@ -564,9 +860,9 @@ export default {
     border-radius: 1em;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 500px;
+    max-width: 40em;
     max-height: 80vh;
-    overflow-y: auto;
+    overflow-y: hidden;
 }
 
 .modal-header {
@@ -580,6 +876,7 @@ export default {
     margin: 0;
     color: #333;
     font-size: 1.2em;
+    font-family: 'Poppins', sans-serif;
 }
 
 .close-btn {
@@ -598,11 +895,13 @@ export default {
 }
 
 .modal-body {
-    padding: 1.5em;
+    padding: .5em 1.5em;
+    overflow-y: auto;
 }
 
 .form-group {
     margin-bottom: 1em;
+    overflow-y: auto;
 }
 
 .form-group label {
@@ -613,22 +912,50 @@ export default {
 }
 
 .form-group input,
-.form-group textarea {
+.form-group textarea,
+.form-group select {
     width: 100%;
-    padding: 0.8em;
+    padding: 0.6em;
     border: 1px solid #a7a7a7;
     border-radius: 0.5em;
-    font-size: 1em;
+    font-size: 0.9em;
     background-color: white;
     box-sizing: border-box;
     resize: none;
 }
 
 .form-group input:focus,
-.form-group textarea:focus {
+.form-group textarea:focus,
+.form-group select:focus {
     outline: none;
     border-color: #ff7300;
     box-shadow: 0 0 0 2px rgba(255, 94, 0, 0.25);
+}
+
+/* Ensure modal inputs are properly styled */
+.modal-content .form-group input,
+.modal-content .form-group textarea,
+.modal-content .form-group select {
+    font-size: 0.9em !important;
+    padding: 0.6em !important;
+}
+
+.form-group input.error,
+.form-group textarea.error,
+.form-group select.error {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.25);
+}
+
+/* Additional styling for select dropdown */
+.form-group select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.7em center;
+    background-size: 1em;
+    padding-right: 2.5em;
 }
 
 .modal-footer {
@@ -640,11 +967,11 @@ export default {
 
 .btn-cancel,
 .btn-save {
-    padding: 0.8em 1.5em;
+    padding: 1em;
     border: none;
     border-radius: 0.5em;
     cursor: pointer;
-    font-size: .9em;
+    font-size: 1em;
     transition: background-color 0.2s ease;
 }
 
@@ -664,6 +991,14 @@ export default {
 
 .btn-save:hover {
     background-color: #b34200;
+}
+
+/* Error message styles */
+.error-message {
+    color: #dc3545;
+    font-size: 0.8em;
+    margin-top: 0.5em;
+    display: block;
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -996,8 +1331,8 @@ export default {
 
     .btn-cancel,
     .btn-save {
-        padding: 1.2rem 2.5rem;
-        font-size: 1.2rem;
+        padding: .5rem 1rem;
+        font-size: 1rem;
     }
 }
 
@@ -1074,11 +1409,6 @@ export default {
         gap: 2rem;
     }
 
-    .btn-cancel,
-    .btn-save {
-        padding: 1.5rem 3rem;
-        font-size: 1.3rem;
-    }
 }
 
 /* Landscape orientation for mobile */
