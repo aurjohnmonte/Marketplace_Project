@@ -770,7 +770,7 @@ export default {
 
 .product-container {
     position: relative;
-    padding: 3em 3em 0 3em  ;
+    padding: 1.5em ;
     display: flex;
     flex-direction: column;
     gap: 4em;

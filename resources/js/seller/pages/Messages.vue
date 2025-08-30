@@ -188,7 +188,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: 1em;
-    padding: 1em 1.5em;
+    padding: 1.5em;
 }
 
 .message-header {

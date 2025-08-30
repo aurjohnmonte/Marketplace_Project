@@ -388,7 +388,7 @@ export default {
         //return products category
         await this.returnCategoriesProducts();
 
-        
+
 
         // Load Chart.js from CDN if not already loaded
         if (!window.Chart) {
@@ -654,7 +654,7 @@ export default {
             console.log('NEW AGI');
             const ctx = document.getElementById('genderViewsChart');
             if (!ctx) return;
-            
+
             const context = ctx.getContext('2d');
             if (!context) return;
 
@@ -739,7 +739,7 @@ export default {
 }
 
 .dashboard-container {
-    padding: 1em;
+    padding: 1.5em;
     display: flex;
     flex-direction: column;
     gap: 1em;

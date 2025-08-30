@@ -150,7 +150,7 @@ export default {
     async loadFollowers() {
       this.loading = true;
       // TODO: Implement API call to load followers
-      
+
       const id = this.store.currentUser_info.id;
 
       const data = new FormData();
@@ -172,6 +172,10 @@ export default {
 </script>
 
 <style scoped>
+.followers-container {
+    width: 100%;
+    padding: 2em;
+}
 .overlay{
   position: fixed;
   width: 100%;
@@ -256,9 +260,9 @@ export default {
     display: none;
   }
 
-  .followers-table, 
-  .followers-table tbody, 
-  .followers-table tr, 
+  .followers-table,
+  .followers-table tbody,
+  .followers-table tr,
   .followers-table td {
     display: block;
     width: 100%;
@@ -296,7 +300,6 @@ export default {
   border: 1px solid gray;
 }
 .followers-container {
-  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -512,9 +515,6 @@ export default {
 
 /* Mobile - Medium devices */
 @media (max-width: 768px) {
-  .followers-container {
-    padding: 1.5rem;
-  }
 
   .followers-header h2 {
     font-size: 2rem;
@@ -604,9 +604,6 @@ export default {
 
 /* Desktop devices */
 @media (min-width: 1025px) {
-  .followers-container {
-    padding: 2.5rem;
-  }
 
   .followers-header h2 {
     font-size: 2.5rem;
@@ -648,9 +645,6 @@ export default {
 
 /* Large desktop devices */
 @media (min-width: 1440px) {
-  .followers-container {
-    padding: 3rem;
-  }
 
   .followers-header h2 {
     font-size: 3rem;

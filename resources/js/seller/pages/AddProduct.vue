@@ -433,7 +433,7 @@ export default {
     height: 100px;
 }
 .product-container {
-    padding: 2em;
+    padding: 1.5em;
     margin: 0 auto;
 }
 

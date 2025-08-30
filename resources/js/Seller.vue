@@ -161,7 +161,7 @@ export default{
     },
     computed: {
         displayTitle(){
-            if(this.$route.name === 'AddProduct'){
+            if(this.$route.name === 'AddProduct' || this.$route.name === 'ViewProduct'){
                 return 'Products';
             }
             if(this.$route.name === 'ViewNotification'){

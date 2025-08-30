@@ -529,7 +529,7 @@ export default {
                 console.log('id: ', this.store.currentUser_info.id);
 
                 const res = await axios.post('/seller/change/seller-details', data);
-                
+
                 console.log(res.data.message);
 
                 this.store.setSelectedShop(res.data.shop);
@@ -604,7 +604,7 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .profile-container {
-    padding: 1.5em;
+    padding: 1em;
     display: flex;
     flex-direction: column;
     gap: 1.5em;

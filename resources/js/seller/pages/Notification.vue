@@ -639,7 +639,7 @@ export default {
     position: relative;
     height: 100%;
     width: 100%;
-    padding: 1em;
+    padding: 1.5em;
 }
 
 .overlay-background {

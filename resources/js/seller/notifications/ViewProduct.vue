@@ -1,13 +1,20 @@
 <template>
-    <div class="product-notif-container" v-if="show">
+    <div class="product-notif-container" v-if="show === true">
         <div class="product-profile">
-            <div class="image-container">
+            <div class="image-container" :class="{ 'center-images': product.photos.length < 3 }">
                 <button class="nav-btn nav-left"
                     @click="scrollImages('left', product.id)"
                     v-if="product.photos && product.photos.length > 3">
                     <i class="fa fa-chevron-left"></i>
                 </button>
-                <div v-if="product.photos" class="toggle-img">
+                <div
+                    v-if="product.photos"
+                    class="toggle-img"
+                    :class="{
+                    'center-1': product.photos.length === 1,
+                    'center-2': product.photos.length === 2
+                    }"
+                >
                     <div v-for="image in product.photos"
                         :key="image.filename"
                         class="image-wrapper"
@@ -35,16 +42,78 @@
                 </div>
             </div>
 
+
             <div class="product-details">
                 <h3>{{ product.name }}</h3>
                 <div class="rating">
-                    <h6 class="deta">Overall Rating: </h6>
-                    <div class="star-container" v-if="notificationData && notificationData.reviews">
-                        <img src="../../../images/star.png" class="star-rating" v-for="turn in returnStar('whole', notificationData.reviews.rate)" :key="turn">
-                        <img src="../../../images/half-star.png" class="star-rating" v-for="turn in returnStar('half', notificationData.reviews.rate)" :key="turn">
-                        <img src="../../../images/no-star.png" class="star-rating" v-for="turn in returnStar('none', notificationData.reviews.rate)" :key="turn">
+                    <p>Overall Rating:</p>
+                    <span
+                        v-for="star in 5"
+                        :key="star"
+                        class="fa fa-star"
+                        :class="{ checked: star <= product.overall_rate }"
+                    ></span>
+                    <span class="rating-text">({{ product.overall_rate }}/5)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-container">
+
+            <div class="details-container">
+                <div class="about-details">
+                    <div class="details-header">
+                        <h6>Product Details</h6>
                     </div>
-                    <p>({{ notificationData.reviews.rate }}/5)</p>
+                    <div class="full">
+                        <div class="details-box">
+                            <span>Category:</span>
+                            <p>{{ product.category }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="details-box">
+                            <span>Status:</span>
+                            <p>{{ product.status }}</p>
+                        </div>
+
+                        <div class="details-box">
+                            <span>Price:</span>
+                            <p>{{ product.price }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="details-box">
+                            <span>Quantity:</span>
+                            <p>{{ product.quantity }}</p>
+                        </div>
+
+                        <div class="details-box">
+                            <span>Materials:</span>
+                            <p>{{ product.materials }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="details-box">
+                            <span>Weight:</span>
+                            <p>{{ product.weight }}</p>
+                        </div>
+
+                        <div class="details-box">
+                            <span>Dimensions:</span>
+                            <p>{{ product.dimensions }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="product-desc">
+                    <h6>Product Description</h6>
+                    <div class="details-box desc">
+                        <p>{{ product.description }}</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -60,7 +129,7 @@ export default {
     },
     data() {
         return {
-            show: false,
+            show: true,
             product: {
                 name: 'Chair',
                 id: 1,
@@ -74,7 +143,8 @@ export default {
                     { filename: 'images/bell (1).png' },
                     { filename: 'images/bell (1).png' },
                     { filename: 'images/bell (1).png' },
-                ]
+                ],
+                overall_rate: 3
             },
             clicked: false,
             showZoom: null,
@@ -82,6 +152,12 @@ export default {
             store: useDataStore(),
         }
     },
+    computed: {
+        isActive() {
+            return this.active_status?.isActive ?? false;
+        }
+    },
+
     methods: {
         isFloat(num){
           return (Number(num) === num) && (num % 1 !== 0);
@@ -197,34 +273,24 @@ export default {
 </script>
 
 <style scoped>
-.star-container {
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0;
-}
-.star-rating{
-  width: 1em;
-  height: 1em;
-}
 
 .product-notif-container {
     width: 100%;
-    height: 100%;
-    padding: 2em;
+    height: auto;
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    margin: 0;
 }
 
 .product-profile {
     width: 100%;
-    height: 18em;
+    height: auto;
     background-color: #DDD0C8;
-    padding: 1em;
-}
-
-.img-container {
-    display: flex;
-    justify-content: space-between;
+    padding: 1.5em 1.5em 1em;
+    border-radius: 1em;
+    user-select: none;
 }
 
 .image-container {
@@ -233,6 +299,15 @@ export default {
     align-items: center;
     width: 100%;
     height: 25vh;
+    background-color: #bda79a8c;
+    border-radius: 1em;
+    padding: .5em;
+    user-select: none;
+}
+
+.image-container.center-images {
+    margin: 0;
+    justify-content: center !important;
 }
 
 .toggle-img {
@@ -255,6 +330,21 @@ export default {
     scrollbar-width: none;  /* Firefox */
 }
 
+.toggle-img.center-1,
+.toggle-img.center-2 {
+  justify-content: center;
+  overflow: hidden;
+  margin: 0;
+}
+
+.toggle-img.center-1 .image-wrapper {
+  flex: 0 0 auto;
+}
+
+.toggle-img.center-2 .image-wrapper {
+  flex: 0 0 auto;
+}
+
 .image-wrapper {
     position: relative;
     cursor: pointer;
@@ -264,14 +354,14 @@ export default {
 }
 
 .toggle-img img {
-    width: 10em;
-    height: 10em;
+    width: 8em;
+    height: 8em;
     object-fit: cover;
     border-radius: 0.5em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease;
     display: block;
-    border: 1px solid #000;
+    border: 1.5px solid #7575759c;
 }
 
 .zoom-overlay {
@@ -402,29 +492,148 @@ export default {
 }
 
 .product-details {
-    background-color: #f8843d;
     width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1em;
+    padding: 0 1em;
+}
+
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    background: #ffffff41;
+    border-radius: 1em;
+    width: fit-content;
+    padding: .3em .5em;
+}
+
+.rating p {
+    margin: 0;
+    font-weight: 600;
+    color: #252525;
+    font-size: 0.9em;
+}
+
+.rating .fa-star {
+    color: #a1a1a1;
+    font-size: 1.2em;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.rating .fa-star.checked {
+    color: #ff8800;
+}
+
+.rating-text {
+    margin-left: 0.5em;
+    font-weight: 600;
+    color: #252525;
+    font-size: 0.9em;
+}
+
+
+/* Product Details */
+.about-container {
+    padding: 2em;
+    border-radius: 1em;
+    background-color: #DDD0C8;;
+    user-select: none;
+}
+
+.details-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.rating {
-    width: 15em;
+h6 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5em;
+    font-weight: 800;
+    color: #333;
+    margin: 0;
+}
+
+.details-container {
     display: flex;
-    gap: .5em;
-    background-color: #7e6556;
-    font-size: smaller;
-    justify-content: center;
+    gap: 2em;
+}
+
+.about-details {
+    flex: 1.50;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    height: 100%;
+    padding-right: 1em;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1em;
     align-items: center;
+    padding: 0 .9em;
 }
 
-.rating h6 {
-    font-size: .9em;
-    display: inline-block;
+.full {
+    width: 100%;
 }
 
-.rating p {
+.full>.details-box:hover,
+.desc>.details-box:hover {
+    transform: scale(1.05) !important;
+}
 
+.details-box {
+    background-color: #bdbbba98;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 1em;
+    row-gap: 0.5em;
+    align-items: center;
+    padding: 0.75em 1em;
+    border-radius: 1em;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.479);
+    font-size: .8em;
+    transition: .3s ease-in-out
+}
+
+.details-box:hover {
+    transform: scale(1.1);
+}
+
+.details-box span {
+    font-weight: 600;
+    color: #333;
+}
+
+.details-box p {
+    margin: 0;
+    color: #666;
+    overflow-wrap: anywhere;
+}
+
+.product-desc {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.desc {
+    height: 100%;
+    align-items: start;
+    background-color: #a8a6a591;
+    padding: 1em;
+}
+
+.desc p{
+    color: #3f3c3c !important;
+    font-size: larger;
 }
 </style>
