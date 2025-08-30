@@ -3,7 +3,7 @@
     <h4>Shop Reviews</h4>
     <div class="average-rating">
       <span>Average Rating: </span>
-      <span v-if="reviews.length">{{ averageRating.toFixed(1) }} / 5</span>
+      <span v-if="reviews.length">{{ this.store.selected_shop.overall_rate }} / 5</span>
       <span v-else>No reviews yet</span>
     </div>
     <div class="reviews-list">
@@ -11,7 +11,7 @@
       <div v-if="reviews.length">
         <div v-for="review in paginatedReviews" :key="review.id" class="review-item">
           <div class="review-header">
-            <span class="review-rating">Rating: {{ review.rating }} / 5</span>
+            <span class="review-rating">Rating: {{ review.rate }} / 5</span>
             <span class="review-date">{{ formatDate(review.created_at) }}</span>
           </div>
           <div class="review-comment">{{ review.comment }}</div>
@@ -30,11 +30,14 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
 export default {
   name: 'ShopReview',
   data() {
     return {
       reviews: [],
+      store: useDataStore(),
       page: 1,
       perPage: 5
     };
@@ -67,6 +70,17 @@ export default {
     },
     nextPage() {
       if (this.page < this.totalPages) this.page++;
+    },
+
+    async return_shopReviews(){
+      const data = new FormData();
+      data.append('shop_id', this.store.selected_shop.id);
+
+      const res = await axios.post('/seller/return-reviews/shop', data);
+
+      console.log(res.data.message);
+
+      this.reviews = res.data.message;
     }
   },
   mounted() {
@@ -88,6 +102,8 @@ export default {
       { id: 13, rating: 5, comment: 'Excelleant shop!', created_at: '2025-08-10T12:00:00Z' },
       { id: 14, rating: 4, comment: 'Good seravice.', created_at: '2025-08-12T15:30:00Z' },
     ];
+
+    this.return_shopReviews();
   }
 };
 </script>

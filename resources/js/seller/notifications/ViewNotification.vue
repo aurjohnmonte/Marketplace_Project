@@ -61,11 +61,12 @@ export default{
       },
 
       goViewProduct(productId){
-        this.$router.push({ name: 'ViewProduct', query: { id: productId } });
+        this.$router.push({ name: 'ViewProduct', params: { id: productId } });
       },
 
       goView(notify){
 
+        console.log('notify: ', notify);
         switch(notify.type){
               case 'message':
 

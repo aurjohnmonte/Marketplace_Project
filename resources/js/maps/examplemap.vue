@@ -20,6 +20,7 @@ export default {
             user_marker: null,
             user_circle: null,
             completed_load: false,
+            store: useDataStore(),
         }
     },
     methods: {
@@ -76,7 +77,7 @@ export default {
                     fillColor: '#f03',
                     fillOpacity: 0.2,
                     weight: 1,
-                    radius: 1000
+                    radius: this.store.currentUser_info.nearby_km * 1000
                 })
                 .addTo(this.map_object);
 

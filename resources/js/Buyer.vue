@@ -189,6 +189,8 @@ export default {
 
       detectNearbyShops(lat, lng){
 
+        const store = useDataStore();
+
         if(this.shops){
 
           const userLatLng = L.latLng(lat, lng);
@@ -196,7 +198,7 @@ export default {
             const shopLatLng = L.latLng(shop.latitude, shop.longitude);
             const distance = userLatLng.distanceTo(shopLatLng); // in meters
 
-            return distance <= 1000; // 1 km
+            return distance <= store.currentUser_info.nearby_km * 1000; // x km
           });
           console.log("nearby shops: ", nearbyShops);
 

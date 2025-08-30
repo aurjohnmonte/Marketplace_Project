@@ -45,7 +45,7 @@
           <div style="display: flex; width: 100%; flex-direction: column;" v-if="m.from_id !== currentUser.id">
             <div style="display: flex; flex-direction: row; align-items: center;">
               <div class="receiver-content" v-if="m.messages">
-                <label v-if="m.mention !== null" style="font-size: blue; text-decoration: underline;" @click="goProduct(m.mention)">View</label>
+                <label v-if="m.mention !== null" style="text-decoration: underline; color: blue;" @click="goProduct(m.mention)">View</label>
                 <label>{{ m.messages }}</label>
               </div>
             </div>
@@ -519,6 +519,7 @@ export default{
   border-radius: 20px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 .sender-content{
   padding: 5px;

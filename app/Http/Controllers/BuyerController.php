@@ -526,6 +526,7 @@ class BuyerController extends Controller
             $user->age = (int) $info->age;
             $user->birthday = $info->birthday;
             $user->contact_no = $info->contact_no;
+            $user->nearby_km = $info->nearby_km;
 
             if($user->save()){
                 return response()->json(['message' => 'successful',

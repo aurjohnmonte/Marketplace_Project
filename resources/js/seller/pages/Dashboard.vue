@@ -388,6 +388,8 @@ export default {
         //return products category
         await this.returnCategoriesProducts();
 
+        
+
         // Load Chart.js from CDN if not already loaded
         if (!window.Chart) {
             const script = document.createElement('script');
@@ -397,6 +399,8 @@ export default {
         } else {
             this.renderGenderChart();
         }
+
+        this.renderGenderChart();
 
         this.is_loading = false;
 
@@ -647,9 +651,10 @@ export default {
 
         // Improve the chart rendering method
         renderGenderChart() {
+            console.log('NEW AGI');
             const ctx = document.getElementById('genderViewsChart');
             if (!ctx) return;
-
+            
             const context = ctx.getContext('2d');
             if (!context) return;
 
@@ -657,6 +662,8 @@ export default {
 
             const malePercentage = this.shop_reviews.male > 0 ? (this.shop_reviews.male / this.shop_reviews.unique_total) * 100 : 0;
             const femalePercentage = this.shop_reviews.female > 0 ? (this.shop_reviews.female / this.shop_reviews.unique_total) * 100 : 0;
+
+            console.log(`${malePercentage} - ${femalePercentage}`);
 
             new window.Chart(context, {
                 type: 'bar',

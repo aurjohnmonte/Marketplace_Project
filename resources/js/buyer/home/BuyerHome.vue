@@ -43,7 +43,7 @@
       <div>
         <label style="color: rgb(92, 92, 92); font-size: 15px; font-weight: bolder;">Nearby Shop/s</label>
       </div>
-      <template v-if="store.nearbyShops">
+      <template v-if="store.nearbyShops.length > 0">
         <div class="list-of-nearbyshops" v-for="shop in store.nearbyShops" :key="shop" @click="goShop(shop.id)">
           <div class="nearbyshops-leftside">
             <img :src="'/'+shop.profile_photo">
@@ -59,7 +59,7 @@
         </div>
       </template>
       <template v-else>
-        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN 1 KM</label>
+        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN {{ store.currentUser_info.nearby_km }} KM</label>
       </template>
     </div>
 

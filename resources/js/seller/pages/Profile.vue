@@ -1,7 +1,11 @@
 <template>
     <div class="profile-container" @click="handleClickOutside" v-if="shop">
         <div class="profile-box">
-            <div class="profile-header" :style="{ backgroundImage: `url(${user.coverPhoto})` }">
+            <img :src="'/'+shop.cover_photo" alt="cover photo" class="cover-photo">
+            <div class="overlay">
+
+            </div>
+            <div class="profile-header">
                 <div class="profile-img">
                     <img :src="'/'+shop.profile_photo" alt="">
                 </div>
@@ -90,6 +94,7 @@
                             v-model="newShopNameForSeller"
                             placeholder="Enter shop name"
                             :class="{ 'error': shopNameError }"
+                            disabled
                         >
                         <span v-if="shopNameError" class="error-message">{{ shopNameError }}</span>
                     </div>
@@ -161,6 +166,7 @@
                             v-model="newEmail"
                             placeholder="Enter email address"
                             :class="{ 'error': emailError }"
+                            disabled
                         >
                         <span v-if="emailError" class="error-message">{{ emailError }}</span>
                     </div>
@@ -183,8 +189,8 @@
                             :class="{ 'error': genderError }"
                         >
                             <option value="">Select gender</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
                         </select>
                         <span v-if="genderError" class="error-message">{{ genderError }}</span>
                     </div>
@@ -302,12 +308,19 @@ export default {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.onchange = (event) => {
+            input.onchange = async (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    // Create a URL for the selected image
-                    const imageUrl = URL.createObjectURL(file);
-                    this.user.coverPhoto = imageUrl;
+                    const data = new FormData();
+                    data.append('id', this.shop.id);
+                    data.append('file', file);
+
+                    const res = await axios.post('/seller/change/cover-photo', data);
+
+                    console.log(res.data.message);
+
+                    this.store.selected_shop.cover_photo = res.data.path;
+
                     this.closeMenu();
                 }
             };
@@ -318,12 +331,19 @@ export default {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.onchange = (event) => {
+            input.onchange = async (event) => {
                 const file = event.target.files[0];
                 if (file) {
-                    // Create a URL for the selected image
-                    const imageUrl = URL.createObjectURL(file);
-                    this.user.profilePicture = imageUrl;
+                    const data = new FormData();
+                    data.append('id', this.shop.id);
+                    data.append('file', file);
+
+                    const res = await axios.post('/seller/change/profile-photo', data);
+
+                    console.log(res.data.message);
+
+                    this.store.selected_shop.profile_photo = res.data.path;
+
                     this.closeMenu();
                 }
             };
@@ -400,7 +420,7 @@ export default {
                 this.closeShopNameModal();
             }
         },
-        saveDetails() {
+        async saveDetails() {
             let hasError = false;
 
             if (!this.newShopNameForSeller || this.newShopNameForSeller.trim() === '') {
@@ -411,14 +431,21 @@ export default {
             }
 
             if (!hasError) {
-                if (this.newDescription && this.newDescription.trim() !== '') {
-                    this.shop.description = this.newDescription.trim();
-                }
-                this.shop.name = this.newShopNameForSeller.trim();
+
+                const data = new FormData();
+                data.append('description', this.newDescription);
+                data.append('id', this.shop.id);
+
+                const res = await axios.post('/seller/change/shop-details', data);
+
+                console.log(res.data.message);
+
+                this.store.selected_shop.description = res.data.description;
+
                 this.closeDetailsModal();
             }
         },
-        saveSellerInformation() {
+        async saveSellerInformation() {
             let hasError = false;
 
             if (!this.newSellerFirstname || this.newSellerFirstname.trim() === '') {
@@ -487,15 +514,25 @@ export default {
             }
 
             if (!hasError) {
-                this.shop.name = this.newShopNameForSeller.trim();
-                this.shop.user.firstname = this.newSellerFirstname.trim();
-                this.shop.user.m_initial = this.newSellerMname.trim();
-                this.shop.user.lastname = this.newSellerLastname.trim();
-                this.shop.user.email = this.newEmail.trim();
-                this.shop.user.contact_no = this.newContacts.trim();
-                this.shop.user.gender = this.newGender.trim();
-                this.shop.user.birthday = this.newBirthday.trim();
-                this.shop.address = this.newAddress.trim();
+
+                const data = new FormData();
+                data.append('fname', this.newSellerFirstname);
+                data.append('m_i', this.newSellerMname);
+                data.append('lname', this.newSellerLastname);
+                data.append('email', this.newEmail);
+                data.append('contact_no', this.newContacts);
+                data.append('gender', this.newGender);
+                data.append('birthday', this.newBirthday);
+                data.append('address', this.newAddress);
+                data.append('id', this.store.currentUser_info.id);
+
+                console.log('id: ', this.store.currentUser_info.id);
+
+                const res = await axios.post('/seller/change/seller-details', data);
+                
+                console.log(res.data.message);
+
+                this.store.setSelectedShop(res.data.shop);
 
                 this.closeSellerInfoModal();
             }
@@ -547,8 +584,11 @@ export default {
             immediate: true
         }
     },
-        mounted(){
+    mounted(){
         this.shop = this.store.selected_shop;
+
+        console.log('ID: ', this.shop.id);
+        console.log('SHOP', this.shop);
 
         // Initialize modal data with shop data
         if (this.shop) {
@@ -579,6 +619,25 @@ export default {
     box-shadow: 0 4px 4px rgba(0, 0, 0, 0.199);
     border-radius: 1em;
     user-select: none;
+    position: relative;
+    overflow: hidden;
+}
+.profile-box .overlay{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+.profile-box .cover-photo{
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.5;
 }
 
 .profile-header {

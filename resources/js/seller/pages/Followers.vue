@@ -1,5 +1,9 @@
 <template>
   <div class="followers-container">
+    <div class="overlay" v-if="loading">
+      <img src="../../../images/kOnzy.gif" style="width: 100px; height: 100px;">
+    </div>
+
     <div class="followers-header">
       <h2>Followers</h2>
       <p>Manage and view your shop followers</p>
@@ -13,7 +17,7 @@
           </div>
           <div class="stat-info">
             <h3>Total Followers</h3>
-            <p class="stat-number">0</p>
+            <p class="stat-number">{{ followers.length }}</p>
           </div>
         </div>
 
@@ -23,17 +27,7 @@
           </div>
           <div class="stat-info">
             <h3>New This Month</h3>
-            <p class="stat-number">0</p>
-          </div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="fa-solid fa-chart-line"></i>
-          </div>
-          <div class="stat-info">
-            <h3>Growth Rate</h3>
-            <p class="stat-number">0%</p>
+            <p class="stat-number">{{ current_month_total }}</p>
           </div>
         </div>
       </div>
@@ -41,40 +35,134 @@
       <div class="followers-list">
         <div class="list-header">
           <h3>Recent Followers</h3>
-          <button class="refresh-btn">
+          <button class="refresh-btn" @click="loadFollowers()">
             <i class="fa-solid fa-sync-alt"></i>
             Refresh
           </button>
         </div>
 
-        <div class="empty-state">
+        <div class="filter-search">
+          <label style="font-weight: bolder;">Search by name</label><br>
+          <input type="text" placeholder="Enter follower name ..." v-model="search.name">
+        </div>
+
+        <div class="empty-state" v-if="followers.length < 1">
           <div class="empty-icon">
             <i class="fa-solid fa-users-slash"></i>
           </div>
           <h4>No Followers Yet</h4>
           <p>When customers follow your shop, they'll appear here. Focus on creating great products and excellent service to attract followers!</p>
         </div>
+
+        <div v-else style="margin-top: 20px;">
+            <table class="followers-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Name</th>
+                  <th>Address</th>
+                  <th>Contact No.</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(follower, index) in filteredFollowers" :key="index">
+                  <td>
+                    <img :src="'/'+follower.followed_by.profile" style="width: 60px; height: 60px; border-radius: 50%;">
+                  </td>
+                  <td>{{ follower.followed_by.firstname }} {{ follower.followed_by.m_initial }} {{ follower.followed_by.lastname }}</td>
+                  <td>{{ follower.followed_by.current_address }}</td>
+                  <td>{{ follower.followed_by.contact_no }}</td>
+                  <td>
+                    <button class="action-btn view" @click="goMessage(follower.followed_by.name)">
+                      <i class="fa-regular fa-comment"></i> Message
+                    </button>
+                    <button class="action-btn remove" @click="goRemoveFollower(follower.followed_by.id)">
+                      <i class="fa-solid fa-user-minus"></i> Remove
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+        </div>
+
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+import { useDataStore } from '../../stores/dataStore';
+
 export default {
   name: 'Followers',
   data() {
     return {
       followers: [],
-      loading: false
+      search: {
+        name: '',
+      },
+      loading: false,
+      store: useDataStore(),
+      current_month_total: 0,
+    }
+  },
+  computed: {
+    filteredFollowers(){
+
+      let data = [];
+
+      data = this.followers.filter(e => this.returnSearch(`${e.followed_by.firstname} ${e.followed_by.m_initial} ${e.followed_by.lastname}`));
+
+      return data;
     }
   },
   methods: {
+    returnSearch(name){
+
+      if(name.includes(this.search.name)){
+        return true;
+      }
+
+      return false;
+    },
+    goMessage(username){
+      console.log('hello')
+      this.$router.push({name: 'Chats', query: {username: username}});
+    },
+    async goRemoveFollower(follower_id){
+      this.loading = true;
+      const id = this.store.currentUser_info.id;
+      const data = new FormData();
+      data.append('follower_id', follower_id);
+      data.append('user_id', id);
+
+      console.log(follower_id + " - " + id);
+
+      const res = await axios.post('/seller/remove-follower', data);
+
+      window.alert(res.data.message);
+
+      this.followers = this.followers.filter(e => e.followed_by.id !== follower_id);
+      this.loading = false;
+    },
     async loadFollowers() {
       this.loading = true;
       // TODO: Implement API call to load followers
-      setTimeout(() => {
-        this.loading = false;
-      }, 1000);
+      
+      const id = this.store.currentUser_info.id;
+
+      const data = new FormData();
+      data.append('id', id);
+
+      const res = await axios.post('/seller/return-followers', data);
+
+      console.log(res.data.followers);
+      console.log(res.data.current_month_total);
+      this.followers = res.data.followers;
+      this.current_month_total = res.data.current_month_total;
+      this.loading = false;
     }
   },
   mounted() {
@@ -84,6 +172,129 @@ export default {
 </script>
 
 <style scoped>
+.overlay{
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.555);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.followers-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  font-size: 0.95rem;
+}
+
+.followers-table thead {
+  background: #ca9d73;
+  color: white;
+}
+
+.followers-table th,
+.followers-table td {
+  padding: 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.followers-table tbody tr:hover {
+  background: #faf6f3;
+}
+
+.followers-table th:first-child,
+.followers-table td:first-child {
+  border-left: none;
+}
+
+.followers-table th:last-child,
+.followers-table td:last-child {
+  border-right: none;
+}
+
+/* Action buttons */
+.action-btn {
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-right: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.action-btn.view {
+  background: #4caf50;
+  color: white;
+}
+
+.action-btn.view:hover {
+  background: #43a047;
+}
+
+.action-btn.remove {
+  background: #e74c3c;
+  color: white;
+}
+
+.action-btn.remove:hover {
+  background: #c0392b;
+}
+
+/* Responsive table for mobile */
+@media (max-width: 768px) {
+  .followers-table thead {
+    display: none;
+  }
+
+  .followers-table, 
+  .followers-table tbody, 
+  .followers-table tr, 
+  .followers-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .followers-table tr {
+    margin-bottom: 1rem;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 0.8rem;
+  }
+
+  .followers-table td {
+    padding: 0.8rem;
+    text-align: right;
+    position: relative;
+  }
+
+  .followers-table td::before {
+    content: attr(data-label);
+    position: absolute;
+    left: 1rem;
+    font-weight: bold;
+    text-align: left;
+    color: #555;
+  }
+}
+
+.filter-search input{
+  width: 300px;
+  padding: 5px;
+  padding-left: 20px;
+  border-radius: 10px;
+  border: 1px solid gray;
+}
 .followers-container {
   padding: 2rem;
   max-width: 1200px;

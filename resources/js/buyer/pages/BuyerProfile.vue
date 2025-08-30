@@ -41,10 +41,10 @@
                 <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px;" v-if="edit_info.includes('contact')" @click="cancelEdit('contact')">
                 <label class="change-text" @click="addEditInfo('contact')" v-else>Change</label>
               </div>
-              <label>Nearby Shop (km): </label><input type="number" v-model="user_info.nearby_km" :disabled="!edit_info.includes('contact')">
+              <label>Nearby Shop (km): </label><input type="number" v-model="user_info.nearby_km" :disabled="!edit_info.includes('nearby_km')">
               <div>
-                <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px;" v-if="edit_info.includes('contact')" @click="cancelEdit('contact')">
-                <label class="change-text" @click="addEditInfo('contact')" v-else>Change</label>
+                <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px;" v-if="edit_info.includes('nearby_km')" @click="cancelEdit('nearby_km')">
+                <label class="change-text" @click="addEditInfo('nearby_km')" v-else>Change</label>
               </div>
             </div>
             <input type="submit" style="margin-top: 20px; font-size: 12px; background-color: green; color: white;" v-if="edit_info.length > 0">
@@ -104,6 +104,7 @@ export default {
         birthday: '',
         age: 0,
         contact_no: '',
+        nearby_km: 0,
       },
       store: useDataStore(),
       user: null,

@@ -288,11 +288,12 @@ Route::middleware('usercheck')->group(function() {
     })->name('sellerhome');
 
     //seller blade view
-    Route::get('/seller/{p}/{c?}', function(){
+    Route::get('/seller/{p}/{c?}/{id?}', function(){
 
         return view('seller_pages.seller_home');
     })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product', 'notifications'])
-      ->whereIn("c", ["add", "view", 'chats']);//put all the components in the 2nd parameter in whereIn
+      ->whereIn("c", ["add", "view", 'chats'])
+      ->where('id', '[A-Za-z0-9]+');//put all the components in the 2nd parameter in whereIn
 
     //return seller info
     Route::post("/return/user-seller/info", [SellerController::class, "returnProfile_info"]);
@@ -325,7 +326,20 @@ Route::middleware('usercheck')->group(function() {
     Route::get('/seller/delete-message', [SellerController::class, 'deleteMessage']);
     //seller return product to dashboard
     Route::get('/seller/dashboard/return-products', [SellerController::class, 'returnDashboardProducts']);
-
+    //seller change cover photo
+    Route::post('/seller/change/cover-photo', [SellerController::class, 'change_coverPhoto']);
+    //seller change profile photo
+    Route::post('/seller/change/profile-photo', [SellerController::class, 'change_profilePhoto']);
+    //seller change shop details
+    Route::post('/seller/change/shop-details', [SellerController::class, 'seller_shopDetails']);
+    //seller change seller info
+    Route::post('/seller/change/seller-details', [SellerController::class, 'seller_changeInfo']);
+    //seller return shop reviews
+    Route::post('/seller/return-reviews/shop', [SellerController::class, "return_shopReviews"]);
+    //seller return followers
+    Route::post('/seller/return-followers', [SellerController::class, 'return_followers']);
+    //seller remove followers
+    Route::post('/seller/remove-follower', [SellerController::class, 'remove_follower']);
 
     Route::get('/seller/logout', function(Request $request) {
 

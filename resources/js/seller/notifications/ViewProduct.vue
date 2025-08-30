@@ -1,5 +1,5 @@
 <template>
-    <div class="product-notif-container">
+    <div class="product-notif-container" v-if="show">
         <div class="product-profile">
             <div class="image-container">
                 <button class="nav-btn nav-left"
@@ -60,6 +60,7 @@ export default {
     },
     data() {
         return {
+            show: false,
             product: {
                 name: 'Chair',
                 id: 1,
@@ -78,6 +79,7 @@ export default {
             clicked: false,
             showZoom: null,
             notificationData: null,
+            store: useDataStore(),
         }
     },
     methods: {
@@ -167,10 +169,29 @@ export default {
         },
         updateScrollableClass() {
             document.addEventListener('click', this.handleOutsideClick);
+        },
+        initializeProductInfo(id){
+            console.log(id);
+
+            const products = this.store.selected_shop.products;
+            console.log(products);
+
+            //find the product
+            const product = products.find(e => e.id === id);
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            console.log('PRODUCT: ', product);
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+            this.product = product;
         }
     },
     mounted() {
         this.notificationData = this.store.selectedNotification;
+
+        //THIS FUNCTION WHERE INITIALIZE THE PRODUCT INFO
+        //get the id from the param
+        let product_id = parseInt(this.$route.params.id);
+        //this method will find the product from the store
+        this.initializeProductInfo(product_id);
     }
 }
 </script>

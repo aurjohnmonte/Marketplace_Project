@@ -1,5 +1,40 @@
 <template>
     <div class="chat-container">
+      <div class="product-overlay" v-if="mention_product">
+        <div class="overlay-showproduct">
+            <div style="display: flex; align-items: center; width: 100%; justify-content: end;">
+              <img src="../../../images/cancel.png" style="width: 20px; height: 20px; cursor: pointer;" @click="mention_product = false;">
+            </div>
+            <div class="search">
+              <label>Product Name</label>
+              <input type="text" placeholder="Enter product name ..." v-model="search.name">
+            </div>
+
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Product Name</th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template v-if="products.length > 0">
+                  <tr v-for="product of filteredProduct" :key="product">
+                    <td>{{ product.id }}</td>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td><span class="status active">{{ product.status }}</span></td>
+                    <td><button class="action-btn" @click="mention_product_id = product; mention_product = false;">Mention</button></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+        </div>
+      </div>
+
         <!-- Chat Header -->
          <div class="overlay-showpic" v-if="show_pic" @click="show_pic = null;">
             <img :src="'/'+show_pic">
@@ -69,12 +104,20 @@
                 <label>{{ selected_message.messages }}</label>
                 <img :src="'/'+selected_message.message_pic" style="width: 50px; height: 50px;" v-if="selected_message.message_pic">
             </div>
+            <div v-if="mention_product_id" style="width: 100%; display: flex; align-items: center; justify-content: center; padding-bottom: 10px; position: relative;">
+                <img src="../../../images/cancel (1).png" style="width: 20px; height: 20px; position: absolute; top: 0; right: 0; cursor: pointer;" @click="mention_product_id = null;">
+                <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
+                   <label>{{ mention_product_id.name }}</label>
+                   <img :src="'/'+mention_product_id.photos[0].filename" style="width: 50px; height: 50px;" v-if="mention_product_id.photos">
+                </div>
+            </div>
             <div class="input-wrapper">
-                <span>
+                <span style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
                     <label for="file" style="font-size: 20px; cursor: pointer;">
                         ＋
                         <input type="file" hidden id="file" @change="handleFileUpload">
                     </label>
+                    <img src="../../../images/product.png" style="width: 50px; height: 50px; cursor: pointer;" @click="mention_product = true;">
                 </span>
                 <input
                     v-model="newMessage"
@@ -105,11 +148,17 @@ export default {
     data() {
         return {
             show_pic: null,
+            products: [],
             current_id: useDataStore().currentUser_info.id,
+            mention_product: false,
             chatData: null,
             user_info: null,
+            search: {
+              name: '',
+            },
             messages: [],
             newMessage: '',
+            mention_product_id: null,
             is_edit: false,
             clicked: null,
             isOnline: true,
@@ -155,6 +204,8 @@ export default {
 
         const store = useDataStore();
 
+        this.products = store.selected_shop.products;
+
 
 
         Echo.channel(`message.${store.currentUser_info.name}`)
@@ -166,6 +217,16 @@ export default {
                 });
         });
 
+    },
+    computed: {
+      filteredProduct(){
+
+        let data = [];
+
+        data = this.products.filter(e => e.name.includes(this.search.name));
+        
+        return data;
+      }
     },
     methods: {
         async goDelete(){
@@ -311,6 +372,7 @@ export default {
             data.append('username', this.username);
             data.append('message', this.newMessage);
             data.append('photo', this.photo.file);
+            data.append('mention_product_id', JSON.stringify(this.mention_product_id.id));
 
             const res = await axios.post('/seller/sent-message', data);
 
@@ -323,6 +385,7 @@ export default {
             await this.returnConversation();
 
             this.newMessage = "";
+            this.mention_product_id = null;
             this.photo = {
                 file: null,
                 preview: null,
@@ -382,6 +445,114 @@ export default {
 </script>
 
 <style scoped>
+.product-overlay{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.555);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.overlay-showproduct {
+  padding: 2rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  max-width: 1000px;
+  max-height: 500px;
+  overflow: auto;
+  margin: auto;
+}
+
+/* Search box */
+.search {
+  margin-bottom: 1.5rem;
+}
+
+.search label {
+  font-weight: bold;
+  color: #444;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.search input {
+  width: 300px;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search input:focus {
+  border-color: #ca9d73;
+  box-shadow: 0 0 4px rgba(202, 157, 115, 0.5);
+  outline: none;
+}
+
+/* Table styles */
+.product-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.product-table thead {
+  background: #ca9d73;
+  color: white;
+  text-align: left;
+}
+
+.product-table th,
+.product-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #eee;
+}
+
+.product-table tbody tr:hover {
+  background: #faf6f3;
+}
+
+/* Status tags */
+.status {
+  padding: 0.3rem 0.7rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.status.active {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status.inactive {
+  background: #fdecea;
+  color: #c62828;
+}
+
+/* Action button */
+.action-btn {
+  background: #ca9d73;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background-color 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #b17e55;
+}
+
 .overlay-showpic{
     position: fixed;
     left: 0;
