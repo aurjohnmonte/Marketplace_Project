@@ -709,8 +709,8 @@ export default {
     position: fixed;
     left: 0;
     top: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background-color: rgba(0, 0, 0, 0.841);
     z-index: 3000;
     display: flex;
@@ -995,19 +995,19 @@ export default {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     background: rgba(0, 0, 0, 0.342);
     z-index: 999;
 }
 
 .toggle-details {
     position: absolute;
-    top: 70%;
+    top: 55%;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50vw;
-    max-width: 800px;
+    max-width: 50em;
     height: 90vh;
     max-height: 600px;
     background: #DDD0C8;
@@ -1626,7 +1626,7 @@ export default {
 }
 
 /* Tablet devices */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (min-width: 769px) and (max-width: 900px) {
     .product-container {
         padding: 2em;
         gap: 2.5em;
@@ -1687,31 +1687,36 @@ export default {
     }
 }
 
-/* Desktop devices */
-@media (min-width: 1025px) {
+
+/* Laptop devices */
+@media (min-width: 901px) and (max-width: 1380px) {
     .product-container {
-        padding: 2.5em;
-        gap: 3em;
+        padding: 1.5em 2em;
+        gap: 2em;
     }
 
     .product-table {
-        font-size: 1em;
+        font-size: .8em;
     }
 
-    .product-table th,
-    .product-table td {
-        padding: 1.2em 1em;
+    .product-table th{
+        padding: 1em;
+    }
+
+    .product-table tbody {
+        background-color: #000;
+        max-height: 28em;
     }
 
     .action-btn button {
-        padding: 0.5em 1em;
-        font-size: 0.9em;
-        min-width: 70px;
+        padding: 0.5em;
+        font-size: 0.8em;
     }
 
     .toggle-details {
+        top: 50%;
         width: 85vw;
-        height: 85vh;
+        height: 75vh;
         padding: 2em;
     }
 
@@ -1721,12 +1726,12 @@ export default {
 
     .image-container {
         height: 30vh;
-        min-height: 200px;
+        min-height: 220px;
     }
 
     .toggle-img img {
-        max-width: 12em;
-        max-height: 12em;
+        max-width: 13em;
+        max-height: 13em;
     }
 
     .form-group input,
@@ -1741,73 +1746,11 @@ export default {
     }
 
     .comments-list {
-        max-height: 180px;
+        max-height: 170px;
     }
 
     .comment {
         font-size: 1em;
-    }
-}
-
-/* Large desktop devices */
-@media (min-width: 1440px) {
-    .product-container {
-        padding: 3em;
-        gap: 3.5em;
-    }
-
-    .product-table {
-        font-size: 1.1em;
-    }
-
-    .product-table th,
-    .product-table td {
-        padding: 1.5em 1.2em;
-    }
-
-    .action-btn button {
-        padding: 0.6em 1.2em;
-        font-size: 1em;
-        min-width: 80px;
-    }
-
-    .toggle-details {
-        width: 80vw;
-        height: 80vh;
-        padding: 2.5em;
-    }
-
-    .toggle-details h3 {
-        font-size: 1.8em;
-    }
-
-    .image-container {
-        height: 35vh;
-        min-height: 250px;
-    }
-
-    .toggle-img img {
-        max-width: 15em;
-        max-height: 15em;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 1.5em;
-        font-size: 1.1em;
-    }
-
-    .comments-section {
-        padding: 1.5em;
-    }
-
-    .comments-list {
-        max-height: 200px;
-    }
-
-    .comment {
-        font-size: 1.1em;
     }
 }
 

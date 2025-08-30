@@ -47,10 +47,7 @@
 
         <hr>
         <div class="notif-contents">
-            <div class="overlay" v-if="!orig_notifications">
-                <img src="../../../images/kOnzy.gif">
-            </div>
-            <div v-else-if="orig_notifications.length === 0">
+            <div v-if="orig_notifications && orig_notifications.length === 0">
                 <h3 style="color: red;">No notification</h3>
             </div>
             <div class="notif-box" :style="{backgroundColor: returnColor(notif)}" v-for="notif in filteredNotifications" :key="notif.id" v-else>
@@ -84,10 +81,10 @@
                 <div class="main-section" @click="openMessage(notif)">
                     <div class="profile">
                         <div v-if="notif.type === 'message'">
-                            <img :src="'/'+notif.users.profile" alt="Profile Picture">
+                            <img :src="'/' + notif.users.profile" alt="Profile Picture">
                         </div>
                         <div v-else>
-                            <img :src="'/'+notif.users.profile" alt="System Notification">
+                            <img :src="'/' + notif.users.profile" alt="System Notification">
                         </div>
                     </div>
 

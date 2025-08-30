@@ -59,6 +59,11 @@ export default{
 
         this.$router.push({name: 'Chats', query: {username: username}});
       },
+
+      goViewProduct(productId){
+        this.$router.push({ name: 'ViewProduct', params: { id: productId } });
+      },
+
       goView(notify){
 
         switch(notify.type){
@@ -70,6 +75,7 @@ export default{
                 this.$router.push({name: 'Profile'});
                 break;
               case 'rate product':
+                this.goViewProduct(notify.products.id)
                 break;
           }
       },

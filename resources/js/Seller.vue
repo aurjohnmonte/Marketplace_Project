@@ -55,7 +55,7 @@
                     Dashboard</button>
                 </router-link>
                 <router-link to="/seller/products">
-                    <button :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }">
+                    <button :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' || $route.name === 'AddProduct' || $route.name === 'ViewProduct' }">
                         <i class="fa-solid fa-bag-shopping"></i>
                         Products
                     </button>
@@ -70,7 +70,7 @@
                     </button>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <button :class="{ active: $route.name === 'Messages' }">
+                    <button :class="{ active: $route.name === 'Messages' || $route.name === 'Chats' }">
                         <i class="fa-solid fa-message"></i>
                         Messages
                     </button>
@@ -103,13 +103,13 @@
                     <i class="fa-solid fa-table-cells-large" :class="{ active: $route.name === 'Dashboard' }" title="Dashboard"></i>
                 </router-link>
                 <router-link to="/seller/products">
-                    <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' }" title="Products"></i>
+                    <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' || $route.name === 'ViewProduct' }" title="Products"></i>
                 </router-link>
                 <router-link to="/seller/notifications">
                     <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" title="Notifications"></i>
                 </router-link>
                 <router-link to="/seller/messages">
-                    <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' }" title="Messages"></i>
+                    <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' || $route.name === 'Chats' }" title="Messages"></i>
                 </router-link>
                 <router-link to="/seller/map">
                     <i class="fa-solid fa-location-dot" :class="{ active: $route.name === 'Map' }" title="Map"></i>

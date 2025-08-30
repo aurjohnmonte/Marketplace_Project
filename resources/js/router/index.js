@@ -29,6 +29,7 @@ import Chats from "../seller/messages/Chats.vue";
 import AccountSetting from "../buyer/profile/AccountSetting.vue";
 import DeleteAccount from "../buyer/profile/DeleteAccount.vue";
 import ViewAllNotification from "../buyer/pages/ViewAllNotification.vue";
+import ViewProduct from "../seller/notifications/ViewProduct.vue";
 
 const routes = [
     {
@@ -111,6 +112,11 @@ const routes = [
         ]
     },
     {
+        path: '/seller/products/view/:id',
+        name: 'ViewProduct',
+        component: ViewProduct
+    },
+    {
         path: "/seller/profile",
         name: "Profile",
         component: Profile
@@ -184,6 +190,11 @@ const routes = [
         path: '/seller',
         redirect: '/seller/dashboard',
         component: Dashboard,
+    },
+    {
+        path: "/seller/products/view/:id",
+        name: "ViewProduct",
+        component: ViewProduct
     }
 ]
 
