@@ -61,7 +61,7 @@ export default{
       },
 
       goViewProduct(productId){
-        this.$router.push({ name: 'ViewProduct', params: { id: productId } });
+        this.$router.push({ name: 'ViewProduct', query: { id: productId } });
       },
 
       goView(notify){
@@ -75,7 +75,11 @@ export default{
                 this.$router.push({name: 'Profile'});
                 break;
               case 'rate product':
-                this.goViewProduct(notify.products.id)
+                if (notify.products && notify.products.id) {
+                  this.goViewProduct(notify.products.id);
+                } else {
+                  console.error('Product ID not found for notification:', notify);
+                }
                 break;
           }
       },

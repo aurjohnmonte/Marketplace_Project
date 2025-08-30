@@ -60,7 +60,6 @@ export default {
     },
     data() {
         return {
-            store: useDataStore(),
             product: {
                 name: 'Chair',
                 id: 1,
@@ -108,7 +107,8 @@ export default {
             this.clicked = true;
         },
         handleOutsideClick(event) {
-            // Check if the click was outside any toggle-details element
+            // Check if the click was outside the modal
+            const modalContent = event.target.closest('.modal-content');
             const toggleDetails = event.target.closest('.toggle-details');
             const actionButton = event.target.closest('.action-btn');
 
