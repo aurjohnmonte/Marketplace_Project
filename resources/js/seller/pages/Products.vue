@@ -1003,7 +1003,7 @@ export default {
 
 .toggle-details {
     position: absolute;
-    top: 55%;
+    top: 320px;
     left: 50%;
     transform: translate(-50%, -50%);
     width: 50vw;

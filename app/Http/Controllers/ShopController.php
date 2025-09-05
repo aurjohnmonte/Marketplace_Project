@@ -10,7 +10,7 @@ class ShopController extends Controller
     public function returnShopInfo(Request $request){
         try{
 
-            $shop = Shop::with(['user.followers','products.photos', 'products.reviews', 'products.shop', 'reviews.user'])
+            $shop = Shop::with(['user.followers','products.photos', 'products.records', 'products.reviews', 'products.shop', 'reviews.user'])
                         ->where('id',$request->id)
                         ->get();
 

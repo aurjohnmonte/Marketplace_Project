@@ -54,6 +54,14 @@ class Notification extends Model
                 $this->text = "$sender->firstname $sender->lastname has rate your shop. Check your profile";
                 $this->type = "rate shop";
             }
+            else if($type === "customer record"){
+
+                $shop = Shop::where('user_id', $sender->id)->first();
+                $this->text = "$shop->name  has added you in the transaction record. Confirm if this is true";
+                $this->product_id = $product_id;
+                $this->type = "customer record";
+                $this->status = "pending";
+            }
 
             if($this->save()){
                 

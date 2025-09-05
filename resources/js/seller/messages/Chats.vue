@@ -82,7 +82,7 @@
                     :class="{ 'sent': message.from_id === current_id, 'received': message.to_id === current_id }"
                 >
                     <div class="message-content" style="cursor: pointer;" @click="show_option(message.from_id === current_id, message, index)" :class="{selected: clicked === index}">
-                        <label style="color: blue; text-decoration: underline;" v-if="message.mention" @click="goMention(message.mention)">View</label>
+                        <label style="color: blue; text-decoration: underline; cursor: pointer;" v-if="message.mention" @click.stop="goMention(message.mention)">View</label>
                         <p>{{ message.messages }}</p>
                         <div style="display: flex; flex-direction: column;">
                             <img v-if="message.message_pic" :src="'/'+message.message_pic" style="width: 200px; height: 200px; margin-top: 20px; margin-bottom: 20px;" @click.stop="show_pic = message.message_pic">
@@ -290,6 +290,7 @@ export default {
         async goMention(mention_id){
 
             console.log(mention_id);
+            this.$router.push({name: 'ViewProduct', params: {id: mention_id}});
         },
         async returnConversation(){
 
@@ -372,7 +373,12 @@ export default {
             data.append('username', this.username);
             data.append('message', this.newMessage);
             data.append('photo', this.photo.file);
-            data.append('mention_product_id', JSON.stringify(this.mention_product_id.id));
+            if(this.mention_product_id){
+              data.append('mention_product_id', JSON.stringify(this.mention_product_id.id));
+            }
+            else{
+              data.append('mention_product_id', null);
+            }
 
             const res = await axios.post('/seller/sent-message', data);
 

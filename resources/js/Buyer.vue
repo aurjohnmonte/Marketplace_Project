@@ -98,6 +98,7 @@ export default {
             user: null,
             watchID: null,
             messageListener: null,
+            notifyListener: null,
         }
     },
 
@@ -120,6 +121,12 @@ export default {
                 await this.returnNotifications();
         });
 
+        this.notifyListener = Echo.channel(`notify.${this.user.name}`);
+        this.notifyListener.listen('.notify.sent', async(event) => {
+            console.log('neh agi diria soysoy pangit');
+            await this.returnNotifications();
+        });
+
         // Echo.channel(`notify.${this.user.name}`)
         //     .listen('.notify.sent', async(event) => {
         //         console.log('neh agi diria soysoy pangit');
@@ -137,6 +144,10 @@ export default {
             }
           }
         )
+    },
+    unmounted(){
+      this.notifyListener = null;
+      this.messageListener = null;
     },
     methods: {
 
@@ -173,6 +184,8 @@ export default {
         });
         this.notifications = res.data.message;
 
+        console.log('notifications: ', this.notifications);
+
         this.store.setNotifications(res.data.message);
         
         console.log(res.data.message);
@@ -193,13 +206,16 @@ export default {
 
         if(this.shops){
 
+          let nearbyShops = [];
+
           const userLatLng = L.latLng(lat, lng);
-          const nearbyShops = this.shops.filter(shop => {
+          nearbyShops = this.shops.filter(shop => {
             const shopLatLng = L.latLng(shop.latitude, shop.longitude);
             const distance = userLatLng.distanceTo(shopLatLng); // in meters
 
             return distance <= store.currentUser_info.nearby_km * 1000; // x km
           });
+
           console.log("nearby shops: ", nearbyShops);
 
           this.store.setNearbyShops(nearbyShops);

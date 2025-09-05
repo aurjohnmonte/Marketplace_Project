@@ -99,8 +99,12 @@
                 </form>
             </div>
 
-            <div class="leave-comment" @click="show_rate = !show_rate">
+            <div class="leave-comment" @click="show_rate = !show_rate" v-if="can_rate">
                 <label>{{ returncommentText() }}</label>
+            </div>
+            <div style="font-size: 10px; color: gray;" v-else>
+                <label>Review unavailable — purchase required.</label><br>
+                <label>For issues, contact the seller.</label>
             </div>
         </div>
     </div>
@@ -128,6 +132,7 @@ export default {
     },
     data(){
         return{
+            can_rate: false,
             show_pic: false,
             pic: null,
             show_morePhotos: false,
@@ -268,6 +273,14 @@ export default {
             const res = await axios.post('/buyer/return/review', data);
             console.log(res.data.message);
             this.reviews = res.data.message;
+        },
+        check_if_record_exist(){
+            const store = useDataStore();
+            const user_id = store.currentUser_info.id;
+
+            const records = this.product.records.some(record => record.user_id === user_id);
+
+            records ? this.can_rate = true : this.can_rate = false;
         }
     },
     created(){
@@ -284,15 +297,18 @@ export default {
 
                 const store = useDataStore();
                 store.setSelectedProduct(res.data.product);
+                console.log('PRODUCT: ', res.data.product);
                 this.product = store.selectedProduct;
                 this.product_id = newID;
+                this.check_if_record_exist();
                 await this.returnReviews();
             }
         )
 
         const store = useDataStore();
         this.product = store.selectedProduct;
-        console.log('product: ', this.product);
+        console.log('productsss: ', this.product);
+        this.check_if_record_exist();
     },
     async mounted(){
         this.$emit("changepathtext", "home");

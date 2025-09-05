@@ -59,7 +59,8 @@
         </div>
       </template>
       <template v-else>
-        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN {{ store.currentUser_info.nearby_km }} KM</label>
+        <label style="color: red; font-size: 12px;">NO NEARBY SHOP/S WITHIN {{ store.currentUser_info.nearby_km }} KM</label><br>
+        <label style="color: red; font-size: 10px; font-style: italic;">(Please click the location icon above if not clicked.)</label>
       </template>
     </div>
 

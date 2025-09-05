@@ -30,6 +30,8 @@ import AccountSetting from "../buyer/profile/AccountSetting.vue";
 import DeleteAccount from "../buyer/profile/DeleteAccount.vue";
 import ViewAllNotification from "../buyer/pages/ViewAllNotification.vue";
 import ViewProduct from "../seller/notifications/ViewProduct.vue";
+import TransactionRecord from "../seller/pages/TransactionRecord.vue";
+import AddRecord from "../seller/pages/AddRecord.vue";
 
 const routes = [
     {
@@ -115,6 +117,16 @@ const routes = [
         path: '/seller/products/view/:id',
         name: 'ViewProduct',
         component: ViewProduct
+    },
+    {
+        path: '/seller/transaction-record',
+        name: 'TransactionRecord',
+        component: TransactionRecord,
+    },
+    {
+        path: '/seller/add-record',
+        name: 'AddRecord',
+        component: AddRecord,
     },
     {
         path: "/seller/profile",

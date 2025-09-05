@@ -13,24 +13,29 @@ class Product extends Model
         return $this->hasMany(Photo::class);
     }
 
+    public function records(){
+
+        return $this->hasMany(Record::class, 'product_id');
+    }
+
     public function shop(){
         return $this->belongsTo(Shop::class);
     }
 
     public function reviews(){
-        return $this->hasMany(Review::class, 'product_id');
+        return $this->hasMany(Review::class, 'product_id')->latest('created_at');
     }
 
     public static function returnProducts($filter): Collection
     {
         try {
             if ($filter === 'popular') {
-                return self::with(['photos', 'shop', 'reviews'])
+                return self::with(['photos', 'shop', 'reviews', 'records'])
                         ->orderBy('overall_rate', 'desc')
                         ->limit(10)
                         ->get();
             } elseif ($filter === 'new') {
-                return self::with(['photos', 'shop', 'reviews'])
+                return self::with(['photos', 'shop', 'reviews', 'records'])
                         ->where('created_at', '>=', now()->subDays(30))
                         ->orderBy('created_at', 'desc')
                         ->limit(10)

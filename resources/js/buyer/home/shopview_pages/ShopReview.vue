@@ -6,7 +6,7 @@
     <div class="reviews-header">
       <div class="reviews-count">{{ reviews.length }} Reviews</div>
       <div style="display: flex; flex-direction: row; gap: 10px;">
-        <button style="font-size: 12px; background-color: #D25E27; color: white; border: gray; border-radius: 5px;" @click="hide = false;">Rate this shop</button>
+        <button class="rate-btn" :class="{is_disabled: !can_rate}" @click="hide = false;" :disabled="!can_rate">Rate this shop</button>
         <select v-model="selectedRating" class="filter-select">
           <option value="">All Ratings</option>
           <option value="5">5 star</option>
@@ -57,6 +57,7 @@ export default {
   data() {
     return {
       shop: null,
+      can_rate: false,
       reviews: [],
       store: useDataStore(),
       hide: true,
@@ -79,8 +80,10 @@ export default {
 
         this.store.selected_shop.reviews.forEach(review => {
 
-          if(review.rate === rate){
-            partial.unshift(review);
+          if(review.review_type === 'shop'){
+            if(review.rate === rate){
+              partial.unshift(review);
+            }
           }
         });
         this.reviews = partial;
@@ -132,8 +135,26 @@ export default {
       console.log('reviews: ',this.store.selected_shop.reviews);
         this.reviews = this.store.selected_shop.reviews.filter(e => e.review_type === 'shop');
     },
+    check_can_rate(){
+      const products = this.store.selected_shop.products;
+      const user_id = this.store.currentUser_info.id;
+
+      let can_rate = false;
+      for(let product of products){
+        
+        can_rate = product.records.some(record => record.user_id === user_id);
+
+        if(can_rate){
+          break;
+        }
+      }
+      this.can_rate = can_rate;
+      console.log('can_rate: ', can_rate);
+      console.log('PRODUCTS: ', products);
+    }
   },
   mounted(){
+    this.check_can_rate();
     this.filteredReviews();
     console.log(this.store.currentUser_info);
   }
@@ -141,6 +162,12 @@ export default {
 </script>
 
 <style scoped>
+.rate-btn{
+  font-size: 12px; background-color: #D25E27; color: white; border: gray; border-radius: 5px;
+}
+.is_disabled{
+  background-color: gray;
+}
 .star-rate{
   width: 10px;
   height: 10px;

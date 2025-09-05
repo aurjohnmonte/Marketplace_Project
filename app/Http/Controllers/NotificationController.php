@@ -18,7 +18,7 @@ class NotificationController extends Controller
         try{
             if($request->type === "buyer"){
                 $following_shops = Follower::select('user_id')->where('follower_id',$request->id)->get()->toArray();
-                $notifications = Notification::with(['users', 'users.shop', 'products.photos', 'products.shop', 'reviews', 'messages'])
+                $notifications = Notification::with(['users', 'users.shop', 'products.photos', 'products.shop', 'products.records', 'reviews', 'messages'])
                                             ->where(function ($query) use($following_shops) {
                                                 
                                                 $query->where('notifications.type', '=', 'product')

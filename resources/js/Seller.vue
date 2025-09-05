@@ -60,6 +60,15 @@
                         Products
                     </button>
                 </router-link>
+
+                <router-link to="/seller/transaction-record">
+                    <button :class="{ active: $route.name === 'TransactionRecord' || $route.name === 'AddRecord'}">
+                        <i class="fa-solid fa-list"></i>
+                        Transaction Record
+                    </button>
+                </router-link>
+
+
                 <router-link to="/seller/notifications">
                     <button :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" style="position: relative;">
                         <div style="width: 25px; height: 25px; border-radius: 25px; background-color: red; position: absolute; top: -10px; right: -10px;" v-if="unread_notif">
@@ -105,6 +114,13 @@
                 <router-link to="/seller/products">
                     <i class="fa-solid fa-bag-shopping" :class="{ active: $route.name === 'Products' || $route.name === 'AddProduct' || $route.name === 'ViewProduct' }" title="Products"></i>
                 </router-link>
+
+
+                <router-link to="/seller/transaction-record">
+                    <i class="fa-solid fa-list" :class="{ active: $route.name === 'TransactionRecord' || $route.name === 'AddRecord'}" title="TransactionRecord"></i>
+                </router-link>
+
+
                 <router-link to="/seller/notifications">
                     <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" title="Notifications"></i>
                 </router-link>

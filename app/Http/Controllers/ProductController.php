@@ -2,13 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\NotifyEvent;
+use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Photo;
 use App\Models\Product;
+use App\Models\Record;
+use App\Models\Review;
+use App\Models\Reviewphoto;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use PDO;
 
 class ProductController extends Controller
 {
@@ -77,10 +83,12 @@ weight: ''
                 $notify->favorite = false;
 
                 if($notify->save()){
-                    
+
+                    broadcast(new NotifyEvent($shop->user_id));
+                    $products = Product::with(['shop', 'records', 'photos', 'reviews'])->where('shop_id', $shop->id)->get();
                 }
 
-                return response()->json(['message'=>'successful']);
+                return response()->json(['message'=>'successful', 'products' => $products]);
             }
         }   
         catch(\Exception $err){
@@ -191,6 +199,46 @@ weight: ''
             $product = Product::where('id',$request->id)->first();
 
             $notifications = Notification::where('product_id', $product->id)->get();
+
+            $records = Record::where('product_id', $product->id)->get();
+
+            $messages = Message::where('mention', $product->id)->get();
+
+            $reviews = Review::select('id')->where('product_id', $product->id)->get();
+            $review_arrID = $reviews->toArray();
+
+            if(count($review_arrID) > 0){
+
+                $review_photos = Reviewphoto::whereIn('review_id', $review_arrID)->get();
+                if(!$review_photos->isEmpty()){
+
+                    foreach($review_photos as $photo){
+                        $photo->delete();
+                    }
+                }
+
+                foreach($reviews as $review){
+                    $review->delete();
+                }
+            }
+
+            if(!$records->isEmpty()){
+
+                foreach($records as $record){
+                    $record->delete();
+                }
+            }
+
+            if(!$messages->isEmpty()){
+
+                foreach($messages as $message){
+                    $message->mention = null;
+
+                    if(!$message->save()){
+                        return response()->json(['message'=>'error']);
+                    }
+                }
+            }
 
             if($notifications){
                 foreach($notifications as $notify){

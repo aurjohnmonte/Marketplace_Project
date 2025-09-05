@@ -11,7 +11,7 @@ export const useDataStore = defineStore('data', {
     },
     selectedNotification: null,
     products: [],
-    nearbyShops: null,
+    nearbyShops: [],
     user_location: {
       latitude: null,
       longitude: null,
@@ -55,6 +55,11 @@ export const useDataStore = defineStore('data', {
     },
     setNearbyShops(shops){
 
+      if(!shops){
+        this.nearbyShops = [];
+        return;
+      }
+
       this.nearbyShops = shops;
     },
     reset(){
@@ -64,7 +69,7 @@ export const useDataStore = defineStore('data', {
         latitude: null,
         longitude: null
       };
-      this.nearbyShops = null;
+      this.nearbyShops = [];
       this.selectedCoordinate = {
         latitude: null,
         longitude: null,

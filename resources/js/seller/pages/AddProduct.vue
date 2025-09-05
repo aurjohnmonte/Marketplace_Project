@@ -317,7 +317,9 @@ export default {
 
                 if(res.data.message === "successful"){
                     // Hide loading screen first
+                    this.store.selected_shop.products = res.data.products;
                     this.is_overlay_loading = false;
+
 
                     // Show success message
                     if (typeof this.showMessage === 'function') {

@@ -291,7 +291,7 @@ Route::middleware('usercheck')->group(function() {
     Route::get('/seller/{p}/{c?}/{id?}', function(){
 
         return view('seller_pages.seller_home');
-    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product', 'notifications'])
+    })->whereIn("p", ['dashboard', 'home', 'profile', 'messages', 'map', 'followers', 'products', 'product', 'notifications', 'transaction-record', 'add-record'])
       ->whereIn("c", ["add", "view", 'chats'])
       ->where('id', '[A-Za-z0-9]+');//put all the components in the 2nd parameter in whereIn
 
@@ -340,6 +340,12 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/return-followers', [SellerController::class, 'return_followers']);
     //seller remove followers
     Route::post('/seller/remove-follower', [SellerController::class, 'remove_follower']);
+    //seller return users
+    Route::get('/seller/return-users', [SellerController::class, 'returnUsers']);
+    //seller add new record
+    Route::post('/seller/new/add-record', [SellerController::class, 'addNewRecord']);
+    //seller return all records
+    Route::post('/seller/return/all-records', [SellerController::class, 'returnAllRecords']);
 
     Route::get('/seller/logout', function(Request $request) {
 

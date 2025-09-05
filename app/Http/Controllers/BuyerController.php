@@ -257,7 +257,7 @@ class BuyerController extends Controller
         try{    
             $info = json_decode($request->shop_info);
             Log::info('filter',['filter'=>$info->filter]);
-            $query = Product::with(['photos','shop'])
+            $query = Product::with(['photos','shop', 'records'])
                                ->where('name','like',"%$request->search_text%")
                                ->where(function($q) use($info) {
 
@@ -352,7 +352,7 @@ class BuyerController extends Controller
 
     public function returnProduct(Request $request){
         try{
-            $product = Product::with(['photos','shop'])
+            $product = Product::with(['photos','shop', 'records'])
                               ->where('id',$request->id)->first();
 
             return response()->json(['message'=>'successful', 'product'=>$product]);
@@ -454,7 +454,7 @@ class BuyerController extends Controller
     public function returnProduct_info(Request $req){
         try{
 
-            $product = Product::with(['photos', 'reviews', 'shop'])
+            $product = Product::with(['photos', 'reviews', 'shop', 'records'])
                               ->where('id', $req->id)
                               ->first();
 

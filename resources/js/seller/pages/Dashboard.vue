@@ -370,8 +370,8 @@ export default {
 
         this.is_loading = true;
 
-        await this.returnProducts();
         await this.returnUserInfo();
+        await this.returnProducts();
         await this.returnNotifications();
 
         const store = useDataStore();

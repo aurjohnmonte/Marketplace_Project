@@ -8,6 +8,7 @@ use App\Models\Follower;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Product;
+use App\Models\Record;
 use App\Models\Review;
 use App\Models\Shop;
 use App\Models\User;
@@ -26,7 +27,7 @@ class SellerController extends Controller
 
             $user = User::returnProfileInfo($email);
 
-            $shop = Shop::with(['products', 'products.shop', 'products.photos','reviews', 'products.reviews', 'user.followers.followedBy', 'reviews.user'])->where('shops.user_id',$user['id'])->first();
+            $shop = Shop::with(['products', 'products.shop', 'products.photos','reviews', 'products.reviews.user', 'user.followers.followedBy', 'reviews.user'])->where('shops.user_id',$user['id'])->first();
 
             return response()->json(['message'=>$user, 'shop'=>$shop]);
         }
@@ -344,6 +345,57 @@ class SellerController extends Controller
             $follower->delete();
 
             return response()->json(['message' => 'successful']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function returnUsers(){
+        try{
+
+            $users = User::where('role', 'buyer')->get();
+
+            return response()->json(['users' => $users]);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function addNewRecord(Request $request){
+        try{
+            $data = json_decode($request->data);
+
+            $record = new Record();
+            $record->product_id = $data->product_id;
+            $record->user_id = $data->user_id;
+            $record->name = $data->name;
+            $record->description = $data->description;
+            $record->seller_id = $data->seller_id;
+
+            if($record->save()){
+                $notify = new Notification();
+                $message = $notify->addNotification('customer record', $data->seller_id, $data->product_id, $data->user_id, null, null);
+                broadcast(new NotifyEvent($data->user_id, 'specific'));
+
+                return response()->json(['message' => 'successful']);
+            }
+            return response()->json(['message' => 'failed']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function returnAllRecords(Request $req){
+        try{
+
+            $records = Record::with('product')->where('seller_id', $req->id)->get();
+
+            Log::info('records', ['records' => $records]);
+
+            return response()->json(['records' => $records]);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex]);

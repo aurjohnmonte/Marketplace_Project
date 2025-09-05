@@ -61,7 +61,7 @@ export default{
       },
 
       goViewProduct(productId){
-        this.$router.push({ name: 'ViewProduct', params: { id: productId } });
+        this.$router.push({ name: 'ViewProduct', params: { id: productId }, query: {message: 'view-rate'} });
       },
 
       goView(notify){

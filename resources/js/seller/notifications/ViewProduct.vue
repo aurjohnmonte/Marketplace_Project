@@ -1,5 +1,5 @@
 <template>
-    <div class="product-notif-container" v-if="show === true">
+    <div class="product-notif-container" v-if="product">
         <div class="product-profile">
             <div class="image-container" :class="{ 'center-images': product.photos.length < 3 }">
                 <button class="nav-btn nav-left"
@@ -117,6 +117,33 @@
                 </div>
             </div>
         </div>
+
+        <div class="product-reviews">
+            <h6>Reviews</h6>
+            <label>({{ product.reviews.length }}) total of reviews</label><br>
+            <div class="reviews-display">
+                <div class="review-row" v-for="review in product.reviews" :key="review">
+                    <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                            <img style="width: 50px; height: 50px; border-radius: 50px" :src="'/' + review.user.profile">
+                            <div>
+                                <label>{{ review.user.firstname }} {{ review.user.m_initial }} {{ review.user.lastname }}</label><br>
+                                <label style="color: gray;">{{ returnFormatDate(review.created_at) }}</label>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="item-rate">
+                                <label>( {{ product.overall_rate }} )</label>
+                                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+                                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+                                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                            </div>
+                        </div>
+                    </div>
+                    <label style="margin-left: 50px;">{{ review.comment }}</label>
+                </div>
+            </div>  
+        </div>
     </div>
 </template>
 
@@ -130,22 +157,7 @@ export default {
     data() {
         return {
             show: true,
-            product: {
-                name: 'Chair',
-                id: 1,
-                photos: [
-                    { filename: 'images/bell (1).png' },
-                    { filename: 'images/user2.png' },
-                    { filename: 'images/bell (1).png' },
-                    { filename: 'images/user3.png' },
-                    { filename: 'images/bell (1).png' },
-                    { filename: 'images/user2.png' },
-                    { filename: 'images/bell (1).png' },
-                    { filename: 'images/bell (1).png' },
-                    { filename: 'images/bell (1).png' },
-                ],
-                overall_rate: 3
-            },
+            product:  null,
             clicked: false,
             showZoom: null,
             notificationData: null,
@@ -159,6 +171,33 @@ export default {
     },
 
     methods: {
+        returnStar(type_star, rate){
+
+          let num = Math.floor(rate);
+          let is_float = this.isFloat(rate);
+
+          switch(type_star){
+
+            case 'whole':
+              if(rate === 0){
+                return 0;
+              }
+              return num;
+
+            case 'half':
+              
+              return is_float ? 1 : 0;
+
+            case 'none':
+
+              return is_float ? (5-(num+1)) : 5-num;
+
+          }
+        },
+        returnFormatDate(date){
+            
+            return new Date(date).toLocaleDateString();
+        },
         isFloat(num){
           return (Number(num) === num) && (num % 1 !== 0);
         },
@@ -268,11 +307,67 @@ export default {
         let product_id = parseInt(this.$route.params.id);
         //this method will find the product from the store
         this.initializeProductInfo(product_id);
+
+        this.$nextTick(() => {
+            const message = this.$route.query.message;
+            console.log('messsage', message);
+            if(message){
+                window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: 'smooth' // optional, for smooth animation
+                });
+            }
+        })
     }
 }
 </script>
 
 <style scoped>
+.star-rate{
+  width: 15px;
+  height: 15px;
+}
+.item-rate{
+  display: flex;
+  flex-direction: row;
+  gap: 2px;
+  align-items: center;
+}
+.item-rate label{
+  font-size: 14px;
+  color: gray;
+  margin: 0;
+}
+.review-row{
+    background-color: rgba(255, 255, 255, 0.536);
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border-radius: 20px;
+}
+.reviews-display{
+    background-color: #bdbbba98;
+    padding: 10px;
+    overflow: hidden;
+    height: 400px;  
+    border-radius: 15px;
+    box-sizing: border-box;
+    padding: 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    overflow: auto;
+}
+.product-reviews{
+    padding: 2em;
+    border-radius: 1em;
+    background-color: #DDD0C8;;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+}
 
 .product-notif-container {
     width: 100%;
