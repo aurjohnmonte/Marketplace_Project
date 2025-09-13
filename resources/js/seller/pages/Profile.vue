@@ -1,11 +1,8 @@
 <template>
     <div class="profile-container" @click="handleClickOutside" v-if="shop">
         <div class="profile-box">
-            <img :src="'/'+shop.cover_photo" alt="cover photo" class="cover-photo">
-            <div class="overlay">
-
-            </div>
             <div class="profile-header">
+                <img :src="'/'+shop.cover_photo" alt="cover photo" class="cover-photo">
                 <div class="profile-img">
                     <img :src="'/'+shop.profile_photo" alt="">
                 </div>
@@ -604,10 +601,10 @@ export default {
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 .profile-container {
-    padding: 1em;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.5em;
+    gap: 1em;
     box-sizing: border-box;
     min-height: 100%;
     overflow-y: auto;
@@ -616,8 +613,7 @@ export default {
 .profile-box {
     width: 100%;
     background: #ffece1;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.199);
-    border-radius: 1em;
+    box-shadow: 0 4px 4px rgba(36, 36, 36, 0.199);
     user-select: none;
     position: relative;
     overflow: hidden;
@@ -633,11 +629,12 @@ export default {
 .profile-box .cover-photo{
     width: 100%;
     height: 100%;
-    object-fit: contain;
     position: absolute;
+    object-fit: none;
     left: 0;
     top: 0;
     opacity: 0.5;
+    z-index: 1;
 }
 
 .profile-header {
@@ -685,6 +682,7 @@ export default {
     display: flex;
     flex-direction: column;
     gap: .35em;
+    background-color: #e5cfc3;
 }
 
 .profile-info {
@@ -784,9 +782,6 @@ export default {
     flex: 1;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.527);
-    border-radius: 1em;
-    margin-bottom: .5em;
 }
 
 .body-header {
@@ -1064,7 +1059,7 @@ export default {
 
 /* Small mobile devices */
 @media (max-width: 480px) {
-    .profile-container {
+    .body {
         padding: 0.5rem;
     }
 
@@ -1150,7 +1145,7 @@ export default {
 
 /* Mobile - Medium devices */
 @media (max-width: 768px) {
-    .profile-container {
+    .body {
         padding: 1rem;
     }
 
@@ -1237,7 +1232,7 @@ export default {
 
 /* Tablet devices */
 @media (min-width: 769px) and (max-width: 1024px) {
-    .profile-container {
+    .body {
         padding: 1.5rem;
     }
 
@@ -1317,8 +1312,8 @@ export default {
 
 /* Desktop devices */
 @media (min-width: 1025px) {
-    .profile-container {
-        padding: 2rem;
+    .body {
+        padding: 1.5rem;
     }
 
     .profile-header {
@@ -1397,7 +1392,7 @@ export default {
 
 /* Large desktop devices */
 @media (min-width: 1440px) {
-    .profile-container {
+    .profile-body {
         padding: 2.5rem;
     }
 
@@ -1518,7 +1513,7 @@ export default {
 
 /* Print styles */
 @media print {
-    .profile-container {
+    .body {
         padding: 0;
     }
 

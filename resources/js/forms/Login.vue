@@ -1,9 +1,8 @@
 <template>
     <div class="form-content">
-        <!-- !!!!!!!!!!!!!!!! this is the message when user successfully registered. You can design it if you want.-->
         <label style="color: green; font-weight: bolder;">{{ this.message }}</label>
         <form method="POST" @submit.prevent="handleSubmit">
-            <h1>LOGIN</h1>
+            <h1 style="margin-bottom: .5em;">LOGIN</h1>
             <div
                 v-for="field in requiredInfo"
                 :key="field.id"
@@ -78,7 +77,7 @@ export default {
         },
         async handleSubmit() {
             if (this.validateForm()) {
-                
+
                 const formdata = new FormData();
                 formdata.append('username', this.data.username);
                 formdata.append('password', this.data.password);
@@ -86,7 +85,7 @@ export default {
                 const res = await axios.post('/user/login', formdata);
 
                 if(res.data.message === 'successful'){
-                    
+
                     if(res.data.type === 'seller'){
                         window.location.href = "/seller";
                         return;
@@ -118,7 +117,7 @@ export default {
   min-width: 320px;
   max-width: 600px;
   margin: 0 auto;
-  height: auto;
+  padding: 3em 0;
   border: 1px solid #000;
   border-radius: 10px;
   border-radius: 10px;

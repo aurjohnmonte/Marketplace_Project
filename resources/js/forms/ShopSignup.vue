@@ -31,6 +31,20 @@
             <p>Shop Details</p>
         </div>
         <div class="input-container">
+            <div class="shop-row">
+                <div v-for="details in shopInfo.slice(0,2)" :key="details.id" class="input-box">
+                    <input
+                        class="input-text"
+                        :type="details.type"
+                        :name="details.name"
+                        :id="details.id"
+                        v-model="shopData[details.name]"
+                        @input="validateField(details.name)"
+                        required
+                    />
+                    <label :for="details.id" class="input-label label">{{ details.label }}</label>
+                </div>
+            </div>
             <div v-for="details in shopInfo" :key="details.id" class="input-box">
                 <!-- template for img upload -->
                 <template v-if="details.type === 'file'">
@@ -98,25 +112,7 @@
                     </div>
                     <hr>
                 </template>
-
-                <template v-else>
-                    <input
-                        :type="details.type"
-                        :name="details.name"
-                        :id="details.id"
-                        v-model="shopData[details.name]"
-                        @input="validateField(details.name)"
-                        required
-                    />
-                    <label :for="details.id" class="label">{{ details.label }}</label>
-                    <span v-if="validationMessages[details.name] && validationMessages[details.name].length" class="error-message">
-                        <ul style="padding-left: 1.2em; margin: 0;">
-                            <li v-for="(msg, idx) in validationMessages[details.name]" :key="idx">{{ msg }}</li>
-                        </ul>
-                    </span>
-                </template>
             </div>
-            <hr>
             <div class="terms">
                 <div class="checkbox">
                     <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
@@ -309,7 +305,7 @@ export default {
     max-width: 500px;
     width: 100%;
     margin: 0 auto;
-    padding: 40px;
+    padding: 1em;
     box-sizing: border-box;
     border-radius: 8px;
 }
@@ -327,7 +323,22 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: stretch;
-    margin-bottom: 16px;
+}
+
+.shop-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 1em;
+    gap: 1em;
+}
+
+.input-text {
+    width: 19em;
+}
+
+.input-label {
+    width: 10em !important;
 }
 
 /* Custom style for Shop Category checkbox */
@@ -361,6 +372,9 @@ export default {
     align-items: center;
     justify-content: center;
     gap: 1rem;
+    border-top: 1px solid #8d8b8b;
+    border-bottom: 1px solid #8d8b8b;
+    padding: .5em 0;
 }
 
 .shop-img-btn {
@@ -369,6 +383,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-top: .5em;
 }
 
 .img-btn {
@@ -399,7 +414,7 @@ export default {
 
 .location-btn button {
     width: 100%;
-    padding:  10px;
+    padding:  .78em;
     font-size: 12px;
     border: 1px solid #9e363a;
     border-radius: 8px;
@@ -424,7 +439,7 @@ export default {
 
 .shop-desc {
     width: 100%;
-    max-width: 350px;
+    max-width: 100%;
     min-height: 80px;
     padding: 12px;
     font-size: 1rem;
@@ -458,5 +473,6 @@ export default {
 
 hr {
     width: 100%;
+    margin-bottom: .5em;
 }
 </style>

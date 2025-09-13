@@ -11,7 +11,7 @@
 
     <!--  Body of the Page  -->
     <div class="content">
-        <img src="../images/Logo.svg" alt="">
+        <img src="../images/Logo.svg" alt="Timbershoppe Logo">
         <div class="signup-container"
             v-if="action === 'signup'"
         >
@@ -48,11 +48,12 @@ export default {
   width: 100%;
   min-width: 320px;
   min-height: 100vh;
-  height: auto;
   margin: 0;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  user-select: none;
+  overflow: hidden;
 }
 
 .navbar {
@@ -80,14 +81,19 @@ export default {
   display: flex;
   flex: 1 1 auto;
   align-items: center;
-  justify-content: center;
-  padding: 2rem;
+  justify-content: space-between;
+  padding: 0 2rem;
   overflow: auto;
   position: relative;
   z-index: 1;
   font-family: 'Roboto-Reg';
   gap: 10rem;
 }
+
+.content img {
+    width: 25em;
+}
+
 
 /* Responsive Design */
 @media (max-width: 1200px) {

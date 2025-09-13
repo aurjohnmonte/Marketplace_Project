@@ -27,32 +27,31 @@
             </div>
         </div>
      </teleport>
-    <div v-if="currentStep === 'user'" class="user-type">
-        <button
-            @click="changeType('seller')"
-            class="typebox style"
-            id="seller"
-            :class="{
-            active: userType === 'seller',
-            inactive: userType && userType !== 'seller'
-            }"
-        >Seller</button>
-        <button
-            @click="changeType('buyer')"
-            class="typebox style"
-            id="buyer"
-            :class="{
-            active: userType === 'buyer',
-            inactive: userType && userType !== 'buyer'
-            }"
-        >Buyer</button>
-    </div>
 
     <!-- User Signup Form -->
-    <form @submit.prevent="handleNext" class="form-content" v-if="userType && currentStep === 'user'">
-        <div>
+    <form @submit.prevent="handleNext" class="form-content" v-if="currentStep === 'user'">
 
+        <div currentStep = 'user' class="user-type">
+            <button
+                @click="changeType('seller')"
+                class="typebox style"
+                id="seller"
+                :class="{
+                active: userType === 'seller',
+                inactive: userType && userType !== 'seller'
+                }"
+            >Seller</button>
+            <button
+                @click="changeType('buyer')"
+                class="typebox style"
+                id="buyer"
+                :class="{
+                active: userType === 'buyer',
+                inactive: userType && userType !== 'buyer'
+                }"
+            >Buyer</button>
         </div>
+
         <teleport to="body">
             <PermissionInfo v-if="show_permission" @goCancel="goCancel" @goAllow="goAllow"/>
         </teleport>
@@ -61,9 +60,9 @@
             <p>Sign up as a <strong>{{ userType }}</strong></p>
         </div>
 
-        <!-- Personal Information Section -->
-        <div class="section-header"><strong>Personal Information</strong></div>
-        <div>
+        <div class="information-container" v-if="accountInfo === false">
+            <!-- Personal Information Section -->
+            <div class="section-header"><strong>Personal Information</strong></div>
             <div v-for="(pair, idx) in personalInfoPairs" :key="'personal-row-' + idx" class="input-row">
                 <div v-for="info in pair" :key="info.id" class="input-box">
                     <!-- template for select type input with options-->
@@ -72,6 +71,7 @@
                             :name="info.name"
                             :id="info.id"
                             v-model="formData[info.name]"
+                            @input="validateField(info.name)"
                         >
                             <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
                         </select>
@@ -87,7 +87,7 @@
                             :pattern="info.pattern"
                             v-model="formData[info.name]"
                             @input="validateField(info.name)"
-                            required
+                            required novalidate
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
                         <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
@@ -119,9 +119,11 @@
             </div>
         </div>
 
-        <!-- Account Information Section -->
-        <div class="section-header"><strong>Account Information</strong></div>
-        <div>
+        <div class="information-container" v-if="accountInfo === true">
+            <!-- Account Information Section -->
+            <div class="section-header">
+                <strong>Account Information</strong>
+            </div>
             <div v-for="(pair, idx) in accountInfoPairs" :key="'account-row-' + idx" class="input-row">
                 <div v-for="info in pair" :key="info.id" class="input-box">
                     <template v-if="info.type === 'file'">
@@ -146,13 +148,12 @@
                             type="button"
                             class="img-btn"
                             @click="triggerFileInput(info.name)"
-                            style="margin-top: 5px;"
                         >
-                            Upload Image
+                            -
+                            <span v-if="formData[info.name]" class="file-name">
+                                {{ formData[info.name]?.name }}
+                            </span>
                         </button>
-                        <span v-if="formData[info.name]" class="file-name">
-                            {{ formData[info.name]?.name }}
-                        </span>
                     </template>
                     <template v-else>
                         <input
@@ -170,20 +171,55 @@
             </div>
         </div>
 
-        <div class="terms" v-if="userType === 'buyer'">
+        <div class="terms" v-if="userType === 'buyer' & accountInfo === true">
             <div class="checkbox">
-                <input type="checkbox" name="location_access" id="location_access" v-model="formData.location_access" :true-value="'yes'" :false-value="''">
+                <input type="checkbox"
+                    name="location_access"
+                    id="location_access"
+                    v-model="formData.location_access"
+                    :true-value="'yes'"
+                    :false-value="''"
+                    @change="validateField('location_access')"
+                >
                 <label @click="show_permission = true">Allow location access to the nearest shop.</label>
+                <span v-if="validationMessages.location_access.length" class="error-message">
+                    {{ validationMessages.location_access[0] }}
+                </span>
             </div>
 
             <div class="checkbox">
-                <input type="checkbox" name="terms" id="terms" v-model="formData.terms" :true-value="'yes'" :false-value="''">
+                <input type="checkbox"
+                    name="terms"
+                    id="terms"
+                    v-model="formData.terms"
+                    :true-value="'yes'"
+                    :false-value="''"
+                    @change="validateField('terms')"
+                >
                 <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
+                <span v-if="validationMessages.terms.length" class="error-message">
+                    {{ validationMessages.terms[0] }}
+                </span>
             </div>
         </div>
 
-        <button v-if="userType==='buyer'" class="form-btn style" type="submit">Sign Up</button>
-        <button v-if="userType==='seller'" class="form-btn style" type="submit">Next</button>
+        <div class="btn-container">
+            <button v-if="accountInfo === false"
+                class="form-btn style"
+                @click="validatePersonalInfo">
+                Next
+            </button>
+            <button v-if=" accountInfo === true"
+                class="form-btn style"
+                @click="accountInfo = false">
+                Back
+            </button>
+            <button v-if="userType==='buyer' & accountInfo === true"
+                class="form-btn style" type="submit">
+                Sign Up
+            </button>
+            <button v-if="userType==='seller' & accountInfo === true" class="form-btn style" type="submit">Next</button>
+        </div>
     </form>
 
     <!-- Shop Signup Form -->
@@ -223,8 +259,9 @@ export default {
             show_otpContainer: false,
             show_permission: false,
             is_loading: false,
+            accountInfo: false,
             action: 'signup',
-            userType: null,
+            userType: 'buyer',
             currentStep: 'user', // 'user' or 'shop'
             formData: {
                 firstname: '',
@@ -272,7 +309,9 @@ export default {
                 contact_no: [],
                 username: [],
                 password: [],
-                confirm_password: []
+                confirm_password: [],
+                location_access: [],
+                terms: []
             },
             fieldStatus: {
                 firstname: null,
@@ -284,7 +323,9 @@ export default {
                 contact_no: null,
                 username: null,
                 password: null,
-                confirm_password: null
+                confirm_password: null,
+                location_access: null,
+                terms: null
             },
             debounceTimers: {},
             // Simulated existing data for async checks
@@ -315,7 +356,7 @@ export default {
             else{
                 return requiredFields.every(
                         key => (this.validationMessages[key]?.length === 0) && (this.fieldStatus[key] === true)
-                    );   
+                    );
             }
         },
         allCapitalData() {
@@ -376,7 +417,7 @@ export default {
 
         goCancel(){
             this.show_permission = false;
-        }, 
+        },
         // --- Validation Rules Config ---
         validationRules(field, value) {
             const rules = {
@@ -384,18 +425,18 @@ export default {
                     v => v.trim().length >= 2 || 'Firstname must be at least 2 characters',
                     v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces',
                     v => !/[0-9]/.test(v) || 'No numbers allowed',
-                    v => !/[^a-zA-Z\s]/.test(v) || 'No symbols allowed.',
+                    v => !/[^a-zA-Z0-9\s]/.test(v) || 'No symbols allowed.',
                     v => v.split(/\s+/).length === new Set(v.split(/\s+/)).size || 'No repeated words.',
                     v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
                 ],
                 m_initial: [
-                    v => v === '' || /^[A-Z]\.?$/.test(v) || 'Middle initial must be a single uppercase letter (optionally with a dot).'
+                    v => v === '' || /^[A-Z]\.?$/.test(v) || 'Middle initial must be an uppercase letter.'
                 ],
                 lastname: [
                     v => v.trim().length >= 2 || 'Lastname must be at least 2 characters.',
                     v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces.',
                     v => !/[0-9]/.test(v) || 'No numbers allowed.',
-                    v => !/[^a-zA-Z\s]/.test(v) || 'No symbols allowed.',
+                    v => !/[^a-zA-Z0-9\s]/.test(v) || 'No symbols allowed.',
                     v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
                 ],
                 birthday: [
@@ -403,7 +444,7 @@ export default {
                     v => new Date(v) <= new Date() || 'Birthday cannot be in the future.',
                     v => {
                         const age = this.calculateAge(v);
-                        return (age >= 0 && age <= 120) || 'Age must be between 0 and 120.';
+                        return (age < 120) || 'Age must be less than 120.';
                     }
                 ],
                 age: [
@@ -432,7 +473,13 @@ export default {
                 ],
                 confirm_password: [
                     v => v === this.formData.password || 'Passwords do not match.'
-                ]
+                ],
+                terms: [
+                    v => v === 'yes' || 'You must accept Terms & Conditions.'
+                ],
+                location_access: [
+                    v => v === 'yes' || 'You must allow location access.'
+                ],
             };
             return rules[field] || [];
         },
@@ -458,18 +505,18 @@ export default {
             console.log("value: ", value);
 
             if(field === 'age'){
-                if(value <= 0){
-                    window.alert("The age should be not 0.")
+                if(value < 18){
                     this.requiredInfo.personalInformation[5].value = null;
                     this.requiredInfo.personalInformation[4].value = null;
                     this.formData[field] = null;
-                    this.formData['birthday'] = null;
                     this.fieldStatus.age = false;
+                    this.validationMessages.age = ['Age must be greater than 18.'];
                     return;
                 }
-                console.log('neh agi')
+                console.log('Valid Age')
                 this.requiredInfo.personalInformation[5].value = value;
                 this.fieldStatus.age = true;
+                this.validationMessages.age = [];
                 return;
             }
 
@@ -516,6 +563,26 @@ export default {
             }
             if (field === 'password') {
                 this.validateField('confirm_password');
+            }
+
+            if (field === 'terms') {
+                if (!this.formData.terms) {
+                    this.validationMessages.terms = ['You must agree to the Terms and Conditions.'];
+                    this.fieldStatus.terms = false;
+                } else {
+                    this.validationMessages.terms = [];
+                    this.fieldStatus.terms = true;
+                }
+            }
+
+            if (field === 'location_access') {
+                if (!this.formData.location_access) {
+                    this.validationMessages.location_access = ['You must allow location access.'];
+                    this.fieldStatus.location_access = false;
+                } else {
+                    this.validationMessages.location_access = [];
+                    this.fieldStatus.location_access = true;
+                }
             }
         },
         calculateAge(dob) {
@@ -573,24 +640,21 @@ export default {
             if (!this.isFormValid) {
                 // Collect invalid fields for better feedback
                 const invalidFields = Object.keys(this.validationMessages)
-                    .filter(key => {
-                        // Only require location_access and terms for buyers
-                        if ((key === 'location_access' || key === 'terms') && this.userType !== 'buyer') return false;
-                        return this.validationMessages[key].length > 0 || this.fieldStatus[key] !== true;
-                    })
-                    .map(key => {
-                        // Convert snake_case to readable label
-                        return this.requiredInfo.personalInformation.concat(this.requiredInfo.accountInformation)
-                            .find(info => info.name === key)?.label || key.replace(/_/g, ' ');
-                    });
-                let alertMsg = 'Please fix the errors in the form.';
+                .filter(key => {
+                    if ((key === 'location_access' || key === 'terms') && this.userType !== 'buyer') return false;
+                    return this.validationMessages[key].length > 0 || this.fieldStatus[key] !== true;
+                })
+                .map(key => {
+                    return this.requiredInfo.personalInformation.concat(this.requiredInfo.accountInformation)
+                        .find(info => info.name === key)?.label || key.replace(/_/g, ' ');
+                });
+
+                let warningMsg = 'Please fix the errors in the form.';
                 if (invalidFields.length) {
-                    alertMsg += '\nInvalid or missing: ' + invalidFields.join(', ');
+                    warningMsg += '\nInvalid or missing: ' + invalidFields.join(', ');
                 }
-                if (this.userType === 'buyer' && (!this.formData.location_access || !this.formData.terms)) {
-                    alertMsg += '\nYou must agree to location access and terms.';
-                }
-                alert(alertMsg);
+
+                this.message = warningMsg;
                 return;
             }
             // Sanitize all fields
@@ -629,7 +693,6 @@ export default {
 
                 this.show_otpContainer = true;
 
-
                 return;
             }
             catch(error){
@@ -638,16 +701,34 @@ export default {
         },
         changeType(newType) {
             this.userType = newType;
-            // Reset all form fields
+
+            // Reset all form data
             Object.keys(this.formData).forEach(key => {
                 this.formData[key] = '';
             });
-            // Clear all validation messages and statuses
+
+            // Reset validation messages
             Object.keys(this.validationMessages).forEach(key => {
                 this.validationMessages[key] = [];
             });
+
+            // Reset field status
             Object.keys(this.fieldStatus).forEach(key => {
                 this.fieldStatus[key] = null;
+            });
+
+            // Reset step and states
+            this.accountInfo = false;       // revert back to personal info
+            this.currentStep = 'user';      // reset step
+            this.show_otpContainer = false; // close otp modal
+            this.is_loading = false;        // stop loading spinner
+
+            // Reset file inputs (profile & cover photos if you have them)
+            this.$nextTick(() => {
+                const profileInput = document.getElementById('profile_image');
+                const coverInput = document.getElementById('cover_photo');
+                if (profileInput) profileInput.value = '';
+                if (coverInput) coverInput.value = '';
             });
         },
         checkAllCaps() {
@@ -681,6 +762,21 @@ export default {
                 // Update your formData or perform other actions with the file
                 this.formData[name] = file;
             }
+        },
+        validatePersonalInfo() {
+            // Validate only personal info fields
+            const personalFields = this.requiredInfo.personalInformation.map(f => f.name);
+            personalFields.forEach(f => this.validateField(f));
+
+            const hasErrors = personalFields.some(
+                key => this.validationMessages[key].length > 0 || this.fieldStatus[key] !== true
+            );
+
+            if (!hasErrors) {
+                this.accountInfo = true; // move to Account Info only if valid
+            } else {
+                this.message = "Please complete all personal information correctly before continuing.";
+            }
         }
     }
 }
@@ -689,18 +785,17 @@ export default {
 <style>
 /* Main container */
 .signup-container  {
-  background-color:	#F5F5DC;
-  display: flex;
-  flex-direction: column;
-  width: 40%;
-  min-width: 320px;
-  max-width: 600px;
-  margin: 0 auto;
-  height: auto;
-  border: 1px solid #000;
-  border-radius: 10px;
-  border-radius: 10px;
-  box-sizing: border-box;
+    background-color:	#F5F5DC;
+    display: flex;
+    flex-direction: column;
+    width:  38em;
+    min-width: 320px;
+    padding: 0 0 1em;
+    margin: 0 2em;
+    height: 100%;
+    border: 1px solid #000;
+    border-radius: 1em;
+    box-sizing: border-box;
 }
 
 /* conteiner containing the buttons */
@@ -715,42 +810,38 @@ export default {
   text-align: center;
   padding: 1rem 0;
   border: 1px solid #ddd;
-  border-radius: 8px;
+  border-radius: 1.1em;
   cursor: pointer;
 }
 .typebox#buyer{
   border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 .typebox#seller{
   border-top-right-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 /* for active and inactive button designs */
 .typebox.active {
-  background-color: #F5F5DC !important;
+  background-color: #49494975 !important;
   border: none;
-  font-weight: 700;
+  font-weight: 500;
+  color: #ffffff;
+  letter-spacing: 1px;
 }
 .typebox.inactive {
-  background-color: #49494975 !important;
+  background-color: #F5F5DC !important;
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
   border: none;
 }
-.typebox.inactive#buyer{
-  border-top-left-radius: 0;
-}
-.typebox.inactive#seller{
-  border-top-right-radius: 0;
-}
 
 /* div containing the form */
 .form-content{
-  flex: 1;
   width: 100%;
   height: auto;
-  padding: 2rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -759,24 +850,27 @@ export default {
 }
 
 .form-header{
-    margin-bottom: 2rem;
     text-align: left;
     width: 100%;
     text-align: center;
+    margin: 1em 0;
 }
 
 .form-header h1{
     text-transform: uppercase;
-    margin-bottom: 1rem;
 }
 
 .form-header strong {
     text-transform: uppercase;
 }
 
+.information-container {
+    margin: 1em;
+}
+
 /* section header */
 .section-header {
-    margin-bottom: 1rem;
+    margin-bottom: 1em;
     text-align: left;
     width: 100%;
 }
@@ -791,20 +885,24 @@ export default {
 /* for each row */
 .input-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
+  align-items: start;
+  justify-content: center;
 }
 
 /* for the input */
 .input-box {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
   position: relative;
 }
 
 .input-box input,
 .input-box select {
-  width: 100%;
-  padding:  10px;
+  width: 17em;
+  padding:  7px 8px;
   font-size: 12px;
   border: 1px solid #9e363a;
   border-radius: 8px;
@@ -815,13 +913,13 @@ export default {
 /* for the label */
 .input-box .label {
   position: absolute;
-  top: 12px;
-  padding-left: 12px;
-  font-size: 13px;
+  top: .5em;
+  font-size: 12px;
   color: #575454;
   background-color: #ffffff;
   width: 70%;
-  margin: 0 10px;
+  padding: .2em 1em;
+  margin: 0 .2em;
   pointer-events: none;
   transition: 0.2s ease all;
 }
@@ -829,10 +927,10 @@ export default {
 /* input and label animation */
 .input-box .label.floated {
   top: -8px;
-  left: 10px;
+  left: 5px;
   width: fit-content;
   font-size: 10px;
-  padding: 0 10px;
+  padding: 0 .8em;
   background-color: #091f36;
   border: #9e363a 1px solid;
   border-radius: 10px;
@@ -842,10 +940,10 @@ export default {
 .input-box input:focus + .label,
 .input-box input.has-content + .label {
   top: -8px;
-  left: 10px;
+  left: .5px;
   width: fit-content;
   font-size: 10px;
-  padding: 0 10px;
+  padding: 0 .8em;
   background-color: #091f36;
   border: #9e363a 1px solid;
   border-radius: 10px;
@@ -856,7 +954,7 @@ export default {
   .input-box input:focus + .label,
   .input-box input:valid + .label {
     top: -8px;
-    left: 10px;
+    left: 5px;
     width: fit-content;
     font-size: 10px;
     padding: 0 10px;
@@ -872,48 +970,52 @@ export default {
 
 /* img upload btn */
 .img-btn {
-  width: 100%;
-  padding:  10px;
+  width: 17em;
+  margin: 0;
+  padding:  7px 8px;
   font-size: 12px;
   border: 1px solid #9e363a;
   border-radius: 8px;
   background-color: #ffffff;
   color: #000000;
   box-sizing: border-box;
+  display: flex;
+  justify-content: center;
 }
 
 .file-name {
   display: block;
   font-size: 12px;
   color: #333;
-  margin-top: 4px;
 }
 
 /* error message design */
 .error-message {
     color: red;
-    font-size: 12px;
-    width: 100%;
-}
-
-.input-box .error-message {
-  display: block;
-  margin-top: 4px;
-  margin-bottom: 2px;
-  width: 100%;
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.3;
+    word-wrap: break-word;
+    margin-left: .2em;
 }
 
 .input-box.has-error {
-  margin-bottom: 28px; /* Adjust as needed */
+    margin-bottom: .2em;
+    width: 1em;
 }
 
 .checkbox input {
     margin-right: 1rem;
 }
 
+.btn-container {
+    display: flex;
+    gap: 1em;
+    margin: 1em 0;
+}
+
 /* submit/next button */
 .form-btn {
-  margin-top: 1rem;
   padding: 8px;
   border-radius: 10px;
   background-color: #fc9c70;
