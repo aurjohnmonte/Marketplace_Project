@@ -398,4 +398,11 @@ export default {
   height: 15px;
   margin-right: 2px;
 }
+
+@media (min-width: 768px){
+  .buyer-browse-content {
+    grid-template-columns: repeat(7, 10rem);
+    gap: 25px;
+  }
+}
 </style>

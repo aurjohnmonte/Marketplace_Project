@@ -15,7 +15,7 @@
         <div class="product-profile-pic">
             <div class="option-icon">
                 <img src="../../../images/location.png" @click="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
-            <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
+                <img src="../../../images/send.png" @click="goMessage(product.shop.user_id, product)">
             </div>
             <img :src="'/'+product.photos[0].filename" class="profile-pic-product">
         </div>
@@ -25,12 +25,13 @@
                      :key="indx" :src="'/'+product.photos[indx].filename"
                       class="pic" 
                       @click="show_pic=true; pic=product.photos[indx].filename"
-                >...            
+                >           
             </div>
+            <label style="text-decoration: none;">... </label>
             <label @click="show_morePhotos=true; photos = product.photos;">More pictures</label>
         </div>
         <div class="shop-name">
-            <label style="font-size: 15px;" @click="$router.push({name: 'ShopAbout', params: {id: product.shop_id}});">{{ product.shop.name }}</label>
+            <label @click="$router.push({name: 'ShopAbout', params: {id: product.shop_id}});">{{ product.shop.name }}</label>
         </div>
         <div class="product-more-info">
             <label class="product-price">PHP {{ product.price }}</label>
@@ -278,7 +279,7 @@ export default {
             const store = useDataStore();
             const user_id = store.currentUser_info.id;
 
-            const records = this.product.records.some(record => record.user_id === user_id);
+            const records = this.product.records.some(record => record.user_id === user_id && record.status === 'confirmed');
 
             records ? this.can_rate = true : this.can_rate = false;
         }
@@ -588,5 +589,86 @@ export default {
     flex-direction: column;
     box-sizing: border-box;
     padding-top: 70px;
+}
+@media (min-width: 768px){
+    .buyer-product{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        margin: 100px auto;
+        margin-top: 0;
+        max-width: 87%;
+        box-sizing: border-box; 
+    }
+    .back-button{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 40px;
+    }
+    .back-button label{
+        font-weight: bolder;
+        font-size: 25px;
+    }
+    .back-button img{
+        width: 50px;
+        height: 50px;
+        cursor: pointer;
+    }
+    .product-profile-pic{
+        height: 500px;
+        overflow: hidden;
+    }
+    .option-icon{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px;
+        position: absolute;
+    }
+    .option-icon img{
+        width: 80px;
+        height: 80px;
+        border-radius: 50px;
+        background-color: white;
+        cursor: pointer;
+    }
+    .more-pic label{
+        font-size:20px;
+        text-decoration: underline;
+        color: rgb(115, 115, 115);
+        cursor: pointer;
+    }
+    .more-pic{
+        display: flex; 
+        flex-direction: row;
+        align-items: end;
+        gap: 20px;
+        padding-top: 5px;
+    }
+    .pic{
+        height: 100px;
+        width: 100px;
+    }
+    .shop-name label{
+        font-size: 20px;
+    }
+    .product-price{
+        font-size: 25px;
+    }
+    .product-name{
+        font-size: 15px;
+    }
+    .text{
+        font-size: 15px;
+    }
+    .product-description{
+        font-size: 25px;
+    }
+    .description-text{
+        font-size: 16px;
+        gap: 20px;
+    }
 }
 </style>

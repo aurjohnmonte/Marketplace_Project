@@ -36,6 +36,8 @@
             <option value="New">New</option>
           </select>
         </div>
+
+        <input type="submit" hidden>
       </form>
     </div>
 
@@ -191,7 +193,7 @@
                   </div>
                   <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
                     <label style="font-size: 14px;">{{ shop.name }}</label>
-                    <label style="font-weight: bolder;">{{shop.overall_rate}} ({{ shop.reviews.length }} reviews)</label>
+                    <label style="font-weight: bolder;">{{shop.overall_rate}} ({{ shop.reviews.filter(review => review.review_type === 'shop').length }} review/s)</label>
                     <label>{{ shop.address }}</label>
                   </div>
                 </div>
@@ -222,7 +224,7 @@
                   </div>
                   <div style="font-size: 10px; display: flex; flex-direction: column; gap: 2px;">
                     <label style="font-size: 14px;">{{ shop.name }}</label>
-                    <label style="font-weight: bolder;">{{ shop.overall_rate }} ({{ shop.reviews.length }} reviews)</label>
+                    <label style="font-weight: bolder;">{{ shop.overall_rate }} ({{ shop.reviews.filter(review => review.review_type === 'shop').length }} reviews/s)</label>
                     <label>{{ shop.address }}</label>
                   </div>
                 </div>
@@ -401,6 +403,8 @@ export default {
     }
   },
   async mounted(){
+    console.log('set: ', this.store.setNearbyShops([]));
+    console.log('nearby: ', this.store.nearbyShops);
     let path = this.$route.path;
     let new_path = path.slice(7);
     this.$emit("changepathtext", new_path);
@@ -408,7 +412,6 @@ export default {
     //return products (popular and new)
     await this.returnProducts();
     await this.returnShops();
-    console.log('nearby: ', this.store.nearbyShops);
     
     watch(
       () => this.store.nearbyShops,
@@ -728,6 +731,84 @@ export default {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 200px;
+  }
+  .buyer-content1{
+    width: 100%;
+    height: 400px;
+    display: flex;
+    background-color: gray;
+    align-items: end;
+    box-sizing: border-box;
+    background-image: url('../../../images/furniture.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    
+  }
+  .buyer-home{
+    z-index: 10;
+    margin-bottom: 50px;
+    margin: 100px;
+    margin-top: 60px;
+  }
+  .more-filter{
+    font-size: 17px;
+  }
+  .filter-header-label{
+    font-size: 20px;
+  }
+  .filter-search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+  }
+  .filter-search input{
+    width: 50%;
+    padding: 10px;
+    border: 1px solid #D25E27;
+    border-radius: 5px;
+    font-size: 15px;
+  }
+  .filter-search input::placeholder{
+    font-size: 15px;
+    padding-left: 5px;
+  }
+  .filter-search select{
+    font-size: 15px;
+    padding: 10px;
+    height: 37px;
+    border: 1px solid #D25E27;
+    border-radius: 5px;
+    width: 150px;
+  }
+  .more-filter-option{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+  }
+  .more-filter-option select{
+    border: 1px solid #D25E27;
+    font-size: 15px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  .buyer-content1 h2{
+    color: white;
+    font-weight: bolder;
+    margin-left: 50px;
+    font-size: 40px;
+    background-color: rgba(241, 133, 31, 0.5);
+    padding: 5px;
+    border-radius: 20px;
+  }
+  .header1 .popular{
+    font-size: 25px;
+  }
+  .view-all{
+    font-size: 15px;
+  }
+  .popular-desc{
+    font-size: 15px;
   }
 }
 </style>

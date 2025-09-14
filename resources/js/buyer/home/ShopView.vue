@@ -7,9 +7,9 @@
     </template>
     <template v-else>
       <div class="seller-profile-header">
-          <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+          <div class="back-btn">
             <img src="../../../images/left-arrows.png" @click="goPrevious" class="left-arrow">
-            <label style="font-weight: bolder; font-size: 18px;">SHOPS</label>
+            <label class="shop-title">SHOPS</label>
           </div>
           <!-- <img src="../../../images/more (2).png" style=" cursor: pointer; width: 20px; height: 20px; border: 1px solid gray; padding-left: 10px; padding-right: 10px; border-radius: 10px;"> -->
       </div>
@@ -164,6 +164,12 @@ export default{
 </script>
 
 <style scoped>
+.shop-title{
+  font-weight: bolder; font-size: 18px;
+}
+.back-btn{
+  display: flex; flex-direction: row; align-items: center; gap: 10px;
+}
 .cover_photo-img{
   background-color: rgb(192, 192, 192);
 }
@@ -341,5 +347,49 @@ export default{
 .content {
   background-color: rgb(235, 235, 235);
   min-height: 300px;
+}
+
+@media (min-width: 768px){
+  .seller-profile {
+    font-family: 'Segoe UI', sans-serif;
+    color: #323232;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    padding-top: 60px;
+    position: relative;
+    margin: 100px;
+    margin-top: 10px;
+    box-sizing: border-box;
+  }
+  .shop-title{
+    font-weight: bolder; font-size: 25px;
+  }
+  .back-btn{
+    display: flex; flex-direction: row; align-items: center; gap: 20px;
+  }
+  .back-btn img{
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+  }
+  .profile-circle {
+    width: 220px;
+    height: 220px;
+  }
+  .option-icon .option-img{
+    width: 50px;
+    height: 50px;
+  }
+  .option-icon .option-rate{
+    width: 30px;
+    height: 30px;
+  }
+  .tabs {
+    justify-content: center;
+    gap: 200px;
+  }
+  .tabs a{
+    font-size: 15px;
+  }
 }
 </style>

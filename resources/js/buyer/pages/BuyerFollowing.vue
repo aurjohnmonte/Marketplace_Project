@@ -1,7 +1,7 @@
 <template>
   <div class="following-shops-container">
     <div class="header">
-      <label>FOLLOWING SHOPS</label>
+      <label>Following shops</label>
     </div>
 
     <div class="search-bar">
@@ -32,10 +32,13 @@
             <div class="shop-info">
               <img :src="'/'+follow.follows.shop.profile_photo" alt="shop avatar" class="shop-avatar" />
               <label class="shop-name">{{ follow.follows.shop.name }}</label>
+              <div class="shop-actions">
+                <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(follow.follows.shop.latitude), parseFloat(follow.follows.shop.longitude))">
+                <img src="../../../images/send.png" @click.stop="goMessage(follow.follows.id)">
+              </div>
             </div>
-            <div class="shop-actions">
-              <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(follow.follows.shop.latitude), parseFloat(follow.follows.shop.longitude))">
-              <img src="../../../images/send.png" @click.stop="goMessage(follow.follows.id)">
+            <div>
+              <button class="unfollow-btn" @click.stop="goUnfollow(follow.user_id, follow.follower_id)">Unfollow</button>
             </div>
           </div>
         </div>
@@ -97,6 +100,30 @@ export default {
     }
   },
   methods: {
+    async goUnfollow(user_id, follower_id){
+      const data = new FormData();
+      data.append('user_id', user_id);
+      data.append('follower_id', follower_id);
+
+      const res = await axios.post('/shop/unfollow', data);
+
+      window.alert(res.data.message);
+
+      if(res.data.message === 'success'){
+        this.follows = this.follows.filter(f => this.removeFollowData(f, user_id, follower_id))
+      }
+    },
+    removeFollowData(follow, user_id, follower_id){
+
+      if(follow){
+
+        if(follow.user_id !== user_id && follow.follower_id !== follower_id){
+          return true;
+        }
+      }
+
+      return false;
+    },
     goShop(id){
       this.$router.push({name: "ShopAbout", params: {id: id}});
     },
@@ -254,8 +281,45 @@ export default {
   width: 20px;
   height: 20px;
 }
+.unfollow-btn{
+  background-color: rgb(255, 169, 9);
+  color: white;
+  border: 1px solid rgb(112, 75, 5);
+  padding: 10px;
+  border-radius: 10px;
+}
 
 .material-icons {
   font-family: 'Material Icons';
+}
+
+@media (min-width: 768px){
+  .following-shops-container{
+    margin: 100px;
+    padding-top: 0;
+  }
+  .header label{
+    font-size: 25px;
+  }
+  .search-bar input{
+    font-size: 20px;
+    padding: 10px;
+    padding-left: 20px;
+  }
+  .category-select{
+    font-size: 15px;
+  }
+  .shop-info img{
+    width: 80px;
+    height: 80px;
+  }
+  .shop-info label{
+    font-size: 20px;
+  }
+  .shop-actions img{
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+  }
 }
 </style>

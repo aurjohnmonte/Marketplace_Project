@@ -142,7 +142,7 @@ export default {
       let can_rate = false;
       for(let product of products){
         
-        can_rate = product.records.some(record => record.user_id === user_id);
+        can_rate = product.records.some(record => record.user_id === user_id && record.status === 'confirmed');
 
         if(can_rate){
           break;

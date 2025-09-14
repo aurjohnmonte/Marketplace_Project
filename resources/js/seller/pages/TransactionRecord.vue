@@ -34,6 +34,7 @@
                 <th>Materials</th>
                 <th>Dimensions</th>
                 <th>Weight</th>
+                <th>Status</th>
                 <th>Date</th>
                 <th>Action</th>
                 </tr>
@@ -51,10 +52,10 @@
                 <td>{{ product.product.materials }}</td>
                 <td>{{ product.product.dimensions }}</td>
                 <td>{{ product.product.weight }}</td>
+                <td>{{ product.status }}</td>
                 <td>{{ formatDate(product.created_at) }}</td>
                 <td class="action-btn">
-                    <button class="btn-edit">Edit</button>
-                    <button class="btn-delete">Delete</button>
+                    <button class="btn-delete" @click="goDelete(product.id)">Delete</button>
                 </td>
                 </tr>
                 <tr v-if="filteredProducts.length === 0">
@@ -88,6 +89,21 @@ export default {
     }
   },
   methods: {
+    async goDelete(id){
+      console.log('id: ', id);
+      const data = new FormData();
+      data.append('id', id);
+
+      const res = await axios.post('/seller/record/delete', data);
+
+      window.alert(res.data.message);
+
+      console.log(res.data.message);
+
+      if(res.data.message === 'success'){
+        this.products = this.products.filter(e => e.id !== id);
+      }
+    },
     formatDate(datetime){
 
       const date = new Date(datetime);

@@ -1,5 +1,10 @@
 <template>
   <div class="main-container">
+
+    <teleport to="body">
+        <ConfirmRecord :product="product" :seller="seller" :notify_data="notify_data" v-if="product && seller" @go_exit="go_exit"/>
+    </teleport>
+
     <header>
         <label>Notifications</label>
     </header>
@@ -9,7 +14,7 @@
                 <input type="checkbox" @change="selectAll">
                 <label>Select All</label>
             </div>
-            <div class="group-action" style="gap: 5px;">
+            <div class="group-action">
                 <button class="btn-action" :disabled="!is_selectAll" @click="markAsRead">Mark as read</button>
                 <button class="btn-action" :disabled="!is_selectAll" @click="goDelete">Delete</button>
             </div>
@@ -37,10 +42,15 @@
 <script>
 import axios from 'axios';
 import { useDataStore } from '../../stores/dataStore';
+import ConfirmRecord from '../modals/ConfirmRecord.vue';
 
 export default {
+    components: {ConfirmRecord},
     data(){
         return{
+            product: null,
+            seller: null,
+            notify_data: {},
             store: useDataStore(),
             is_selectAll: false,
             is_clicked: [],
@@ -63,6 +73,16 @@ export default {
         }
     },
     methods: {
+        go_exit(id){
+            this.product =null;
+            this.seller = null;
+            this.notify_data = {};
+
+            if(id){
+                let notification = this.notifications.find(notif => notif.id === id );
+                notification.status = 'answered';
+            }
+        },
         async goDelete(){
             
             const data = new FormData();
@@ -138,7 +158,6 @@ export default {
                 }
 
                 this.store.setNotifications(this.notifications);
-                console.log('new: ', this.store.notifications);
             }
 
             console.log(notify);
@@ -160,17 +179,27 @@ export default {
                                        }
                     })
                     break;
+                case 'customer record':
+                    console.log('product id: ', notify.products.id);
+                    console.log('NOTIFY: ',notify);
+                    this.product = notify.products;
+                    this.seller = notify.users;
+                    this.notify_data['datetime'] = notify.updated_at;
+                    this.notify_data['status'] = notify.status;
+                    this.notify_data['record_id'] = notify.record_id;
+                    this.notify_data['notify_id'] = notify.id;
+                    this.notify_data['user_id'] = this.store.currentUser_info.id;
+                    this.notify_data['product_id'] = notify.products.id;
+                    break;
                 
             }
         },
         check_select(index){
 
             if(this.is_clicked.includes(index)){
-                console.log('true');
                 return true;
             }
             else{
-                console.log('false');
                 return false;
             }
         },
@@ -222,6 +251,12 @@ export default {
         },
         returnFormatTime(date){
             return new Date(date).toLocaleDateString();
+        }
+    },
+    watch: {
+        'store.notifications'(newval) {
+            console.log('newval view all notif: ', newval);
+            this.notifications = newval;
         }
     },
     mounted(){
@@ -343,6 +378,42 @@ main{
 
 .custom-checkbox input:checked + .checkmark::after {
   display: block;
+}
+
+@media (min-width: 768px){
+    .main-container{
+        margin-top: 5%;
+    }
+    header{
+        font-size: 25px;
+        box-sizing: border-box;
+        margin-left: 100px;
+        margin-right: 100px;
+    }
+    .top-action{
+        font-size: 17px;
+        gap: 25px;
+        box-sizing: border-box;
+        padding-right: 80px;
+        padding-left: 80px;
+    }
+    .group-action{
+        gap: 10px;
+    }
+    .btn-action{
+        font-size: 17px;
+    }
+    .list-text{
+        display: flex; flex-direction: row; align-items: center; gap: 5px;
+        font-size: 17px;
+    }
+    .list{
+        margin-right: 80px;
+        margin-left: 80px;
+    }
+    .list-notify{
+        gap: 20px;
+    }
 }
 
 </style>

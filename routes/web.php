@@ -139,6 +139,10 @@ Route::middleware('buyercheck')->group(function() {
     Route::post('/buyer/edit-credential', [BuyerController::class, 'editCredential']);
     //buyer mark as read the notification
     Route::post('/buyer/mark-as-read/notification', [NotificationController::class, 'mark_as_read_many']);
+    //buyer respond to the record from the seller
+    Route::post('/buyer/respond/to-record/from-seller', [BuyerController::class, 'record_respond']);
+    //buyer unfollow shop
+    Route::post('/shop/unfollow', [BuyerController::class, 'unfollow']);
 
     //LOGOUT
     Route::get('/buyer/logout', function(Request $request) {
@@ -346,6 +350,8 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/new/add-record', [SellerController::class, 'addNewRecord']);
     //seller return all records
     Route::post('/seller/return/all-records', [SellerController::class, 'returnAllRecords']);
+    //seller delete record
+    Route::post('/seller/record/delete', [SellerController::class, 'deleteRecord']);
 
     Route::get('/seller/logout', function(Request $request) {
 

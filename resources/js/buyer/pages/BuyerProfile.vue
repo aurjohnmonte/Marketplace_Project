@@ -366,4 +366,18 @@ header{
   padding-bottom: 10px;
   border-bottom: 10px solid rgb(202, 202, 202);
 }
+@media (min-width: 768px){
+  .main-container{
+    margin: 100px;
+    padding-top: 0;
+    margin-top: 0;
+  }
+  .main1 img{
+    cursor: pointer;
+  }
+  .overlay img{
+    width: 400px;
+    height: 400px;
+  }
+}
 </style>

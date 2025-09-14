@@ -102,7 +102,7 @@
         <div class="message-i">
           <label class="image-upload">
           <input type="file" hidden  @change="getFile" accept="image/*" :disabled="selected_edit_message ? true : false"/>
-          <span>＋</span>
+          <span class="plus-btn">＋</span>
           </label>
           <input type="text" placeholder="Write a message..." v-model="message_text"/>
           <button class="send-btn">➤</button>
@@ -671,5 +671,57 @@ export default{
   border-radius: 50%;
   margin-left: 10px;
   cursor: pointer;
+}
+@media (min-width: 768px){
+  .receiver-content{
+    font-size: 15px;
+    max-width: 350px;
+    min-width: 150px;
+    width: auto;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .sender-content{
+    font-size: 15px;
+    max-width: 350px;
+    min-width: 150px;
+    width: auto;
+    padding: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .messages {
+    margin-left: 50px;
+    margin-right: 50px;
+  }
+  .time{
+    font-size: 15px;
+  }
+  .header{
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .message-input{
+    padding-left: 50px;
+    padding-right: 50px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+  }
+  .message-input .message-i input{
+      padding: 15px;
+      font-size: 20px;
+  }
+  .send-btn{
+    font-size: 20px;
+  }
+  .plus-btn{
+    font-size: 30px;
+  }
+  .view-full-container{
+    padding-top: 5%;
+  }
 }
 </style>
