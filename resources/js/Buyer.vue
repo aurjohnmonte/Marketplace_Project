@@ -432,4 +432,16 @@ export default {
   align-items: center;
 }
 
+@media (min-width: 768px){
+  .main-container header{
+    padding-left: 100px;
+    padding-right: 100px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+  .header2{
+    gap: 20px;
+  }
+}
+
 </style>

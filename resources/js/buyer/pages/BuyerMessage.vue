@@ -216,11 +216,11 @@ export default {
     justify-content: center;
 }
 .buyer-message-container {
-  padding-top: 75px;
   background-color: #f9f9f9;
   min-height: 100vh;
   font-family: Arial, sans-serif;
   font-size: 12px;
+  margin-top: 80px;
 }
 
 .buyer-message-header {
@@ -305,5 +305,37 @@ export default {
   font-weight: 600;
   color: #d25e27;
   white-space: nowrap;
+}
+@media (min-width: 768px){
+  .buyer-message-header h2{
+    font-size: 25px;
+  }
+  .buyer-message-header input{
+    font-size: 15px;
+    width: 250px;
+    padding: 10px;
+  }
+  .profile-info{
+    font-size: 15px;
+  }
+  .profile-info img{
+    width: 80px;
+    height: 80px;
+  }
+  .profile-info-text .name-text{
+    font-size: 20px;
+  }
+  .message-text{
+    font-size: 15px;
+  }
+  .last-active{
+    font-size: 15px;
+  }
+  .minute-text{
+    font-size: 15px;
+  }
+  .buyer-message-container {
+    margin: 100px;
+  }
 }
 </style>

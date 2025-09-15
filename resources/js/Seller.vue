@@ -13,9 +13,9 @@
                 <h3 class="brand-title">Timbershoppe</h3>
             </div>
             <a class="navbar-brand">{{ displayTitle }}</a>
-            <div class="navbar-right">
+            <div class="navbar-right" v-if="user.shop">
                 <div class="profile-circle" @click="toggleProfileBox">
-                    <i class="fa-regular fa-circle-user" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.4);"></i>
+                    <img style="width: 30px; height: 30px;" :src="'/'+user.shop.profile_photo">
                 </div>
                 <div v-if="showProfileBox" class="floating-box profile-box">
                     <p>Profile Options</p>
@@ -27,9 +27,25 @@
                 <span @click="toggleNotifBox" style="cursor:pointer">
                   <i class="fa-solid fa-bell" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.5);"></i>
                 </span>
+                
                 <div v-if="showNotifBox" class="floating-box notif-box">
-                    <p>Notifications</p>
-                    <router-link to="/seller/notifications">View All</router-link>
+                    <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between">
+                        <p style="font-size: 20px;">Notifications</p>
+                        <router-link to="/seller/notifications" style="text-decoration: underline;">View All</router-link>
+                    </div>
+                    <div 
+                            style="display: flex; 
+                            flex-direction: row; 
+                            width: 100%; 
+                            align-items: center; 
+                            justify-content: space-between;
+                            gap: 50px;" 
+                    :class="{is_unread: !notify.seen}"
+                    v-for="notify in notifications" :key="notify"
+                    >
+                        <label>{{ notify.text }}s</label>
+                        <label>{{ returnFormatTime(notify.created_at) }}</label>
+                    </div>
                 </div>
                 <button @click="goLogout">Logout</button>
             </div>
@@ -173,6 +189,9 @@ export default{
             unread_notif: false,
             isMobile: false,
             active_status: null,
+            messageEventListener: null,
+            notifyEventListener: null,
+            notifications: [],
         }
     },
     computed: {
@@ -201,7 +220,17 @@ export default{
     beforeUnmount() {
         window.removeEventListener('resize', this.checkScreenSize);
     },
+    unmounted(){
+        this.notifyEventListener = null;
+        this.messageEventListener = null;
+    },
     methods: {
+        returnFormatTime(datetime){
+
+            const date = new Date(datetime);
+
+            return `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`;
+        },
         returnActiveStatus(active_status){
             this.active_status = active_status;
             console.log('active status: ',this.active_status);
@@ -238,6 +267,8 @@ export default{
             this.page = switchPage;
         },
         toggleProfileBox() {
+
+            return;
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
         },
@@ -269,6 +300,8 @@ export default{
 
             console.log(res.data.message);
 
+            this.notifications = res.data.notifications;
+            console.log('notifications: ',this.notifications);
             this.unread_notif = res.data.message;
         },
 
@@ -276,33 +309,39 @@ export default{
             await this.returnUserInfo();
             console.log(`message.${this.user.name}`)
 
-            Echo.channel(`message.${this.user.name}`)
-                .listen('.message.sent', (event) => {
-                    this.unread_notif = true;
-                    console.log('NEEEH AGIIIIIII');
-                    this.notifymessage = "You have new notification. Check it out.";
-                    this.is_visible = true;
-            });
+            this.messageEventListener = Echo.channel(`message.${this.user.name}`);
 
-            Echo.channel(`sellernotify.${this.user.name}`)
-                .listen('.sellernotify.sent', async(event) => {
-                    console.log('HELLO WORLDDDDDD');
-                    this.unread_notif = true;
-                    console.log('NEEEH AGIIIIIII');
-                    this.notifymessage = "You have new notification. Check it out.";
-                    this.is_visible = true;
-            });
+            this.messageEventListener.listen('.message.sent', (event) => {
+                                            this.unread_notif = true;
+                                            console.log('NEEEH AGIIIIIII');
+                                            this.notifymessage = "You have new notification. Check it out.";
+                                            this.is_visible = true;
+                                        });
+            
+            this.notifyEventListener = Echo.channel(`sellernotify.${this.user.name}`);
+
+            this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
+                                            console.log('HELLO WORLDDDDDD');
+                                            this.unread_notif = true;
+                                            console.log('NEEEH AGIIIIIII');
+                                            this.notifymessage = "You have new notification. Check it out.";
+                                            this.is_visible = true;
+                                        });
         }
     }
 }
 </script>
 
 <style scoped>
+.is_unread{
+    background-color: rgb(198, 198, 198);
+}
 .floating-box {
   position: absolute;
   top: 3.5em;
   right: 2em;
-  min-width: 180px;
+  min-width: 450px;
+  height: 300px;
   background: #fff;
   color: #333;
   border-radius: 8px;
@@ -312,13 +351,16 @@ export default{
   display: flex;
   flex-direction: column;
   gap: 0.5em;
+  overflow: auto;
+  padding: 20px;
+  font-size: 12px;
 }
 .profile-box {
   top: 3.5em;
   right: 7em;
 }
 .notif-box {
-  top: 3.5em;
+  top: 4.5em;
   right: 2em;
 }
 

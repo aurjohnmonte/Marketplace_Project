@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageEvent;
+use App\Events\NotifyEvent;
 use App\Events\SellerNotifyEvent;
 use App\Models\Follower;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Product;
+use App\Models\Record;
 use App\Models\Review;
 use App\Models\Shop;
 use App\Models\User;
@@ -563,6 +565,110 @@ class BuyerController extends Controller
                                          'username'=> $user->name,
                                          'user' => $user]);
             }
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function record_respond(Request $req){
+        try{
+            
+            $action = $req->action;
+
+            $record = Record::where('id', $req->record_id)->first();
+
+            if(!$record){
+                return response()->json(['message' => 'record not found']);
+            }
+
+            if($action === 'confirm'){
+
+                $record->status = 'confirmed';
+            }
+            else{
+                $record->status = 'ignored';
+            }
+
+            if($record->save()){
+
+                //this notification for updating the notify from buyer
+                $notification = Notification::where('id', $req->notify_id)->first();
+
+                if(!$notification){
+                    return response()->json(['message' => 'notification not exist']);
+                }
+
+                $notification->status = 'answered';
+
+                if($notification->save()){
+                    //this notification is for the seller to notify him/her that buyer answered his/her record confirmation
+                    $notify = new Notification();
+
+                    $user = User::where('id', $req->user_id)->first();
+
+                    $notify->from_id = $req->user_id;
+                    $notify->seen = 0;
+                    $notify->type = 'customer record';
+                    $notify->record_id = $record->id;
+                    $notify->product_id = $req->product_id;
+                    $notify->user_id = $req->seller_id;
+                    $notify->status = 'answered';
+                    $notify->text = "$user->firstname $user->lastname has $action the record confirmation you sent.";
+
+                    if($notify->save()){
+                        
+                        if($action === 'confirm'){
+                            $message = new Message();
+
+                            $message->from_id = $req->seller_id;
+                            $message->to_id = $req->user_id;
+                            $message->messages = "Hi, you've purchase my product. Your review will be a big help for my store. Please click the view above.";
+                            $message->mention = $req->product_id;
+                            $message->seen = 0;
+                            $message->seen_at = null;
+
+                            if($message->save()){
+                                $notify = new Notification();
+                                $message = $notify->addNotification('message', $req->seller_id, null, $req->user_id, null, $message->id);
+
+                                $buyer = User::where('id', $req->user_id)->first();
+
+                                if($buyer){
+                                    broadcast(new MessageEvent($buyer->name));
+                                    broadcast(new NotifyEvent($req->user_id, 'specific'));
+                                }
+
+                                return response()->json(['message'=>$message]);
+                            }
+                        }
+                    }
+
+                    broadcast(new SellerNotifyEvent($req->seller_username));
+                    return response()->json(['message' => 'success']);
+                }
+            }
+
+            return response()->json(['message' => 'errpr']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function unfollow(Request $req){
+        try{
+            $follows = Follower::where('user_id', $req->user_id)
+                               ->where('follower_id', $req->follower_id)
+                               ->first();
+
+            if(!$follows){
+                return response()->json(['message' => 'Something went wrong. Please reload the page']);
+            }
+
+            $follows->delete();
+
+            return response()->json(['message' => 'success']);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex->getMessage()]);

@@ -136,4 +136,17 @@ export default {
   padding: 20px;
   z-index: 1000; 
 }
+@media (min-width: 768px){
+  .notify-text{
+    font-size: 15px;
+  }
+  .notify-time{
+    font-size: 15px;
+  }
+  .notify-container{
+    width: 500px;
+    height: 400px;
+    right: 5%;
+  }
+}
 </style>

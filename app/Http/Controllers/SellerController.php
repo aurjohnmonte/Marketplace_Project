@@ -376,8 +376,20 @@ class SellerController extends Controller
 
             if($record->save()){
                 $notify = new Notification();
-                $message = $notify->addNotification('customer record', $data->seller_id, $data->product_id, $data->user_id, null, null);
-                broadcast(new NotifyEvent($data->user_id, 'specific'));
+                $shop = Shop::where('user_id',$data->seller_id)->first();
+
+                $notify->from_id = $data->seller_id;
+                $notify->seen = 0;
+                $notify->type = 'customer record';
+                $notify->record_id = $record->id;
+                $notify->product_id = $data->product_id;
+                $notify->user_id = $data->user_id;
+                $notify->status = 'pending';
+                $notify->text = "$shop->name has added you in the transaction record. Confirm if this is true";
+
+                if($notify->save()){
+                    broadcast(new NotifyEvent($data->user_id, 'specific'));
+                }
 
                 return response()->json(['message' => 'successful']);
             }
@@ -396,6 +408,34 @@ class SellerController extends Controller
             Log::info('records', ['records' => $records]);
 
             return response()->json(['records' => $records]);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function deleteRecord(Request $req){
+        try{
+
+            $record_id = $req->id;
+
+            $record = Record::where('id', $record_id)->first();
+
+            if(!$record){
+                return response()->json(['message' => 'empty']);
+            }
+
+            $notify = Notification::where('record_id', $record_id)->get();
+
+            if(!$notify->isEmpty()){
+                foreach($notify as $n){
+                    $n->delete();
+                }
+            }
+
+            $record->delete();
+
+            return response()->json(['message' => 'success']);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex]);

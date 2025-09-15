@@ -85,4 +85,16 @@ export default {
   display: flex;
   flex-direction: column;
 }
+@media (min-width: 768px){
+  .profile-container{
+    left: 8%;
+    top: 8%;
+    width: 300px;
+    height: 220px;
+    font-size: 20px;
+  }
+  .profile-content label{
+    font-size: 15px;
+  }
+}
 </style>

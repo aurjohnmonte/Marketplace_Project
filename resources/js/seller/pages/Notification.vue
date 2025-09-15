@@ -114,6 +114,8 @@ import axios from 'axios';
 export default {
     data() {
         return {
+            messageEventListener: null,
+            notifyEventListener: null,
             selectedNotification: null,
             systemProfile: systemLogo,
             notifications: [],
@@ -359,6 +361,10 @@ export default {
             }
         }
     },
+    unmounted(){
+        this.notifyEventListener = null;
+        this.messageEventListener = null;
+    },
     async mounted(){
 
         await this.returnNotifications();
@@ -368,16 +374,17 @@ export default {
         console.log(store.currentUser_info);
         console.log(store.selected_shop);
 
+        this.messageEventListener = Echo.channel(`message.${this.store.currentUser_info.name}`);
 
-        Echo.channel(`message.${this.store.currentUser_info.name}`)
-            .listen('.message.sent', async (event) => {
-                await this.returnNotifications();
-        });
+        this.messageEventListener.listen('.message.sent', async (event) => {
+                                        await this.returnNotifications();
+                                    });
+        
+        this.notifyEventListener = Echo.channel(`sellernotify.${this.store.currentUser_info.name}`);
 
-        Echo.channel(`sellernotify.${this.store.currentUser_info.name}`)
-            .listen('.sellernotify.sent', async(event) => {
-                await this.returnNotifications();
-        });
+        this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
+                                        await this.returnNotifications();
+                                    });
     }
 }
 </script>
