@@ -1,8 +1,13 @@
 <template>
     <div class="form-content">
-        <label style="color: green; font-weight: bolder;">{{ this.message }}</label>
         <form method="POST" @submit.prevent="handleSubmit">
-            <h1 style="margin-bottom: .5em;">LOGIN</h1>
+            <h1 style="margin-top: .5em;">LOGIN</h1>
+            <div class="form-success" v-if="message">
+                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+                </svg>
+                <label>{{ this.message }}</label>
+            </div>
             <div
                 v-for="field in requiredInfo"
                 :key="field.id"
@@ -122,6 +127,20 @@ export default {
   border-radius: 10px;
   border-radius: 10px;
   box-sizing: border-box;
+}
+
+.form-success {
+    display: flex;
+    align-items: center;
+    padding: .5em .8em;
+    border-radius: .8em;
+    font-size: .7em;
+    background-color: rgb(163, 224, 163);
+    margin-bottom: 1em;
+}
+
+.form-success svg {
+    width: 2em;
 }
 
 .form-content{

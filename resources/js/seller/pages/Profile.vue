@@ -2,9 +2,9 @@
     <div class="profile-container" @click="handleClickOutside" v-if="shop">
         <div class="profile-box">
             <div class="profile-header">
-                <img :src="'/'+shop.cover_photo" alt="cover photo" class="cover-photo">
+                <img :src="'/'+shop.cover_photo" alt="Enter Cover Photo" class="cover-photo">
                 <div class="profile-img">
-                    <img :src="'/'+shop.profile_photo" alt="">
+                    <img :src="'/'+shop.profile_photo" alt="Profile Picture">
                 </div>
 
                 <div class="settings-menu" @click.stop>

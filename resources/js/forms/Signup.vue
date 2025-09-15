@@ -67,15 +67,19 @@
                 <div v-for="info in pair" :key="info.id" class="input-box">
                     <!-- template for select type input with options-->
                     <template v-if="info.type === 'select'">
-                        <select
-                            :name="info.name"
-                            :id="info.id"
-                            v-model="formData[info.name]"
-                            @input="validateField(info.name)"
+                         <select
+                            v-model="formData.gender"
+                            id="gender"
+                            name="gender"
+                            @blur="validateField('gender')"
                         >
-                            <option v-for="option in info.options" :key="option.value" :value="option.value">{{ option.text }}</option>
+                            <option value="">Select Gender</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
                         </select>
-                        <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">
+                            {{ info.label }}
+                        </label>
                     </template>
 
                     <!-- for tel type inputs like contact numbers -->
@@ -90,11 +94,6 @@
                             required novalidate
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-                        <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
-                            <ul style="padding-left: 1.2em; margin: 0;">
-                                <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
-                            </ul>
-                        </span>
                     </template>
 
                     <!-- for other input types that is not mentioned above -->
@@ -109,11 +108,6 @@
                             required
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-                        <span v-if="validationMessages[info.name] && validationMessages[info.name].length" class="error-message">
-                            <ul style="padding-left: 1.2em; margin: 0;">
-                                <li v-for="(msg, idx) in validationMessages[info.name]" :key="idx">{{ msg }}</li>
-                            </ul>
-                        </span>
                     </template>
                 </div>
             </div>
@@ -165,7 +159,6 @@
                             @input="validateField(info.name)"
                         />
                         <label :for="info.id" class="label" >{{ info.label }}</label>
-                        <span v-if="validationMessages[info.name]" class="error-message" >{{ validationMessages[info.name].join(', ') }}</span>
                     </template>
                 </div>
             </div>
@@ -182,9 +175,6 @@
                     @change="validateField('location_access')"
                 >
                 <label @click="show_permission = true">Allow location access to the nearest shop.</label>
-                <span v-if="validationMessages.location_access.length" class="error-message">
-                    {{ validationMessages.location_access[0] }}
-                </span>
             </div>
 
             <div class="checkbox">
@@ -197,12 +187,18 @@
                     @change="validateField('terms')"
                 >
                 <label @click="show_permission = true">I agree to the <strong>Terms</strong> and <strong>Conditions</strong></label>
-                <span v-if="validationMessages.terms.length" class="error-message">
-                    {{ validationMessages.terms[0] }}
-                </span>
             </div>
         </div>
 
+        <!-- This is for the warning messages -->
+        <div v-if="activeErrors.length" class="form-warnings">
+            <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
+            </svg>
+            <ul>
+                <li v-for="(msg, i) in activeErrors" :key="i">{{ msg }}</li>
+            </ul>
+        </div>
         <div class="btn-container">
             <button v-if="accountInfo === false"
                 class="form-btn style"
@@ -284,7 +280,7 @@ export default {
                     { label: 'Firstname', type: 'text', name: 'firstname', id: 'firstname'},
                     { label: 'Middle Initial', type: 'text', name: 'm_initial', id: 'm_initial', max: 1},
                     { label: 'Lastname', type: 'text', name: 'lastname', id: 'lastname'},
-                    { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: '', text: 'Select Gender' }, { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
+                    { label: 'Gender', type: 'select', name: 'gender', id: 'gender', options: [ { value: 'male', text: 'Male' }, { value: 'female', text: 'Female' } ] },
                     { label: 'Birthday', type: 'date', name: 'birthday', id: 'birthday',},
                     { label: 'Age', type: 'number', name: 'age', id: 'age', value: null,},
                     { label: 'Email', type: 'email', name: 'email', id: 'email'},
@@ -335,6 +331,19 @@ export default {
         }
     },
     computed: {
+        activeErrors() {
+            // pick only relevant fields for the current step
+            const personalFields = ["firstname", "lastname", "m_initial", "email", "contact_no", "gender", "birthday", "age"];
+            const accountFields = ["username", "password", "confirm_password", "terms", "location_access", "profile_image"];
+
+
+            const currentFields = this.accountInfo ? accountFields : personalFields;
+
+            return Object.entries(this.validationMessages)
+            .filter(([field]) => currentFields.includes(field))
+            .flatMap(([, messages]) => messages)
+            .filter(msg => msg && msg.trim() !== '');
+        },
         isFormValid() {
             // List of required fields for each user type
             const requiredFields = this.userType === 'buyer'
@@ -422,30 +431,26 @@ export default {
         validationRules(field, value) {
             const rules = {
                 firstname: [
-                    v => v.trim().length >= 2 || 'Firstname must be at least 2 characters',
+                    v => v.length >= 2 || 'Firstname must be at least 2 characters',
                     v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces',
                     v => !/[0-9]/.test(v) || 'No numbers allowed',
-                    v => !/[^a-zA-Z0-9\s]/.test(v) || 'No symbols allowed.',
-                    v => v.split(/\s+/).length === new Set(v.split(/\s+/)).size || 'No repeated words.',
-                    v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
+                    v => !/[^a-zA-Z\s]/.test(v) || 'No symbols allowed.',
+                    v => !/\s{2,}/.test(v) || 'Only single spaces allowed.',
+                    v => /^[A-Z][a-z]+(\s[A-Z][a-z]*)*$/.test(v) || 'Each word in firstname must start with a capital letter.'
                 ],
                 m_initial: [
                     v => v === '' || /^[A-Z]\.?$/.test(v) || 'Middle initial must be an uppercase letter.'
                 ],
                 lastname: [
-                    v => v.trim().length >= 2 || 'Lastname must be at least 2 characters.',
+                    v => v.length >= 2 || 'Lastname must be at least 2 characters.',
                     v => !/^\s|\s$/.test(v) || 'No leading or trailing spaces.',
                     v => !/[0-9]/.test(v) || 'No numbers allowed.',
                     v => !/[^a-zA-Z0-9\s]/.test(v) || 'No symbols allowed.',
-                    v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word must start with a capital letter.'
+                    v => /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/.test(v) || 'Each word in lastname must start with a capital letter.'
                 ],
                 birthday: [
                     v => !!v || 'Birthday is required.',
-                    v => new Date(v) <= new Date() || 'Birthday cannot be in the future.',
-                    v => {
-                        const age = this.calculateAge(v);
-                        return (age < 120) || 'Age must be less than 120.';
-                    }
+                    v => new Date(v) <= new Date() || 'Birthday cannot be in the future.'
                 ],
                 age: [
                     v => v !== '' && !isNaN(v) || 'Age is required.',
@@ -518,13 +523,6 @@ export default {
                 this.fieldStatus.age = true;
                 this.validationMessages.age = [];
                 return;
-            }
-
-            // Only trim if value is a string
-            if (typeof value === 'string') {
-                if (field === 'email') value = value.trim().toLowerCase();
-                else value = value.trim();
-                this.formData[field] = value;
             }
 
             // If the field is empty, clear errors and status
@@ -1002,6 +1000,35 @@ export default {
 .input-box.has-error {
     margin-bottom: .2em;
     width: 1em;
+}
+
+.form-warnings {
+  width: 73%;
+  margin: 1em 0;
+  padding: 0.8em;
+  background: #ffe6e6;
+  border: 1px solid #ff4d4d;
+  border-radius: .8em;
+  color: #cc0000;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.form-warnings svg {
+    width: 3em;
+    margin-left: 1em;
+}
+
+.form-warnings ul {
+  padding-left: 1.2em;
+  margin: 0;
+  list-style: none;
+}
+
+.form-warnings ul li a {
+  margin-bottom: 0.3em;
 }
 
 .checkbox input {

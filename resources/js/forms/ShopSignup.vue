@@ -50,6 +50,9 @@
                 <template v-if="details.type === 'file'">
                     <div class="shop-btns">
                         <div class="shop-img-btn">
+                            <span v-if="shopData[details.name]" class="file-name">
+                                {{ shopData[details.name]?.name }}
+                            </span>
                             <input
                                 :type="details.type"
                                 :name="details.name"
@@ -68,9 +71,6 @@
                             >
                                 Upload Image
                             </button>
-                            <span v-if="shopData[details.name]" class="file-name">
-                                {{ shopData[details.name]?.name }}
-                            </span>
                         </div>
 
                         <div class="location-btn">
@@ -96,7 +96,7 @@
                     <hr>
                     <div class="category-label">
                         <h5>{{ details.label }}</h5>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%;">
+                        <div style="display: flex; flex-wrap: wrap; gap: 8px; width: 100%; padding: 0 .5em;">
                             <template v-for="(option, idx) in details.options" :key="idx">
                                 <div style="display: flex; align-items: center; width: 48%; margin-bottom: 4px;">
                                     <input
@@ -157,10 +157,10 @@ export default {
                         { value: 'Musical Instrument', label: 'Musical Instrument' },
                         { value: 'Decorative Items', label: 'Decorative Items' },
                         { value: 'Games', label: 'Games' },
-                        { value: 'Outdoor Decor', label: 'Outdoor Decor' },
+                        { value: 'Outdoor Enhancements', label: 'Outdoor Enhancements' },
                         { value: 'Home Decor', label: 'Home Decor' },
-                        { value: 'Furniture', label: 'furniture' },
-                        { value: 'Home Decor', label: 'home decor' },
+                        { value: 'Furniture', label: 'Furniture' },
+                        { value: 'Personal accessories', label: 'Personal accessories' },
                     ]
                 },
                 {label: 'Shop Description', type: 'textarea', name: 'shop_description', id: 'shop_description' },
@@ -305,7 +305,7 @@ export default {
     max-width: 500px;
     width: 100%;
     margin: 0 auto;
-    padding: 1em;
+    padding: .5em 1em;
     box-sizing: border-box;
     border-radius: 8px;
 }
@@ -316,6 +316,7 @@ export default {
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    margin-bottom: 1em;
 }
 
 .input-box {
@@ -329,7 +330,7 @@ export default {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-top: 1em;
+    margin: 0 0 1em;
     gap: 1em;
 }
 
@@ -355,9 +356,9 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     color: #333;
-    margin: 1em 0;
+    margin: .5em 0;
     text-transform: capitalize;
-    font-size: .9em;
+    font-size: .8em;
 }
 
 .input-box .category-label h5{
@@ -374,7 +375,7 @@ export default {
     gap: 1rem;
     border-top: 1px solid #8d8b8b;
     border-bottom: 1px solid #8d8b8b;
-    padding: .5em 0;
+    padding: .5em;
 }
 
 .shop-img-btn {
@@ -388,7 +389,6 @@ export default {
 
 .img-btn {
     width: 100%;
-    padding:  10px;
     font-size: 12px;
     border: 1px solid #9e363a;
     border-radius: 8px;
@@ -415,7 +415,7 @@ export default {
 .location-btn button {
     width: 100%;
     padding:  .78em;
-    font-size: 12px;
+    font-size: 10px;
     border: 1px solid #9e363a;
     border-radius: 8px;
     background-color: #ffffff;
@@ -435,6 +435,7 @@ export default {
     font-weight: 600;
     margin-bottom: 6px;
     color: #333333;
+    padding-top: .5em;
 }
 
 .shop-desc {
@@ -442,7 +443,7 @@ export default {
     max-width: 100%;
     min-height: 80px;
     padding: 12px;
-    font-size: 1rem;
+    font-size: .9em;
     border: 1px solid #9e363a;
     border-radius: 10px;
     background: #fffbe6;
@@ -457,12 +458,13 @@ export default {
     outline: none;
 }
 .checkbox{
-    margin-top: 10px;
+    margin-top: 5px;
 }
 .checkbox label{
     color: rgb(57, 57, 218);
     text-decoration: underline;
     cursor: pointer;
+    font-size: 15px;
 }
 .loading-overlay{
     background-color: rgba(0, 0, 0, 0.712);
@@ -473,6 +475,5 @@ export default {
 
 hr {
     width: 100%;
-    margin-bottom: .5em;
 }
 </style>
