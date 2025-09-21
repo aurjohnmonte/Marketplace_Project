@@ -178,4 +178,13 @@ export default {
   font-size: 12px;
   margin-top: 2px;
 }
+
+@media (max-width: 780px) {
+    .login-container{
+        padding: 1em;
+    }
+    .form-btn {
+        margin-bottom: 1em;
+    }
+}
 </style>

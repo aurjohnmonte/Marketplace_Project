@@ -786,8 +786,8 @@ export default {
     background-color:	#F5F5DC;
     display: flex;
     flex-direction: column;
-    width:  38em;
-    min-width: 320px;
+    width:  35em;
+    max-width: 100%;
     padding: 0 0 1em;
     margin: 0 2em;
     height: 100%;
@@ -851,7 +851,7 @@ export default {
     text-align: left;
     width: 100%;
     text-align: center;
-    margin: 1em 0;
+    margin: .8em 0;
 }
 
 .form-header h1{
@@ -863,7 +863,7 @@ export default {
 }
 
 .information-container {
-    margin: 1em;
+    margin: 0;
 }
 
 /* section header */
@@ -895,11 +895,13 @@ export default {
   align-items: flex-start;
   width: 100%;
   position: relative;
+  margin-bottom: 0rem;
 }
 
 .input-box input,
 .input-box select {
-  width: 17em;
+  width: 100%;
+  max-width: 17em;
   padding:  7px 8px;
   font-size: 12px;
   border: 1px solid #9e363a;
@@ -968,7 +970,8 @@ export default {
 
 /* img upload btn */
 .img-btn {
-  width: 17em;
+  width: 100%;
+  max-width: 17em;
   margin: 0;
   padding:  7px 8px;
   font-size: 12px;
@@ -997,14 +1000,10 @@ export default {
     margin-left: .2em;
 }
 
-.input-box.has-error {
-    margin-bottom: .2em;
-    width: 1em;
-}
 
 .form-warnings {
   width: 73%;
-  margin: 1em 0;
+  margin: 0;
   padding: 0.8em;
   background: #ffe6e6;
   border: 1px solid #ff4d4d;
@@ -1038,7 +1037,7 @@ export default {
 .btn-container {
     display: flex;
     gap: 1em;
-    margin: 1em 0;
+    margin: .5em 0;
 }
 
 /* submit/next button */
@@ -1067,12 +1066,11 @@ export default {
   .signup-container {
     width: 100%;
     min-width: 0;
-    border-radius: 0;
-    border-width: 1px 0 1px 0;
     box-sizing: border-box;
+    border-radius: 1.1em;
   }
   .form-content {
-    padding: 1rem 0.2rem;
+    padding: 0;
   }
   .form-header h1 {
     font-size: 1.2rem;
@@ -1141,6 +1139,7 @@ export default {
   padding: 2rem;
   border-radius: 10px;
   width: 500px;
+  max-width: 90vw;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
   text-align: center;
   position: relative;
@@ -1182,6 +1181,31 @@ export default {
 
 .otp-submit:hover {
   background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+
+}
+
+@media (max-width: 768px) {
+    .signup-container{
+        padding: 0;
+    }
+    .user-type {
+        flex-direction: row;
+    }
+    .typebox {
+        width: 100%;
+    }
+}
+
+@media (max-width: 600px) {
+
+}
+
+@media (max-width: 480px) {
+
 }
 </style>
 

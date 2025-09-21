@@ -476,4 +476,33 @@ export default {
 hr {
     width: 100%;
 }
+
+
+/* Responsive Design */
+@media (max-width: 900px) {
+    .shop-row {
+        width: 100%;
+    }
+    .shop-row .input-box {
+        width: auto;
+    }
+    .input-text {
+        width: 100%;
+        max-width: 25em;
+    }
+}
+
+@media (max-width: 600px) {
+    .shop-row {
+        width: 100%;
+        flex-direction: column;
+    }
+    .shop-row .input-box {
+        width: auto;
+    }
+    .input-text {
+        max-width: 25em;
+        width: 50em;
+    }
+}
 </style>
