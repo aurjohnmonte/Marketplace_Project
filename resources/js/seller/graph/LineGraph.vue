@@ -1,8 +1,15 @@
 <template>
-  <div style="width: 100%; height: 100%; object-fit: contain; display: flex; align-items: center; justify-content: center;" v-if="chartData && chartOptions">
-    <LineChart :data="chartData" :options="chartOptions" style="position: relative;"/>
+  <div
+    class="line-graph-container"
+    v-if="chartData && chartOptions"
+  >
+    <LineChart
+      :data="chartData"
+      :options="chartOptions"
+    />
   </div>
 </template>
+
 
 <script>
 import { useDataStore } from '../../stores/dataStore'
@@ -180,21 +187,36 @@ export default {
 </script>
 
 <style scoped>
+.line-graph-container {
+  width: 100%;
+  height: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
 
+/* Make canvas adapt inside */
+.line-graph-container canvas {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100%;
+  max-height: 100%;
+}
 
-/* ===== RESPONSIVE DESIGN ===== */
+/* ===== Responsive heights ===== */
 
 /* Small mobile devices */
 @media (max-width: 480px) {
   .line-graph-container {
-    min-height: 250px;
+    min-height: 220px;
   }
 }
 
 /* Mobile - Medium devices */
 @media (max-width: 768px) {
   .line-graph-container {
-    min-height: 300px;
+    min-height: 280px;
   }
 }
 
@@ -202,6 +224,20 @@ export default {
 @media (min-width: 769px) and (max-width: 1024px) {
   .line-graph-container {
     min-height: 350px;
+  }
+}
+
+/* Desktop devices */
+@media (min-width: 1025px) {
+  .line-graph-container {
+    min-height: 420px;
+  }
+}
+
+/* Large desktop devices */
+@media (min-width: 1440px) {
+  .line-graph-container {
+    min-height: 500px;
   }
 }
 

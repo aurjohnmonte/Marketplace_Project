@@ -27,19 +27,19 @@
                 <span @click="toggleNotifBox" style="cursor:pointer">
                   <i class="fa-solid fa-bell" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.5);"></i>
                 </span>
-                
+
                 <div v-if="showNotifBox" class="floating-box notif-box">
                     <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between">
                         <p style="font-size: 20px;">Notifications</p>
                         <router-link to="/seller/notifications" style="text-decoration: underline;">View All</router-link>
                     </div>
-                    <div 
-                            style="display: flex; 
-                            flex-direction: row; 
-                            width: 100%; 
-                            align-items: center; 
+                    <div
+                            style="display: flex;
+                            flex-direction: row;
+                            width: 100%;
+                            align-items: center;
                             justify-content: space-between;
-                            gap: 50px;" 
+                            gap: 50px;"
                     :class="{is_unread: !notify.seen}"
                     v-for="notify in notifications" :key="notify"
                     >
@@ -317,7 +317,7 @@ export default{
                                             this.notifymessage = "You have new notification. Check it out.";
                                             this.is_visible = true;
                                         });
-            
+
             this.notifyEventListener = Echo.channel(`sellernotify.${this.user.name}`);
 
             this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
@@ -514,17 +514,19 @@ export default{
     }
 
     .brand-title {
-        font-size: 1.2em !important;
-        margin: 0 0.5em 0 0 !important;
+        font-size: 1em !important;
+        margin: 0;
     }
 
     .navbar-brand {
-        font-size: 1em;
+        font-size: .5em;
         display: none;
     }
 
     .navbar-right {
-        gap: 0.5em;
+        gap: 0em;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .desktop-logout {
@@ -547,7 +549,23 @@ export default{
     }
 
     .profile-circle {
-        padding: 0.25rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+    }
+
+    .profile-circle img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    .navbar-right i.fa-bell {
+        margin-right: .2em;
+    }
+
+    .navbar-right button {
+        font-size: .9em;
+        font-weight: 500;
     }
 }
 

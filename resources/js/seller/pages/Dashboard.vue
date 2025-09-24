@@ -112,20 +112,22 @@
                     <div class="stats-content">
                         <div class="stat-item">
                             <span class="stat-label" style="font-weight: bolder;">Gender</span>
-
                             <div style="display: flex; flex-direction: column; margin-top: 10px; gap: .5em; font-size: smaller;">
-                                <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
-                                    <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
-                                        <div class="follower-gender-male" :style="{width: `${computemalepercent}%`}"></div>
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Male - ({{ computemalepercent }}%)</label>
+                                    <div class="progress-bar" style="margin-left: 10px;">
+                                        <div class="follower-gender-male fill" :style="{width: `${computemalepercent}%`}"></div>
                                     </div>
-                                    <label style="margin: 0;">Male - ({{ computemalepercent }}%)</label>
                                 </div>
-                                <div style="display: flex; flex-direction: row; align-items: center; gap: 20px;">
-                                    <div style="width: 300px; background-color: #CACACA; height: 20px; position: relative;">
-                                        <div class="follower-gender-female" :style="{width: `${computefemalepercent}%`}"></div>
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Female - ({{ computefemalepercent }}%)</label>
+                                    <div class="progress-bar">
+                                        <div class="follower-gender-female fill" :style="{width: `${computefemalepercent}%`}"></div>
                                     </div>
-                                    <label style="margin: 0;">Female - ({{ computefemalepercent }}%)</label>
                                 </div>
+
                             </div>
                         </div>
                         <div class="stat-item">
@@ -146,8 +148,9 @@
                                     type="text"
                                     v-model="searchQuery"
                                     placeholder="Search products..."
+                                    @focus="startSearching"
+                                    @input="startSearching"
                                     @keyup.enter="performSearch"
-                                    @input="handleSearchInput"
                                     class="search-input"
                                 >
                                 <i class="fi fi-sr-search search-icon"></i>
@@ -159,7 +162,7 @@
                         </div>
                     </div>
                     <div class="table-section">
-                        <div v-if="searchResults.length > 0" class="search-results">
+                        <div v-if="searchQuery && searchResults.length > 0" class="search-results">
                             <h4>Search Results ({{ searchResults.length }})</h4>
                             <div class="table-wrapper">
                                 <table class="products-table">
@@ -213,18 +216,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-for="(product, index) in allProducts" :key="index" class="table-row">
-                                            <td class="product-name-cell">{{ product.name }}</td>
-                                            <td class="category-cell">{{ product.category }}</td>
-                                            <td class="sales-cell">{{ product.totalSold || 0 }}</td>
+                                        <tr v-for="(result, index) in searchResults" :key="index" class="table-row">
+                                            <td class="product-name-cell">{{ result.name }}</td>
+                                            <td class="category-cell">{{ result.category }}</td>
+                                            <td class="sales-cell">{{ result.description }}</td>
                                             <td class="rating-cell">
                                                 <div class="rating-display">
-                                                    <span class="rating-score">{{ product.rating }}</span>
+                                                    <span class="rating-score">{{ result.overall_rate }}</span>
                                                     <i class="fi fi-sr-star filled"></i>
                                                 </div>
                                             </td>
-                                            <td class="reviews-cell">{{ product.reviewCount || 0 }}</td>
-                                            <td class="followers-cell">{{ product.followers || 0 }}</td>
+                                            <td class="reviews-cell">{{ result.total_views || 0 }}</td>
+                                            <td class="followers-cell">{{ result.followers || 0 }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -364,7 +367,12 @@ export default {
             console.log(this.follower_statistics);
             return result.toFixed(2);
         },
-
+        filteredProducts() {
+            if (!this.searchQuery) return [];
+            return this.products.filter(p =>
+            p.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+            );
+        }
     },
     async mounted() {
 
@@ -617,7 +625,18 @@ export default {
             this.searchResults = [];
         },
 
+        startSearching() {
+            if (this.searchQuery.trim() !== '') {
+            this.isSearching = true;
+            this.searchResults = []; // clear results while typing
+            } else {
+            this.isSearching = false;
+            }
+        },
+
         performSearch() {
+            this.isSearching = false; // stop showing "Searching..."
+
             if (this.searchQuery.trim() === '') {
                 // If search query is empty, show all products
                 this.searchResults = this.orig_products;
@@ -927,14 +946,6 @@ export default {
         'box chart';
 }
 
-.follower-card {
-    grid-area: card;
-    background-color: #b3997b;
-    display: flex;
-    gap: 1em;
-    padding: 1em;
-}
-
 .notif-card {
     grid-area: 'chart';
     background: rgb(219, 205, 184);
@@ -1185,7 +1196,6 @@ export default {
 
 .rating-display {
     display: flex;
-    flex-direction: column;
     align-items: center;
     gap: 0.3em;
 }
@@ -1336,13 +1346,56 @@ export default {
 }
 
 /* Follower Statistics styles */
+.follower-card {
+    grid-area: card;
+    background-color: #b3997b;
+    display: flex;
+    gap: 1em;
+    padding: 1em;
+    border-radius: 1em;
+}
+
 .follower-stats {
     flex: 1;
-    padding: 1em 1em 1em 1em;
+    padding: 1em;
     display: flex;
     flex-direction: column;
     background-color: #d8bdad;
     border-radius: 1em;
+}
+
+.stats-content {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: .5em;
+    padding: 1em;
+    background-color: #d8bdad;
+    border-radius: 1em;
+}
+
+/* ✅ Progress bar wrapper */
+.stat-item .progress-bar {
+    flex: 1;
+    height: 20px;
+    border-radius: 10px;
+    background-color: #CACACA;
+    overflow: hidden;
+    position: relative;
+}
+
+/* ✅ Filled bar (dynamic width from Vue inline style) */
+.stat-item .progress-bar .fill {
+    height: 100%;
+    border-radius: 10px;
+}
+
+/* ✅ Different colors */
+.follower-gender-male.fill {
+    background-color: #3498db;
+}
+.follower-gender-female.fill {
+    background-color: #e84393;
 }
 
 .follower-stats h4 {
@@ -1350,15 +1403,6 @@ export default {
     font-weight: 700;
     color: #333;
     margin: 0 0 1em 0;
-}
-
-.stats-content {
-    display: flex;
-    flex-direction: column;
-    padding: 1em;
-    gap:1em;
-    background-color: #d8bdad;
-    border-radius: 1em;
 }
 
 .total-followers {
@@ -1377,7 +1421,7 @@ export default {
 }
 
 .stat-label {
-    font-size: 0.9em;
+    font-size: 0.8em;
     color: #333;
 }
 
@@ -1386,8 +1430,11 @@ export default {
     grid-area: box;
     display: flex;
     flex-direction: column;
-    padding: 1em .2em .2em .2em;
+    padding: 1em;
     gap: 1.5em;
+    border-radius: 1em;
+    width: 100%;
+    min-height: 25em;
 }
 
 .search-section {
@@ -1468,13 +1515,13 @@ export default {
     justify-content: center;
     overflow: hidden;
     user-select: none;
+    width: 100%;
 }
 
 /* Table styles */
 .table-wrapper {
-    width: 100%;
+    width: auto;
     border-radius: 0.8em;
-    padding: .1em;
 }
 
 /* Responsive table */
@@ -1514,7 +1561,7 @@ export default {
 
 .products-table th {
     padding: 1em 0.8em;
-    text-align: left;
+    justify-content: space-evenly;
     font-size: 0.8em;
     font-weight: 600;
     text-transform: uppercase;
@@ -1640,7 +1687,6 @@ export default {
     align-items: center;
     justify-content: center;
     gap: 1em;
-    padding: 2em;
     text-align: center;
 }
 
@@ -1678,136 +1724,59 @@ export default {
 
 /* Mobile First - Small devices */
 @media (max-width: 480px) {
-    .dashboard-container {
-        padding: 0.5rem;
-    }
-
-    .card-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .left-container {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
-        grid-template-areas:
-            'card-group-1'
-            'card-group-2'
-            'graph';
-        gap: 1rem;
-    }
-
-    .graph.cards {
-        min-height: 300px;
-        max-height: 400px;
-    }
-
-    .chart.cards {
-        min-height: 300px;
-        max-height: 400px;
-    }
-
     .dashboard-header {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-        padding: 1rem 0.5rem;
-    }
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5em;
+  }
 
-    .dashboard-header-left h3 {
-        font-size: 1.2rem;
-    }
+  .dashboard-header-left,
+  .dashboard-header-right {
+    width: 100%;
+    padding-right: 0;
+  }
 
-    .dashboard-header-left p {
-        font-size: 0.9rem;
-    }
+  .card-container,
+  .card-container-2 {
+    flex-direction: column;
+    gap: 1em;
+  }
 
-    .card-container-2 {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
 
-    .cards {
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
+  .products-table tbody tr {
+    display: flex;
+    gap: 0.5em;
+    padding: 1em;
+    border: 1px solid #ddd;
+    border-radius: 0.8em;
+    background: #fff;
+    margin-bottom: 1em;
+    justify-content: space-evenly;
+  }
 
-    .card-header h6 {
-        font-size: 0.9rem;
-    }
+  .products-table td {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85em;
+  }
 
-    .card-header p {
-        font-size: 0.8rem;
-    }
+  .products-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: #333;
+  }
+}
 
-    .product-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
+/* ===== Very Small Devices (≤ 480px) ===== */
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 0.5em;
+  }
 
-    .product-item {
-        padding: 0.5rem;
-        gap: 0.5rem;
-    }
-
-    .product-icon {
-        width: 40px;
-        height: 40px;
-    }
-
-    .product-name {
-        font-size: 0.8rem;
-    }
-
-    .review-count {
-        font-size: 0.7rem;
-    }
-
-    .rating-score {
-        font-size: 0.8rem;
-    }
-
-    .follower-stats {
-        flex-direction: column;
-        gap: 1rem;
-        text-align: center;
-    }
-
-    .follower-count {
-        font-size: 1.5rem;
-    }
-
-    .follower-label {
-        font-size: 0.8rem;
-    }
-
-    .search-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .search-input {
-        width: 100%;
-        font-size: 0.9rem;
-    }
-
-    .search-btn {
-        width: 100%;
-        padding: 0.75rem;
-    }
-
-    .table-container {
-        overflow-x: auto;
-    }
-
-    .dashboard-table {
-        font-size: 0.8rem;
-    }
-
-    .dashboard-table th,
-    .dashboard-table td {
-        padding: 0.5rem 0.25rem;
-    }
+  .card-header h6,
+  .chart-header h4 {
+    font-size: 0.9em;
+  }
 }
 
 /* Mobile - Medium devices */
@@ -1854,79 +1823,40 @@ export default {
         gap: 1rem;
         text-align: center;
     }
-
-    .search-container {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .search-input {
-        width: 100%;
-    }
-
-    .search-btn {
-        width: 100%;
-    }
-
-    .table-container {
-        overflow-x: auto;
-        margin: 0 -1rem;
-        padding: 0 1rem;
-    }
-
-    .dashboard-table {
-        min-width: 600px;
-    }
 }
 
-/* Tablet devices */
-@media (min-width: 769px) and (max-width: 991px) {
-    .dashboard-container {
-        padding: 1.5rem;
-    }
+/* ===== Tablet & Mobile (≤ 992px) ===== */
+@media (max-width: 992px) {
+  .dashboard-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
 
-    .card-container {
-        flex-direction: column;
-        gap: 1.5rem;
-    }
+  /* Make each child take full width */
+  .dashboard-content > div,
+  .card-container,
+  .card-container-2,
+  .left-container,
+  .chart,
+  .follower-card,
+  .box,
+  .notif-card {
+    width: 100%;
+    height: auto;
+  }
 
-    .left-container {
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: auto auto;
-        grid-template-areas:
-            'card-group-1 card-group-2'
-            'graph graph';
-        gap: 1.5rem;
-    }
+  .top-section {
+    flex-direction: column;
+  }
 
-    .card-container-2 {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 1.5rem;
-    }
-
-    .graph.cards {
-        grid-column: span 2;
-    }
-
-    .chart.cards {
-        grid-column: span 2;
-    }
-
-    .follower-card {
-        grid-column: span 2;
-    }
-
-    .search-container {
-        gap: 1rem;
-    }
-
-    .search-input {
-        flex: 1;
-    }
-
-    .search-btn {
-        min-width: 120px;
-    }
+  /* Reset flex for child containers */
+  .card-container,
+  .card-container-2 {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+  }
 }
 
 /* Laptop devices - Specific breakpoint for laptop screens */
@@ -2016,8 +1946,6 @@ export default {
     }
 }
 
-
-
 /* Large desktop devices */
 @media (min-width: 1440px) {
     .dashboard-container {
@@ -2077,5 +2005,91 @@ export default {
     }
 }
 
+/* ✅ Responsive adjustments */
+@media (max-width: 768px) {
+    .stat-item {
+        font-size: 0.8em;
+    }
+
+    .stat-item label {
+        font-size: 0.85em;
+    }
+
+    .stat-item .progress-bar {
+        width: 100%; /* ✅ fill parent instead of fixed 300px */
+    }
+}
+
+@media (max-width: 480px) {
+    .follower-card {
+        padding: 1em;
+        flex-direction: column;
+    }
+    .follower-stats h4 {
+        font-size: 1em;
+    }
+    .stat-label {
+        font-size: 0.9em;
+    }
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* ensures even spacing */
+    }
+    .table-section {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+}
+
+/* Tablet view */
+@media (max-width: 1024px) {
+    .card-container-2 {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        grid-template-areas:
+            "card"
+            "box"
+            "chart";
+    }
+}
+
+/* Mobile view */
+@media (max-width: 768px) {
+    .box {
+        padding: 0.8em;
+        gap: 1em;
+    }
+
+    .search-bar {
+        flex-direction: row;
+        gap: 0.5em;
+    }
+
+    .search-input-wrapper{
+        flex: 4;
+    }
+
+    .search-button {
+        flex: 1;
+        width: 100%;
+        justify-content: center;
+        font-size: .8em;
+    }
+
+    .products-table {
+        font-size: 0.7em;
+        overflow: auto;
+    }
+
+    .products-table th,
+    .products-table td {
+        font-size: 0.75em;
+        padding: 0.4em;
+    }
+
+
+}
 </style>
 

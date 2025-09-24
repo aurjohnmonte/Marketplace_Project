@@ -121,7 +121,7 @@ export default {
   width: 30%;
   min-width: 320px;
   max-width: 600px;
-  margin: 0 auto;
+  margin: 0 5em 0 0;
   padding: 3em 0;
   border: 1px solid #000;
   border-radius: 10px;
@@ -182,6 +182,7 @@ export default {
 @media (max-width: 780px) {
     .login-container{
         padding: 1em;
+        margin: 0;
     }
     .form-btn {
         margin-bottom: 1em;

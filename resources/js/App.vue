@@ -51,7 +51,6 @@ export default {
   margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   user-select: none;
   overflow: hidden;
 }
@@ -129,7 +128,6 @@ export default {
   .signup-container, .login-container {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
   }
 }
 

@@ -85,6 +85,8 @@ export default {
 .about-container {
     padding: 0 1.5rem 0 1.5rem;
     display: flex;
+    gap: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .desc {
@@ -149,7 +151,7 @@ export default {
     display: grid;
     grid-template-columns: 1fr 1fr;
     column-gap: 1em;
-    align-items: center;
+    align-items: start;
     padding: 0 .9em;
 }
 
@@ -164,7 +166,7 @@ export default {
     border-radius: 1em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.479);
     font-size: .8em;
-    transition: .3s ease-in-out
+    transition: .3s ease-in-out;
 }
 
 .details-container:hover {
@@ -182,6 +184,42 @@ export default {
     overflow-wrap: anywhere;
 }
 
+@media screen and (max-width: 767px) {
+    .about-container {
+        flex-direction: column;
+        padding: 0 1rem;
+    }
+
+    .row {
+        grid-template-columns: 1fr;
+        gap: 1em;
+    }
+
+    .details-container {
+        font-size: 0.9em;
+        grid-template-columns: 1fr;
+        text-align: left;
+    }
+
+    .details-container span {
+        display: block;
+        margin-bottom: 0.3em;
+    }
+}
+
+@media screen and (min-width: 768px) and (max-width: 1024px) {
+    .about-container {
+        flex-direction: column;
+    }
+
+    .row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 @media screen and (min-width: 1025px) {
+    .about-container {
+        flex-direction: row;
+    }
 }
 </style>
