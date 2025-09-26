@@ -1208,7 +1208,7 @@ export default {
     .profile-img {
         width: 7em;
         height: 7em;
-        bottom: -3.5em; /* adjust so overlap looks balanced */
+        bottom: -3.5em;
     }
 
     .profile-actions {
@@ -1264,6 +1264,22 @@ export default {
     }
 }
 
+/* Tablet devices */
+@media (max-width: 1024px) {
+    .body {
+        padding: 1.5rem 2rem;
+    }
+
+    .profile-details {
+        padding: 2em 3em;
+    }
+
+    .profile-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1em;
+    }
+}
 
 /* Desktop devices */
 @media (min-width: 1025px) {

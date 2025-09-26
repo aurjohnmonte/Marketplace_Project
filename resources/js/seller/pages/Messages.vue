@@ -1,7 +1,7 @@
 <template>
   <div class="message-container">
     <div class="message-header" >
-        <h4>Timber Chats</h4>
+        <h4>CraftyChats</h4>
 
         <div class="search-bar">
             <input type="search" name="search" id="search" v-model="searchTerm">
@@ -214,6 +214,7 @@ export default {
   position: relative;
   display: inline-block;
   justify-self: flex-end;
+  width: 30%;
 }
 
 .search-bar input[type="search"] {
@@ -302,7 +303,7 @@ export default {
     }
 
     .search-bar {
-        width: 100%;
+        width: 50%;
     }
 
     .search-bar input[type="search"] {
@@ -318,7 +319,6 @@ export default {
 
     .messages {
         gap: 1em;
-        padding: 0.5em;
     }
 
     .chat-box {
@@ -345,23 +345,22 @@ export default {
     }
 
     .message-header {
-        flex-direction: column;
+        flex-direction: row;
         gap: 1em;
-        padding: 1em 1.5em;
         text-align: center;
     }
 
     .message-header h4 {
-        font-size: 1.1rem;
+        font-size: .9rem;
     }
 
     .search-bar {
-        width: 100%;
+        width: 50%;
     }
 
     .search-bar input[type="search"] {
-        padding: 0.7em 2.2em 0.7em 1.2em;
-        font-size: 0.95em;
+        padding: 0.5em 1.2em;
+        font-size: 0.7em;
         border-radius: 15px;
     }
 
@@ -372,12 +371,10 @@ export default {
 
     .messages {
         gap: 1.5em;
-        padding: 1em;
     }
 
     .chat-box {
         gap: 1em;
-        padding: 1em;
         border-radius: 0.8em;
     }
 
@@ -399,11 +396,15 @@ export default {
     }
 
     .message-header {
-        padding: 1em 2em;
+        padding: .8em 2em;
     }
 
     .message-header h4 {
         font-size: 1.3rem;
+    }
+
+    .search-bar {
+        width: 50%;
     }
 
     .search-bar input[type="search"] {
@@ -419,7 +420,6 @@ export default {
 
     .messages {
         gap: 2em;
-        padding: 1.5em;
     }
 
     .chat-box {

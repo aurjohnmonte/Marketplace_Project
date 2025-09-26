@@ -170,7 +170,6 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Category</th>
-                                            <th>Description</th>
                                             <th>Overall Rate</th>
                                             <th>Price</th>
                                             <th>Status</th>
@@ -180,7 +179,6 @@
                                         <tr v-for="(result, index) in searchResults" :key="index" class="table-row">
                                             <td class="product-name-cell">{{ result.name }}</td>
                                             <td class="category-cell">{{ result.category }}</td>
-                                            <td class="sales-cell">{{ result.description }}</td>
                                             <td class="rating-cell">
                                                 <div class="rating-display">
                                                     <span class="rating-score">{{ result.overall_rate }}</span>
@@ -209,7 +207,6 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Category</th>
-                                            <th>Items Sold</th>
                                             <th>Rating</th>
                                             <th>Reviews</th>
                                             <th>Followers</th>
@@ -219,7 +216,6 @@
                                         <tr v-for="(result, index) in searchResults" :key="index" class="table-row">
                                             <td class="product-name-cell">{{ result.name }}</td>
                                             <td class="category-cell">{{ result.category }}</td>
-                                            <td class="sales-cell">{{ result.description }}</td>
                                             <td class="rating-cell">
                                                 <div class="rating-display">
                                                     <span class="rating-score">{{ result.overall_rate }}</span>
@@ -1430,7 +1426,7 @@ export default {
     grid-area: box;
     display: flex;
     flex-direction: column;
-    padding: 1em;
+    padding: 1em 1em 0;
     gap: 1.5em;
     border-radius: 1em;
     width: 100%;
@@ -1747,10 +1743,8 @@ export default {
     display: flex;
     gap: 0.5em;
     padding: 1em;
-    border: 1px solid #ddd;
-    border-radius: 0.8em;
+    border-bottom: 1px solid #ddd;
     background: #fff;
-    margin-bottom: 1em;
     justify-content: space-evenly;
   }
 
@@ -1765,18 +1759,35 @@ export default {
     font-weight: 600;
     color: #333;
   }
-}
 
-/* ===== Very Small Devices (≤ 480px) ===== */
-@media (max-width: 480px) {
-  .dashboard-container {
-    padding: 0.5em;
-  }
+    .follower-card {
+        padding: 1em;
+        flex-direction: column;
+    }
+    .follower-stats h4 {
+        font-size: 1em;
+    }
+    .stat-label {
+        font-size: 0.9em;
+    }
+    .products-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+    }
+    .table-section {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
 
-  .card-header h6,
-  .chart-header h4 {
-    font-size: 0.9em;
-  }
+    .dashboard-container {
+        padding: 0.5em;
+    }
+
+    .card-header h6,
+    .chart-header h4 {
+        font-size: 0.9em;
+    }
 }
 
 /* Mobile - Medium devices */
@@ -1822,6 +1833,50 @@ export default {
         flex-direction: column;
         gap: 1rem;
         text-align: center;
+    }
+
+    .stat-item {
+        font-size: 0.8em;
+    }
+
+    .stat-item label {
+        font-size: 0.85em;
+    }
+
+    .stat-item .progress-bar {
+        width: 100%; /* ✅ fill parent instead of fixed 300px */
+    }
+
+    .box {
+        padding: 0.8em;
+        gap: 1em;
+    }
+
+    .search-bar {
+        flex-direction: row;
+        gap: 0.5em;
+    }
+
+    .search-input-wrapper{
+        flex: 4;
+    }
+
+    .search-button {
+        flex: 1;
+        width: 100%;
+        justify-content: center;
+        font-size: .8em;
+    }
+
+    .products-table {
+        font-size: 0.7em;
+        overflow: auto;
+    }
+
+    .products-table th,
+    .products-table td {
+        font-size: 0.75em;
+        padding: 0.4em;
     }
 }
 
@@ -2005,44 +2060,6 @@ export default {
     }
 }
 
-/* ✅ Responsive adjustments */
-@media (max-width: 768px) {
-    .stat-item {
-        font-size: 0.8em;
-    }
-
-    .stat-item label {
-        font-size: 0.85em;
-    }
-
-    .stat-item .progress-bar {
-        width: 100%; /* ✅ fill parent instead of fixed 300px */
-    }
-}
-
-@media (max-width: 480px) {
-    .follower-card {
-        padding: 1em;
-        flex-direction: column;
-    }
-    .follower-stats h4 {
-        font-size: 1em;
-    }
-    .stat-label {
-        font-size: 0.9em;
-    }
-    .products-table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed; /* ensures even spacing */
-    }
-    .table-section {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-}
-
 /* Tablet view */
 @media (max-width: 1024px) {
     .card-container-2 {
@@ -2053,43 +2070,6 @@ export default {
             "box"
             "chart";
     }
-}
-
-/* Mobile view */
-@media (max-width: 768px) {
-    .box {
-        padding: 0.8em;
-        gap: 1em;
-    }
-
-    .search-bar {
-        flex-direction: row;
-        gap: 0.5em;
-    }
-
-    .search-input-wrapper{
-        flex: 4;
-    }
-
-    .search-button {
-        flex: 1;
-        width: 100%;
-        justify-content: center;
-        font-size: .8em;
-    }
-
-    .products-table {
-        font-size: 0.7em;
-        overflow: auto;
-    }
-
-    .products-table th,
-    .products-table td {
-        font-size: 0.75em;
-        padding: 0.4em;
-    }
-
-
 }
 </style>
 
