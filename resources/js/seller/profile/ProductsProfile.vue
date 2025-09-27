@@ -24,8 +24,8 @@
         <div class="product-body">
             <div class="row">
                 <div class="item-card" v-for="product in products" :key="product.id" @click="toggleDescription(product.id)">
-                    <img :src="'/'+product.photos[0].filename" alt="Product Image" style="width:11em; object-fit: cover; border-radius: 1em; user-select: none;">
-                    <div class="item-info" style="height: 500px;">
+                    <img :src="'/'+product.photos[0].filename" alt="Product Image">
+                    <div class="item-info">
                         <p>{{ product.name }}</p>
                         <i :class="[getStatusIcon(product.status), getStatusClass(product.status)]"></i>
                         <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
@@ -34,7 +34,7 @@
                         </div>
                         <div class="product-description" :class="{ 'expanded': expandedItems.includes(product.id) }">
                             <p>{{ product.description }}</p>
-                            <small class="click-hint" v-if="!expandedItems.includes(product.id)">Click to expand</small>
+
                         </div>
                     </div>
                     <label>Created at: {{ returnFormatDate(product.created_at) }}</label>
@@ -50,34 +50,32 @@ export default{
     props: ['shop'],
     watch: {
 
-        filter(newval){
-
+        filter(newval) {
             this.haveSearchContent(this.filter);
         },
 
-        searchtext(newval){
-
-            if(newval === ""){
-                this.category_filter();
-                return;
+        searchtext(newval) {
+            if (newval === "") {
+            this.category_filter();
+            return;
             }
 
-            this.products = this.products.filter(p => p.name.includes(newval));
+            this.products = this.shop.products.filter(p =>
+            p.name.toLowerCase().includes(newval.toLowerCase())
+            );
             console.log('p: ', this.products);
         },
         productCategory(newval){
-
             this.filter = 'latest';
 
-            if(this.productCategory === "Any"){
-
+            if (this.productCategory === "Any") {
                 this.products = this.shop.products;
+            } else {
+                this.products = this.shop.products.filter(product =>
+                    product.category.toLowerCase().includes(this.productCategory.toLowerCase())
+                );
             }
-            else{
-
-                this.products = this.shop.products.filter(product => product.category.includes(this.productCategory));
-            }
-            console.log('hey')
+            console.log('hoy')
         }
     },
     data() {
@@ -87,14 +85,15 @@ export default{
             showModal: false,
             selectedItem: {},
             categories: {
-                Any: 'Any',
-                furniture: 'Furniture',
-                homeDecor: 'Home Decor',
-                kitchenEssentials: 'Kitchenware',
-                toysandGames: 'Musical Instrument',
-                personalAccessories: 'Games',
-                outdoorEnhancements: 'Outdoor Decor',
-                DecorativeItems: 'Decorative Items',
+                Any: 'All',
+                Furniture: 'Furniture',
+                Kitchenware: 'Kitchenware',
+                MusicalInstrument: 'Musical Instrument',
+                ToysGames: 'Games',
+                OfficeSupplies:'Office Supplies',
+                HomeDecor: 'Home Decor',
+                PersonalAccessories: 'Personal accessories',
+                OutdoorEnhancements: 'Outdoor',
             },
             productCategory: 'Any',
             filter: 'latest',
@@ -115,67 +114,67 @@ export default{
             return new Date(date).toLocaleDateString();
         },
         haveSearchContent(newval){
-      console.log('newval: ', newval);
-      if(this.products.length > 0){
-        console.log('here')
-        let partial = [];
+            console.log('newval: ', newval);
+            if(this.products.length > 0){
+                console.log('here')
+                let partial = [];
 
-          partial = this.products;
+                partial = this.products;
 
-          if(newval === 'latest'){
+                if(newval === 'latest'){
 
-            console.log('neh agi')
+                    console.log('neh agi')
 
-            console.log('products: ', this.products);
+                    console.log('products: ', this.products);
 
 
-            let swapped;
+                    let swapped;
 
-            do {
-              swapped = false;
-              console.log('partial: ', partial);
+                    do {
+                    swapped = false;
+                    console.log('partial: ', partial);
 
-              for (let i = 0; i < partial.length - 1; i++) {
-                console.log('1')
-                if (partial[i].id < partial[i + 1].id) {
+                    for (let i = 0; i < partial.length - 1; i++) {
+                        console.log('1')
+                        if (partial[i].id < partial[i + 1].id) {
 
-                  let temp = partial[i];
-                  partial[i] = partial[i + 1];
-                  partial[i + 1] = temp;
+                        let temp = partial[i];
+                        partial[i] = partial[i + 1];
+                        partial[i + 1] = temp;
 
-                  swapped = true;
+                        swapped = true;
+                        }
+                    }
+
+                    } while (swapped);
+
+                    this.products = partial;
+
                 }
-              }
+                else{
+                    let swapped;
 
-            } while (swapped);
+                    do {
+                    swapped = false;
+                    console.log('partial: ', partial);
 
-            this.products = partial;
+                    for (let i = 0; i < partial.length - 1; i++) {
+                        console.log('1')
+                        if (partial[i].overall_rate < partial[i + 1].overall_rate) {
+                        // ✅ Proper swap
+                        let temp = partial[i];
+                        partial[i] = partial[i + 1];
+                        partial[i + 1] = temp;
 
-          }
-          else{
-            let swapped;
+                        swapped = true;
+                        }
+                    }
 
-            do {
-              swapped = false;
-              console.log('partial: ', partial);
-
-              for (let i = 0; i < partial.length - 1; i++) {
-                console.log('1')
-                if (partial[i].overall_rate < partial[i + 1].overall_rate) {
-                  // ✅ Proper swap
-                  let temp = partial[i];
-                  partial[i] = partial[i + 1];
-                  partial[i + 1] = temp;
-
-                  swapped = true;
+                    } while (swapped);
+                    this.products = partial;
                 }
-              }
-
-            } while (swapped);
-            this.products = partial;
-          }
-        }
-    },
+            }
+        },
         category_filter(){
             if(this.productCategory === "Any"){
 
@@ -273,16 +272,20 @@ export default{
 
 .product-category {
     width: 100%;
-    height: 2em;
+    height: 2.5em;
     display: flex;
     justify-content: space-evenly;
+    align-items: center;
     padding: .5em 0;
     background-color: #9b5800a8;
+    overflow: hidden
 }
 
 .product-category h5 {
-    font-size: .9em;
-    text-transform: capitalize;
+    font-size: .8em;
+    white-space: nowrap;
+    margin: 0 .5em;
+    flex-shrink: 0;
     user-select: none;
 }
 
@@ -331,10 +334,12 @@ export default{
     padding: .3em 1em;
     text-align: center;
     font-size: 0.8em;
+    text-transform: capitalize;
 }
 
 .select option {
     background-color: rgba(240, 209, 174, 0.658);
+    text-transform: capitalize;
 }
 
 .product-body {
@@ -348,7 +353,7 @@ export default{
 .row {
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, minmax(12em, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1em;
     padding: .5em;
     justify-items: center;
@@ -356,7 +361,7 @@ export default{
 
 .item-card {
     width: 16em;
-    max-width: 90vh;
+    max-width: 90%;
     height: 25em;
     border-radius: 1em;
     padding: 1em;
@@ -369,12 +374,20 @@ export default{
     box-shadow: 0px 1px 1px #000000b0;
 }
 
+.item-card img {
+  width: 100%;
+  height: 10em;
+  object-fit: cover;
+  border-radius: 1em;
+  user-select: none;
+}
+
 .item-info {
     display: grid;
     grid-template-columns: 2fr 1fr;
     justify-content: center;
-    padding: 0 .5em;
-    overflow: hidden;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .status-on-stock {
@@ -406,14 +419,6 @@ export default{
     max-height: none;
 }
 
-.click-hint {
-    color: #666;
-    font-style: italic;
-    font-size: 0.7em;
-    margin-top: 0.2em;
-    display: block;
-}
-
 
 @media screen and (min-width: 1025px) {
     .row {
@@ -423,10 +428,91 @@ export default{
     }
 }
 
-@media (min-width: 1240px) {
-    .row {
-        width: 100%;
-        grid-template-columns: repeat(4, minmax(12em, 1fr));
-    }
+@media screen and (max-width: 1240px) {
+  .row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .item-card {
+    width: 15em;
+    height: 23em;
+  }
+}
+
+/* Tablets (≤1024px) */
+@media screen and (max-width: 1024px) {
+  .row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .filter-box {
+    flex-wrap: wrap;
+  }
+
+  .search-bar {
+    width: 15em;
+  }
+
+  .product-category {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    -ms-overflow-style: none; /* IE/Edge hide scrollbar */
+  }
+
+  .product-category::-webkit-scrollbar {
+    display: none; /* Chrome/Safari hide scrollbar */
+  }
+
+  .item-card {
+    width: 13em;
+    height: 21em;
+    font-size: 0.8em;
+  }
+}
+
+/* Small tablets (≤768px) */
+@media screen and (max-width: 768px) {
+  .row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .item-card {
+    width: 12em;
+    height: 20em;
+    font-size: 0.75em;
+    padding: 0.8em;
+  }
+}
+
+/* Mobile phones (≤600px) */
+@media screen and (max-width: 600px) {
+
+  .search-bar {
+    width: 60%;
+  }
+
+  .product-category {
+    justify-content: flex-start;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .product-category::-webkit-scrollbar {
+    display: none;
+  }
+
+  .item-card {
+    width: 11em;
+    height: 18em;
+    font-size: 0.7em;
+    padding: 0.6em 1em;
+  }
+
+  .item-card img {
+    width: 50%;
+    max-height: 100px;
+    border-radius: .6em;
+    margin: 0 1em;
+  }
 }
 </style>

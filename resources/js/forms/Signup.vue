@@ -150,15 +150,50 @@
                         </button>
                     </template>
                     <template v-else>
-                        <input
-                            :type="info.name === 'confirm_password' ? 'password' : info.type"
-                            :name="info.name"
-                            :id="info.id"
-                            v-model="formData[info.name]"
-                            required
-                            @input="validateField(info.name)"
-                        />
-                        <label :for="info.id" class="label" >{{ info.label }}</label>
+                        <div  v-if="info.name === 'password' || info.name === 'confirm_password'">
+                            <input
+                                :type="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')] ? 'text' : 'password'"
+                                :name="info.name"
+                                :id="info.id"
+                                v-model="formData[info.name]"
+                                required
+                                @input="validateField(info.name)"
+                            />
+                            <span
+                            class="toggle-icon"
+                            @click="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')] = !fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')]"
+                            >
+                            <svg v-if="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.961 9.961 0 012.132-3.368m3.61-2.385A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7-.463 1.475-1.28 2.772-2.347 3.772M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 3l18 18" />
+                            </svg>
+                            </span>
+
+                            <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">
+                                {{ info.label }}
+                            </label>
+                        </div>
+
+                        <!-- other normal inputs -->
+                        <div v-else>
+                            <input
+                                :type="info.type"
+                                :name="info.name"
+                                :id="info.id"
+                                v-model="formData[info.name]"
+                                required
+                                @input="validateField(info.name)"
+                            />
+                            <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">{{ info.label }}</label>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -321,7 +356,9 @@ export default {
                 password: null,
                 confirm_password: null,
                 location_access: null,
-                terms: null
+                terms: null,
+                showPassword: false,
+                showConfirmPassword: false,
             },
             debounceTimers: {},
             // Simulated existing data for async checks
@@ -380,7 +417,13 @@ export default {
     },
 
     methods: {
-
+        togglePassword(field) {
+            this.passwordVisibility[field] = !this.passwordVisibility[field]
+        },
+        getInputType(field, defaultType) {
+            if (defaultType !== "password") return defaultType
+            return this.passwordVisibility[field] ? "text" : "password"
+        },
         goAllow(){
             const arr = ['terms','location_access'];
 
@@ -914,6 +957,7 @@ export default {
 .input-box .label {
   position: absolute;
   top: .5em;
+  left: 5px;
   font-size: 12px;
   color: #575454;
   background-color: #ffffff;
@@ -990,6 +1034,22 @@ export default {
   color: #333;
 }
 
+
+.toggle-icon {
+  position: absolute;
+  right: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  color: #555;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+input[type="password"]::-ms-reveal {
+  display: none;
+}
+
 /* error message design */
 .error-message {
     color: red;
@@ -1003,7 +1063,7 @@ export default {
 
 .form-warnings {
   width: 73%;
-  margin: 0;
+  margin: .5em 0 0;
   padding: 0.8em;
   background: #ffe6e6;
   border: 1px solid #ff4d4d;

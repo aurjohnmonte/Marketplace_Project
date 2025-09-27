@@ -2,7 +2,7 @@
 
 <div class="container">
     <nav class="navbar navbar-light bg-light">
-        <h1>Timbershoppe</h1>
+        <h1>Craftify</h1>
         <ul>
             <li><button class="btn style" @click="action = 'signup'">Sign Up</button></li>
             <li><button class="btn style" @click="action = 'login'">Login</button></li>
@@ -11,7 +11,7 @@
 
     <!--  Body of the Page  -->
     <div class="content">
-        <img src="../images/Logo.svg" alt="Timbershoppe Logo">
+        <img src="../images/Logo-3.png" alt="Craftify Logo">
         <div class="signup-container"
             v-if="action === 'signup'"
         >
@@ -51,14 +51,17 @@ export default {
   margin: 0;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
   user-select: none;
   overflow: hidden;
 }
 
 .navbar {
   display: flex;
-  font-family: Decoy-Med;
+  font-family: 'Merriweather', serif;
+  font-weight: 800;
+  font-size: 1.2em;
+  color: #2b2b2b;
+  text-align: center;
   text-transform: uppercase;
   width: 100%;
   align-items: center;
@@ -101,7 +104,7 @@ export default {
 }
 
 .content img {
-    width: 25em;
+    width: 35em;
 }
 
 
@@ -129,7 +132,6 @@ export default {
   .signup-container, .login-container {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto;
   }
 }
 

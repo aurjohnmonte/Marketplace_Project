@@ -10,7 +10,7 @@
                 <button class="mobile-menu-toggle" @click="toggleMenu">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <h3 class="brand-title">Timbershoppe</h3>
+                <h3 class="brand-title">Craftify</h3>
             </div>
             <a class="navbar-brand">{{ displayTitle }}</a>
             <div class="navbar-right" v-if="user.shop">
@@ -27,19 +27,19 @@
                 <span @click="toggleNotifBox" style="cursor:pointer">
                   <i class="fa-solid fa-bell" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.5);"></i>
                 </span>
-                
+
                 <div v-if="showNotifBox" class="floating-box notif-box">
                     <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between">
                         <p style="font-size: 20px;">Notifications</p>
                         <router-link to="/seller/notifications" style="text-decoration: underline;">View All</router-link>
                     </div>
-                    <div 
-                            style="display: flex; 
-                            flex-direction: row; 
-                            width: 100%; 
-                            align-items: center; 
+                    <div
+                            style="display: flex;
+                            flex-direction: row;
+                            width: 100%;
+                            align-items: center;
                             justify-content: space-between;
-                            gap: 50px;" 
+                            gap: 50px;"
                     :class="{is_unread: !notify.seen}"
                     v-for="notify in notifications" :key="notify"
                     >
@@ -57,7 +57,7 @@
         <div :class="['sidebar', { 'show': showMenu && isMobile }]" v-if="showMenu || (!isMobile && showMenu)">
             <div class="sidebar-header">
                 <div class="logo-container">
-                    <img src="../images/Logo-2.png" alt="Logo" class="logo">
+                    <img src="../images/Logo-minimized.svg" alt="Logo" class="logo">
                 </div>
                 <div v-if="showMenu === true" class="menu-icon">
                     <i class="fa-solid fa-xmark" @click="toggleMenu"></i>
@@ -121,7 +121,7 @@
         </div>
         <div v-else-if="!isMobile" class="sidebar-minimized">
             <div class="sidebar-minimized-header">
-                <img src="../images/Logo-2.png" alt="Logo" class="logo-minimized">
+                <img src="../images/Logo-minimized.svg" alt="Logo" class="logo-minimized">
             </div>
             <div class="sidebar-minimized-btns">
                 <router-link to="/seller/dashboard">
@@ -267,8 +267,6 @@ export default{
             this.page = switchPage;
         },
         toggleProfileBox() {
-
-            return;
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
         },
@@ -317,7 +315,7 @@ export default{
                                             this.notifymessage = "You have new notification. Check it out.";
                                             this.is_visible = true;
                                         });
-            
+
             this.notifyEventListener = Echo.channel(`sellernotify.${this.user.name}`);
 
             this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
@@ -498,11 +496,10 @@ export default{
   font-size: 1.2rem;
 }
 
-.profile-circle i {
-  font-size: 1.2rem;
+.profile-circle img {
+  border-radius: 50%;
 }
 
-.profile-box i,
 .notif-box i {
   font-size: 3.7rem;
 }
@@ -514,17 +511,19 @@ export default{
     }
 
     .brand-title {
-        font-size: 1.2em !important;
-        margin: 0 0.5em 0 0 !important;
+        font-size: 1em !important;
+        margin: 0;
     }
 
     .navbar-brand {
-        font-size: 1em;
+        font-size: .5em;
         display: none;
     }
 
     .navbar-right {
-        gap: 0.5em;
+        gap: 0em;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .desktop-logout {
@@ -541,13 +540,28 @@ export default{
         padding: 0.5rem;
     }
 
-    .profile-circle i,
     .navbar-right i {
         font-size: 1rem;
     }
 
     .profile-circle {
-        padding: 0.25rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+    }
+
+    .profile-circle img {
+        width: 22px !important;
+        height: 22px !important;
+    }
+    .navbar-right i.fa-bell {
+        margin-right: .2em;
+    }
+
+    .navbar-right button {
+        font-size: .9em;
+        font-weight: 500;
     }
 }
 
@@ -659,7 +673,7 @@ export default{
 }
 
 .logo {
-    width: 60px;
+    width: 90px;
 }
 
 .menu-icon {
@@ -919,7 +933,8 @@ export default{
     }
 
     .logo {
-        width: 70px;
+        width: 100px;
+        height: 50px;
     }
 
     .sidebar-btn button img {

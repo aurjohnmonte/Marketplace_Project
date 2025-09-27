@@ -36,18 +36,19 @@
             </div>
         </div>
 
-        <table class="product-table">
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Category</th>
-                    <th>Price</th>
-                    <th>Views</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
+        <div class="table-wrapper">
+            <table class="product-table">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Quantity</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Views</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
 
             <tbody v-if="!is_loading">
                 <tr v-if="filteredProducts.length === 0">
@@ -68,7 +69,7 @@
                                 <h3>View Product</h3>
                                 <button @click="$router.push({name: 'ViewProduct', params: {id: item.id}})">Learn more</button>
                             </div>
-                            <div class="image-container">   
+                            <div class="image-container">
                                 <button class="nav-btn nav-left"
                                     @click="scrollImages('left', item.id)"
                                     v-if="item.photos.length>3">
@@ -92,27 +93,27 @@
                                 </button>
                             </div>
 
-                            <!-- Modal for zoomed image -->
-                            <div v-if="showZoom" class="modal">
-                                <div class="modal-content">
-                                    <button class="close-modal-btn" @click="closeZoomModal">
-                                        <i class="fa fa-times" @click.stop="closeZoomModal"></i>
-                                    </button>
-                                    <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
+                                <!-- Modal for zoomed image -->
+                                <div v-if="showZoom" class="modal">
+                                    <div class="modal-content">
+                                        <button class="close-modal-btn" @click="closeZoomModal">
+                                            <i class="fa fa-times" @click.stop="closeZoomModal"></i>
+                                        </button>
+                                        <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
+                                    </div>
                                 </div>
-                            </div>
 
-                            <div class="view-row">
-                                <div class="rating">
-                                    <p>Viewer Rating:</p>
-                                    <span
-                                        v-for="star in 5"
-                                        :key="star"
-                                        class="fa fa-star"
-                                        :class="{ checked: star <= item.overall_rate }"
-                                    ></span>
-                                    <span class="rating-text">({{ item.overall_rate }}/5)</span>
-                                </div>
+                                <div class="view-row">
+                                    <div class="rating">
+                                        <p>Viewer Rating:</p>
+                                        <span
+                                            v-for="star in 5"
+                                            :key="star"
+                                            class="fa fa-star"
+                                            :class="{ checked: star <= item.overall_rate }"
+                                        ></span>
+                                        <span class="rating-text">({{ item.overall_rate }}/5)</span>
+                                    </div>
 
                                 <div class="rating">
                                     <p>Status:</p>
@@ -129,18 +130,16 @@
                                                 <span class="comment-user">{{ comment.user.firstname }} {{ comment.user.lastname }}</span>
                                             </div>
                                             <span class="comment-text">
-                                                <label style="text-align: start;">
+                                                <label>
                                                     {{ comment.comment }}
                                                 </label>
-                                                <div v-if="comment.reviewphotos.length > 0 || comment.reviewvideos.length > 0" style="margin-left: 10px; margin-bottom: 10px;">
-                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px; overflow-x: auto;">
-                                                        <img :src="'/'+photo.path" style="width: 100px; height: 100px; cursor: pointer; border: 1px solid gray;" v-for="photo in comment.reviewphotos" :key="photo">
-                                                        <video :src="'/'+photo.path" style="width: 200px; height: 100px; cursor: pointer; border: 1px solid gray;" v-for="photo in comment.reviewvideos" :key="photo" controls>
 
-                                                        </video>
+                                                <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
+                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                                        <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
                                                     </div>
                                                 </div>
-                                                <label style="text-align: start;">
+                                                <label>
                                                     {{ returnformatTime(comment.created_at) }}
                                                 </label>
                                             </span>
@@ -161,93 +160,93 @@
                             </div>
                         </div>
 
-                        <!-- edit button/form -->
-                        <button class="edit-btn" @click="editProduct(item.id)">Edit</button>
-                        <div v-if="editedProductId === item.id" class="toggle-details">
-                            <form method="GET" class="form" @submit.prevent="saveProduct(item.id)">
-                                <h3>Edit Product</h3>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="name">Product Name</label>
-                                        <input type="text" name="name" id="name" v-model="editingProduct.name">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="price">Price</label>
-                                        <input type="number" name="price" id="price" v-model="editingProduct.price">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="materials">Product Material</label>
-                                        <input type="text" name="materials" id="materials" v-model="editingProduct.materials">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="quantity">Quantity</label>
-                                        <input type="number" name="quantity" id="quantity" v-model="editingProduct.quantity">
-                                    </div>
-                                </div>
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="category">Category</label>
-                                        <select name="category" id="category" v-model="editingProduct.category">
-                                            <option v-for="category in productCategory" :key="category" :value="category">
-                                                {{ category }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="status">Status</label>
-                                        <select name="status" id="status" v-model="editingProduct.status">
-                                            <option v-for="currentStatus in productStatus" :key="currentStatus" :value="currentStatus">
-                                                {{ currentStatus }}
-                                            </option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="form-row">
-                                    <div class="form-group">
-                                        <label for="dimensions">Product Dimensions</label>
-                                        <input type="text" name="dimensions" id="dimensions" v-model="editingProduct.dimensions">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="weight">Product Weight</label>
-                                        <input type="text" name="weight" id="weight" v-model="editingProduct.weight">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="product-description">Description</label>
-                                    <textarea
-                                        id="product-description"
-                                        rows="5"
-                                        style="resize: none;"
-                                        v-model="editingProduct.description"
-                                        placeholder="Enter product description..."
-                                    ></textarea>
-                                </div>
-
-                                <div class="form-group">
-                                    <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
-                                        <label for="product-description">Photos</label>
-                                        <label style="text-transform: capitalize; cursor: pointer;" for="addphoto">Add photo</label>
-                                    </div>
-                                    <div class="photo-container">
-                                        <div v-for="(img, index) in editingProduct.photos" :key="index" style="position: relative; cursor: pointer;" >
-                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelNotBlob(index, img.id)">
-                                            <img :src="'/'+img.filename" alt="product image">
+                            <!-- edit button/form -->
+                            <button class="edit-btn" @click="editProduct(item.id)">Edit</button>
+                            <div v-if="editedProductId === item.id" class="toggle-details">
+                                <form method="GET" class="form" @submit.prevent="saveProduct(item.id)">
+                                    <h3>Edit Product</h3>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="name">Product Name</label>
+                                            <input type="text" name="name" id="name" v-model="editingProduct.name">
                                         </div>
-                                        <div v-for="(img, indx) in new_photo" :key="indx" style="position: relative; cursor: pointer;" >
-                                            <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelBlob(indx)">
-                                            <img :src="img.preview" alt="product image">
+                                        <div class="form-group">
+                                            <label for="price">Price</label>
+                                            <input type="number" name="price" id="price" v-model="editingProduct.price">
                                         </div>
-                                        <input type="file" hidden id="addphoto" @change="handleFileUpload" accept="image/*">
                                     </div>
-                                </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="materials">Product Material</label>
+                                            <input type="text" name="materials" id="materials" v-model="editingProduct.materials">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="quantity">Quantity</label>
+                                            <input type="number" name="quantity" id="quantity" v-model="editingProduct.quantity">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="category">Category</label>
+                                            <select name="category" id="category" v-model="editingProduct.category">
+                                                <option v-for="category in productCategory" :key="category" :value="category">
+                                                    {{ category }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="status">Status</label>
+                                            <select name="status" id="status" v-model="editingProduct.status">
+                                                <option v-for="currentStatus in productStatus" :key="currentStatus" :value="currentStatus">
+                                                    {{ currentStatus }}
+                                                </option>
+                                            </select>
+                                        </div>
+                                    </div>
 
-                                <div v-if="message" :class="['message', messageType]">
-                                    {{ message }}
-                                </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="dimensions">Product Dimensions</label>
+                                            <input type="text" name="dimensions" id="dimensions" v-model="editingProduct.dimensions">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="weight">Product Weight</label>
+                                            <input type="text" name="weight" id="weight" v-model="editingProduct.weight">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="product-description">Description</label>
+                                        <textarea
+                                            id="product-description"
+                                            rows="5"
+                                            style="resize: none;"
+                                            v-model="editingProduct.description"
+                                            placeholder="Enter product description..."
+                                        ></textarea>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div style="width: 100%; display: flex; flex-direction: row; justify-content: space-between; align-items: center;">
+                                            <label for="product-description">Photos</label>
+                                            <label style="text-transform: capitalize; cursor: pointer;" for="addphoto">Add photo</label>
+                                        </div>
+                                        <div class="photo-container">
+                                            <div v-for="(img, index) in editingProduct.photos" :key="index" style="position: relative; cursor: pointer;" >
+                                                <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelNotBlob(index, img.id)">
+                                                <img :src="'/'+img.filename" alt="product image">
+                                            </div>
+                                            <div v-for="(img, indx) in new_photo" :key="indx" style="position: relative; cursor: pointer;" >
+                                                <img src="../../../images/cancel.png" style="border: none; position: absolute; width: .5em; height: .5em; top: -.3em; right: -.2em;" @click.stop="cancelBlob(indx)">
+                                                <img :src="img.preview" alt="product image">
+                                            </div>
+                                            <input type="file" hidden id="addphoto" @change="handleFileUpload" accept="image/*">
+                                        </div>
+                                    </div>
+
+                                    <div v-if="message" :class="['message', messageType]">
+                                        {{ message }}
+                                    </div>
 
                                 <div class="form-group" style="padding-bottom: 30px;">
                                     <button type="submit">Save Changes</button>
@@ -255,7 +254,6 @@
                                 </div>
                             </form>
                         </div>
-
                         <button
                             v-if="canDelete(item.status)"
                             @click="deleteProduct(item.id)"
@@ -273,6 +271,7 @@
         <!-- Overlay background when toggle-details are displayed -->
         <div v-if="viewedProductId || editedProductId" class="overlay-background"></div>
     </div>
+</div>
 </template>
 
 <script>
@@ -1470,6 +1469,87 @@ export default {
     .comments-list {
         max-height: 120px;
     }
+
+    .table-wrapper {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 1em;
+    }
+
+    .product-table {
+        min-width: 1300px;
+        width: auto;
+    }
+
+    .product-table th,
+    .product-table td {
+        white-space: nowrap;
+    }
+
+    .product-container {
+        padding: 1.5em;
+        gap: 2em;
+    }
+
+    .product-table {
+        font-size: 0.9em;
+        overflow-x: auto;
+    }
+
+    .product-table th,
+    .product-table td {
+        padding: 0.8em 0.5em;
+    }
+
+    .action-btn {
+        width: 15em;
+    }
+
+    .action-btn button {
+        padding: 0.3em 0.6em;
+        font-size: 0.8em;
+        min-width: 50px;
+    }
+
+    .toggle-details {
+        width: 95vw;
+        height: 95vh;
+        padding: 1em;
+    }
+
+    .toggle-details h3 {
+        font-size: 1.2em;
+    }
+
+    .image-container {
+        height: 20vh;
+        min-height: 150px;
+    }
+
+    .toggle-img img {
+        max-width: 8em;
+        max-height: 8em;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 0.8em;
+        font-size: 0.9em;
+    }
+
+    .comments-section {
+        padding: 0.8em;
+    }
+
+    .comments-list {
+        max-height: 120px;
+    }
+
+    .comment {
+        font-size: 0.9em;
+    }
 }
 
 @media (max-width: 480px) {
@@ -1483,9 +1563,9 @@ export default {
     }
 
     .action-btn button {
-        padding: 0.1em 0.4em;
+        padding: 0em 0.4em;
         font-size: 0.7em;
-        min-width: 40px;
+        min-width: 20px;
     }
 
     .toggle-details {
@@ -1570,71 +1650,6 @@ export default {
     }
 }
 
-/* ===== ENHANCED RESPONSIVE DESIGN ===== */
-
-/* Mobile - Medium devices */
-@media (max-width: 768px) {
-    .product-container {
-        padding: 1.5em;
-        gap: 2em;
-    }
-
-    .product-table {
-        font-size: 0.9em;
-        overflow-x: auto;
-    }
-
-    .product-table th,
-    .product-table td {
-        padding: 0.8em 0.5em;
-    }
-
-    .action-btn button {
-        padding: 0.3em 0.6em;
-        font-size: 0.8em;
-        min-width: 50px;
-    }
-
-    .toggle-details {
-        width: 95vw;
-        height: 95vh;
-        padding: 1em;
-    }
-
-    .toggle-details h3 {
-        font-size: 1.2em;
-    }
-
-    .image-container {
-        height: 20vh;
-        min-height: 150px;
-    }
-
-    .toggle-img img {
-        max-width: 8em;
-        max-height: 8em;
-    }
-
-    .form-group input,
-    .form-group select,
-    .form-group textarea {
-        padding: 0.8em;
-        font-size: 0.9em;
-    }
-
-    .comments-section {
-        padding: 0.8em;
-    }
-
-    .comments-list {
-        max-height: 120px;
-    }
-
-    .comment {
-        font-size: 0.9em;
-    }
-}
-
 /* Tablet devices */
 @media (min-width: 769px) and (max-width: 900px) {
     .product-container {
@@ -1696,7 +1711,6 @@ export default {
         font-size: 0.95em;
     }
 }
-
 
 /* Laptop devices */
 @media (min-width: 901px) and (max-width: 1380px) {

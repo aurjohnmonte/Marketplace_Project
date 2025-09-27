@@ -113,7 +113,6 @@ export default {
   width: 100%;
   margin: 0 auto;
   padding: 2em;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .shop-review-page h4 {
@@ -154,11 +153,12 @@ export default {
   justify-content: center;
   align-items: center;
   gap: 1rem;
+  flex-wrap: wrap;
   margin-top: 1rem;
 }
 .pagination button {
   background: #ca9d73;
-  color: #fafafa    ;
+  color: #fafafa;
   border: none;
   font-size: .9em;
   padding: 0.5em 0.8em;
@@ -169,5 +169,67 @@ export default {
 .pagination button:disabled {
   background: #ccc;
   cursor: not-allowed;
+}
+
+/* -------- Responsive Design -------- */
+@media (max-width: 1024px) { /* Tablet */
+  .shop-review-page {
+    padding: 1.5em;
+  }
+  .shop-review-page h4 {
+    font-size: 1.8em;
+  }
+  .review-header {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) { /* Large phones & small tablets */
+  .shop-review-page {
+    padding: 1.2em;
+  }
+  .shop-review-page h4 {
+    font-size: 1.5em;
+  }
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+  }
+  .review-comment {
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+}
+
+@media (max-width: 480px) { /* Mobile phones */
+  .shop-review-page {
+    padding: 1em;
+  }
+  .shop-review-page h4 {
+    font-size: 1.3em;
+  }
+  .average-rating {
+    font-size: 0.85rem;
+  }
+  .review-item {
+    padding: 0.8em;
+  }
+  .review-header {
+    font-size: 0.75rem;
+  }
+  .pagination {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .pagination span {
+    font-size: 0.8rem;
+  }
+  .pagination button {
+    width: 100%;
+    max-width: 150px;
+    text-align: center;
+  }
 }
 </style>

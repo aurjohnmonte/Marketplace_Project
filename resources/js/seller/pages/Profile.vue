@@ -1083,6 +1083,14 @@ export default {
         gap: 1rem;
     }
 
+    .profile-img {
+        width: 5em;
+        height: 5em;
+        bottom: -2.5em;
+        left: 20%;
+        transform: translateX(-50%);
+    }
+
     .profile-card {
         padding: 1rem;
     }
@@ -1104,6 +1112,22 @@ export default {
         width: 100%;
         padding: 0.8rem;
         font-size: 0.9rem;
+    }
+
+    .profile-details {
+        padding: 1.5em 0 1em 1em;
+        font-size: .85em;
+    }
+
+    .profile-info {
+        flex-direction: column;
+        align-items: right;
+        gap: 0.5em;
+        width: 100%;
+    }
+
+    .profile-actions {
+        justify-content: center;
     }
 
     .modal {
@@ -1181,6 +1205,12 @@ export default {
         font-size: 1rem;
     }
 
+    .profile-img {
+        width: 7em;
+        height: 7em;
+        bottom: -3.5em;
+    }
+
     .profile-actions {
         flex-direction: column;
         gap: 1rem;
@@ -1190,6 +1220,10 @@ export default {
         width: 100%;
         padding: 1rem;
         font-size: 1rem;
+    }
+
+    .profile-details {
+        padding: 2em 10em;
     }
 
     .modal {
@@ -1231,82 +1265,19 @@ export default {
 }
 
 /* Tablet devices */
-@media (min-width: 769px) and (max-width: 1024px) {
+@media (max-width: 1024px) {
     .body {
-        padding: 1.5rem;
+        padding: 1.5rem 2rem;
     }
 
-    .profile-header {
-        padding: 2rem 1.5rem;
+    .profile-details {
+        padding: 2em 3em;
     }
 
-    .profile-header h2 {
-        font-size: 1.6rem;
-    }
-
-    .profile-header p {
-        font-size: 1.1rem;
-    }
-
-    .profile-content {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-    }
-
-    .profile-card {
-        padding: 2rem;
-    }
-
-    .profile-card h3 {
-        font-size: 1.5rem;
-    }
-
-    .profile-card p {
-        font-size: 1.1rem;
-    }
-
-    .profile-actions {
-        gap: 1rem;
-    }
-
-    .profile-actions button {
-        padding: 1rem 1.5rem;
-        font-size: 1.1rem;
-    }
-
-    .modal {
-        width: 80vw;
-        height: 80vh;
-        margin: 10vh auto;
-    }
-
-    .modal-header {
-        padding: 2rem;
-    }
-
-    .modal-header h3 {
-        font-size: 1.5rem;
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .form-group input,
-    .form-group textarea {
-        padding: 1rem;
-        font-size: 1.05rem;
-    }
-
-    .modal-footer {
-        padding: 2rem;
-        gap: 1rem;
-    }
-
-    .btn-cancel,
-    .btn-save {
-        padding: 1rem 2rem;
-        font-size: 1.1rem;
+    .profile-info {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1em;
     }
 }
 

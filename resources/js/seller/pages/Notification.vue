@@ -379,7 +379,7 @@ export default {
         this.messageEventListener.listen('.message.sent', async (event) => {
                                         await this.returnNotifications();
                                     });
-        
+
         this.notifyEventListener = Echo.channel(`sellernotify.${this.store.currentUser_info.name}`);
 
         this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
@@ -658,4 +658,160 @@ export default {
     background: rgba(0, 0, 0, 0.342);
     z-index: 9999;
 }
+
+/* Tablet (≤1024px) */
+@media (max-width: 1024px) {
+  .notification-container {
+    padding: 1em;
+  }
+
+  .notif-header {
+    padding: 0.8em 1em;
+  }
+
+  .notif-header h5 {
+    font-size: 1.1em;
+  }
+
+  .reader {
+    gap: 0.8em;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 0.3em 0.8em;
+    font-size: 0.85em;
+  }
+
+  .notif-box {
+    padding: 0.8em;
+    gap: 0.8em;
+  }
+
+  .main-section {
+    gap: 1em;
+  }
+
+  .message {
+    font-size: 0.8em;
+  }
+}
+
+/* Mobile optimized design (≤768px) */
+@media (max-width: 768px) {
+  .notification-container {
+    padding: 0.8em;
+  }
+
+  .notif-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6em;
+    padding: 0.6em 0.8em;
+  }
+
+  .notif-header h5 {
+    font-size: 1em;
+    margin-bottom: 0.2em;
+  }
+
+  .reader {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5em;
+  }
+
+  /* Make filter buttons scrollable horizontally */
+  .filter-options {
+    display: flex;
+    gap: 0.4em;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+  }
+  .filter-options::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+  }
+
+  .filter-btn {
+    padding: 0.3em 0.7em;
+    font-size: 0.8em;
+    flex-shrink: 0;
+  }
+
+  .reader button {
+    font-size: 0.75em;
+    padding: 0.3em 0.6em;
+  }
+
+  .notif-box {
+    padding: 0.6em;
+    gap: 0.6em;
+    height: auto;
+    align-items: flex-start;
+  }
+
+  .main-section {
+    gap: 0.6em;
+  }
+
+  .main-section img {
+    width: 2.2em;
+    height: 2.2em;
+  }
+
+  .message {
+    font-size: 0.75em;
+    gap: 0.5em;
+  }
+
+  .message div {
+    gap: 0.5em;
+  }
+
+  .message div h6 {
+    font-size: 0.8em;
+  }
+
+  .message div p {
+    font-size: 0.75em;
+  }
+
+  .message > p {
+    font-size: 0.7em;
+    color: #555;
+  }
+}
+
+/* Extra small screens (≤480px) */
+@media (max-width: 480px) {
+  .notif-header h5 {
+    font-size: 0.9em;
+  }
+
+  .filter-btn {
+    font-size: 0.75em;
+    padding: 0.3em 0.5em;
+  }
+
+  .notif-box {
+    padding: 0.5em;
+    gap: 0.5em;
+  }
+
+  .main-section img {
+    width: 2em;
+    height: 2em;
+  }
+
+  .message {
+    font-size: 0.7em;
+  }
+}
+
+
 </style>
