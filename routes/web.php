@@ -143,6 +143,8 @@ Route::middleware('buyercheck')->group(function() {
     Route::post('/buyer/respond/to-record/from-seller', [BuyerController::class, 'record_respond']);
     //buyer unfollow shop
     Route::post('/shop/unfollow', [BuyerController::class, 'unfollow']);
+    //buyer return product videos
+    Route::post('/buyer/return-videos', [BuyerController::class, 'return_videos_product']);
 
     //LOGOUT
     Route::get('/buyer/logout', function(Request $request) {
@@ -289,7 +291,7 @@ Route::middleware('usercheck')->group(function() {
 
     Route::get('/seller', function() {
         return view('seller_pages.seller_home');
-    })->name('sellerhome');
+    })->name('sellerhome'); 
 
     //seller blade view
     Route::get('/seller/{p}/{c?}/{id?}', function(){
@@ -352,6 +354,8 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/return/all-records', [SellerController::class, 'returnAllRecords']);
     //seller delete record
     Route::post('/seller/record/delete', [SellerController::class, 'deleteRecord']);
+    //seller attach video
+    Route::post('/seller/attach-video', [SellerController::class, 'attach_video']);
 
     Route::get('/seller/logout', function(Request $request) {
 

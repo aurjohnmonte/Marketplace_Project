@@ -44,22 +44,22 @@
                 v-for="(product, indx) in filteredProducts" 
                 :key="product.id"
                 >
-                <td>{{ indx + 1 }}</td>
-                <td>{{ product.name }}</td>
-                <td>{{ product.product_id }}</td>
-                <td>{{ product.product.name }}</td>
-                <td>{{ product.product.description }}</td>
-                <td>{{ product.product.materials }}</td>
-                <td>{{ product.product.dimensions }}</td>
-                <td>{{ product.product.weight }}</td>
-                <td>{{ product.status }}</td>
-                <td>{{ formatDate(product.created_at) }}</td>
-                <td class="action-btn">
-                    <button class="btn-delete" @click="goDelete(product.id)">Delete</button>
-                </td>
-                </tr>
-                <tr v-if="filteredProducts.length === 0">
-                <td colspan="10" class="no-data">No results found.</td>
+                  <td>{{ indx + 1 }}</td>
+                  <td>{{ product.name }}</td>
+                  <td>{{ product.product_id }}</td>
+                  <td>{{ product.product.name }}</td>
+                  <td>{{ product.product.description }}</td>
+                  <td>{{ product.product.materials }}</td>
+                  <td>{{ product.product.dimensions }}</td>
+                  <td>{{ product.product.weight }}</td>
+                  <td>{{ product.status }}</td>
+                  <td>{{ formatDate(product.created_at) }}</td>
+                  <td class="action-btn">
+                      <button class="btn-delete" @click="goDelete(product.id)">Delete</button>
+                  </td>
+                  </tr>
+                  <tr v-if="filteredProducts.length === 0">
+                  <td colspan="10" class="no-data">No results found.</td>
                 </tr>
             </tbody>
             <tbody v-else>

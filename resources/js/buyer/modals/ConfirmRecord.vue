@@ -42,10 +42,10 @@
       </main>
 
       <!-- Footer -->
-      <div class="btn-choose" v-if="notify_data.status === 'pending'">
+      <!-- <div class="btn-choose" v-if="notify_data.status === 'pending'">
         <button class="btn-secondary" @click="goAction('ignore')">Ignore</button>
         <button class="btn-primary" @click="goAction('confirm')">Confirm</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

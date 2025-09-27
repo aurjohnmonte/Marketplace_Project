@@ -26,6 +26,10 @@ class Product extends Model
         return $this->hasMany(Review::class, 'product_id')->latest('created_at');
     }
 
+    public function videos(){
+        return $this->hasMany(Pvideo::class, 'product_id')->latest('created_at');
+    }
+
     public static function returnProducts($filter): Collection
     {
         try {

@@ -1,7 +1,16 @@
 <template>
     <div class="product-notif-container" v-if="product">
+        <teleport to="body">
+            <AttachVideo @exit_modal="exit_modal" @exitModal="exitModal" v-if="product_id" :product="product"/>
+        </teleport>
         <div class="product-profile">
             <div class="image-container" :class="{ 'center-images': product.photos.length < 3 }">
+
+                <button style="position: absolute; top: 0; right: 0; margin: 10px; border: none; padding: 5px; border: 1px solid gray; background-color: orange; cursor: pointer; border-radius: 5px;"
+                        @click="product_id = product.id">
+                    Attach video
+                </button>
+
                 <button class="nav-btn nav-left"
                     @click="scrollImages('left', product.id)"
                     v-if="product.photos && product.photos.length > 3">
@@ -40,6 +49,12 @@
                     </button>
                     <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
                 </div>
+            </div>
+
+            <div style="width: 100%; margin-top: 20px; display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                <template v-for="video in product.videos" :key="video">
+                    <video :src="'/storage/videos/'+video.path" controls style="max-width: 200px; height: 100px;"></video>
+                </template>
             </div>
 
 
@@ -141,6 +156,10 @@
                         </div>
                     </div>
                     <label style="margin-left: 50px;">{{ review.comment }}</label>
+                    <div style="width: 100%; overflow-x: auto; gap: 5px; display: flex;">
+                        <img v-for="photo in review.reviewphotos" :key="photo" :src="'/'+photo.path" style="width: 100px; height: 100px; border: 1px solid gray;">
+                        <video v-for="video in review.reviewvideos" :key="video" :src="'/'+video.path" style="width: 200px; height: 100px; border: 1px solid gray;" controls></video>
+                    </div>
                 </div>
             </div>  
         </div>
@@ -150,12 +169,15 @@
 <script>
 import axios from 'axios';
 import { useDataStore } from '../../stores/dataStore';
+import AttachVideo from '../modal/AttachVideo.vue';
 
 export default {
     components: {
+        AttachVideo
     },
     data() {
         return {
+            product_id: null,
             show: true,
             product:  null,
             clicked: false,
@@ -171,6 +193,13 @@ export default {
     },
 
     methods: {
+        exitModal(video){
+            this.product.videos.push(video);
+            this.exit_modal();
+        },
+        exit_modal(){
+            this.product_id = null;
+        },
         returnStar(type_star, rate){
 
           let num = Math.floor(rate);
@@ -291,12 +320,16 @@ export default {
             const products = this.store.selected_shop.products;
             console.log(products);
 
+            console.log('products: ', products);
+
             //find the product
             const product = products.find(e => e.id === id);
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             console.log('PRODUCT: ', product);
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            this.product = product;
+            this.product = product; 
+
+
         }
     },
     mounted() {

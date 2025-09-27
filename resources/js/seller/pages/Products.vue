@@ -1,10 +1,12 @@
 <template>
     <div class="product-container">
+        
         <teleport to="body">
             <div class="overlay" v-if="is_overlay_loading">
                 <img src="../../../images/kOnzy.gif">
             </div>
         </teleport>
+
         <div class="product-header">
             <form class="product-header" @submit.prevent="goSearch">
                 <div class="search-bar">
@@ -62,8 +64,11 @@
                         <!-- View button/form -->
                         <button class="view-btn" @click="toggleViewProduct(item.id)">View</button>
                         <div v-if="viewedProductId === item.id" class="toggle-details" :data-product-id="item.id">
-                            <h3>View Product</h3>
-                            <div class="image-container">
+                            <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                                <h3>View Product</h3>
+                                <button @click="$router.push({name: 'ViewProduct', params: {id: item.id}})">Learn more</button>
+                            </div>
+                            <div class="image-container">   
                                 <button class="nav-btn nav-left"
                                     @click="scrollImages('left', item.id)"
                                     v-if="item.photos.length>3">
@@ -124,16 +129,18 @@
                                                 <span class="comment-user">{{ comment.user.firstname }} {{ comment.user.lastname }}</span>
                                             </div>
                                             <span class="comment-text">
-                                                <label>
+                                                <label style="text-align: start;">
                                                     {{ comment.comment }}
                                                 </label>
+                                                <div v-if="comment.reviewphotos.length > 0 || comment.reviewvideos.length > 0" style="margin-left: 10px; margin-bottom: 10px;">
+                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px; overflow-x: auto;">
+                                                        <img :src="'/'+photo.path" style="width: 100px; height: 100px; cursor: pointer; border: 1px solid gray;" v-for="photo in comment.reviewphotos" :key="photo">
+                                                        <video :src="'/'+photo.path" style="width: 200px; height: 100px; cursor: pointer; border: 1px solid gray;" v-for="photo in comment.reviewvideos" :key="photo" controls>
 
-                                                <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
-                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                                                        <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
+                                                        </video>
                                                     </div>
                                                 </div>
-                                                <label>
+                                                <label style="text-align: start;">
                                                     {{ returnformatTime(comment.created_at) }}
                                                 </label>
                                             </span>
@@ -248,6 +255,7 @@
                                 </div>
                             </form>
                         </div>
+
                         <button
                             v-if="canDelete(item.status)"
                             @click="deleteProduct(item.id)"
@@ -270,9 +278,11 @@
 <script>
 import { useDataStore } from '../../stores/dataStore';
 import axios from 'axios';
+import AttachVideo from '../modal/AttachVideo.vue';
 
 
 export default {
+    components: {AttachVideo},
     data() {
         return {
             search: {

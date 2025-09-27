@@ -19,7 +19,7 @@
                 <img :src="'/'+chat[1].profile" alt="Profile">
                 <div class="chat-details">
                     <h6>{{ chat[1].firstname }} {{ chat[1].lastname }}</h6>
-                    <p>{{ chat[0].messages }}</p>
+                    <p>{{ returnmessageLatest(chat[0].messages) }}</p>
 
                     <div style="display: flex; flex-direction: row; gap: 8px; align-items: center;">
                         <div style="width: 15px; height: 15px; border-radius: 15px; background-color: green;" v-if="chat[1].is_active === 1"></div>
@@ -51,6 +51,7 @@ export default {
             searchTerm: '',
             store: useDataStore(),
             conversation: [],
+            screen: window.innerWidth,
         }
     },
     computed: {
@@ -63,6 +64,18 @@ export default {
         }
     },
     methods: {
+        returnmessageLatest(message){
+            console.log('m: ', message.length);
+            let screen = window.innerWidth;
+            console.log('s: ', screen);
+
+            if(message.length > 15 && screen < 768){
+                
+                return `${message.slice(0, 15)} ...`;
+            }
+
+            return message;
+        },
         returnFormatActivedTime(datetime) {
             if(!datetime){
                 return "";

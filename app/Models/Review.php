@@ -17,6 +17,10 @@ class Review extends Model
         return $this->hasMany(Reviewphoto::class, 'review_id');
     }
 
+    public function reviewvideos(){
+        return $this->hasMany(Reviewvideo::class, 'review_id');
+    }
+
     public function calculate_averate_rate($reviews){
 
         if($reviews->isEmpty()){
@@ -39,6 +43,7 @@ class Review extends Model
     public function addReview(Request $req): string
     {
         try{
+
             $review_info = json_decode($req->review_info);
             $this->from_id = $req->from_id;
             $this->review_type = $req->type;
@@ -69,6 +74,26 @@ class Review extends Model
                     $reviewphoto->review_id = $this->id;
 
                     if(!$reviewphoto->save()){
+                        return "error";
+                    }
+                }
+            }
+
+            //check if user send a video in review
+            Log::info('videos', ['videos'=>$req->file('videos')]);
+            if($req->file('videos')){
+
+                foreach($req->file('videos') as $video){
+                    $reviewvideo = new Reviewvideo();
+
+                    $filename = time() . "_" . $video->getClientOriginalName();
+                    $video->storeAs('public/review_video/',$filename);
+                    $path = "storage/review_video/" . $filename;
+
+                    $reviewvideo->path = $path;
+                    $reviewvideo->review_id = $this->id;
+
+                    if(!$reviewvideo->save()){
                         return "error";
                     }
                 }

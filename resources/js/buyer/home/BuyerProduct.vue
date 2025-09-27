@@ -30,6 +30,14 @@
             <label style="text-decoration: none;">... </label>
             <label @click="show_morePhotos=true; photos = product.photos;">More pictures</label>
         </div>
+
+        <label style="font-size: 12px; margin-bottom: 10px; margin-top: 10px; color: gray;">View videos</label>
+        <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 10px; overflow-x: auto;">
+            <template v-for="(video, indx) of videos" :key="indx">
+                <video :src="'/storage/videos/' + video.path" style="width: 200px; height: 100px" controls></video>
+            </template>
+        </div>
+
         <div class="shop-name">
             <label @click="$router.push({name: 'ShopAbout', params: {id: product.shop_id}});">{{ product.shop.name }}</label>
         </div>
@@ -66,7 +74,8 @@
                         <label>{{ review.comment }}</label>
                     </div>
                     <div class="comment-pic">
-                        <img :src="'/'+photo.path" v-for="photo in review.reviewphotos" :key="photo" style="border: 1px solid gray;" @click="show_pic=true; pic=photo.path">
+                        <img :src="'/'+photo.path" v-for="photo in review.reviewphotos" :key="photo" style="border: 1px solid gray; width: 100px; height: 100px;    " @click="show_pic=true; pic=photo.path">
+                        <video v-for="video in review.reviewvideos" :key="video" style="border: 1px solid gray; width: 200px; height: 100px;" :src="'/'+video.path" controls></video>
                     </div>
                 </div>
             </div>
@@ -86,18 +95,30 @@
                         <label>(Choose your rating for this product)</label>
                     </div>
                     <textarea placeholder="Leave a comment" required v-model="review_info.comment"></textarea>
-                    <div style="display: flex; flex-direction: row; gap: 10px; align-items: center;">
-                        <label for="img"><img src="../../../images/image-gallery.png"></label>
-                        <template v-if="review_photo_send.length > 0 && review_photo_send">
-                            <div v-for="(photo, indx) in review_photo_send" :key="indx" style="position: relative;">
-                                <label style="position: absolute; right: 0; top: -9px; font-size: 14px; color: red;" @click="removePhoto(indx)">x</label>
-                                <img style="width: 30px; height: 30px; border: 1px solid gray;" :src="photo.preview">
+                    <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                        <div style="width: 100%; display: flex; flex-direction: row; gap: 10px;">
+                            <label for="img"><img src="../../../images/image-gallery.png"></label>
+                            <label for="video"><img src="../../../images/video-editing.png"></label>
+                        </div>
+                        <template v-if="(review_photo_send.length > 0 && review_photo_send) || (review_video_send.length > 0 && review_video_send)">
+                            <div style="width: 100%; display: flex; flex-direction: row; align-items: center; gap: 20px; overflow-x: auto;">
+                                <div v-for="(photo, indx) in review_photo_send" :key="indx" style="position: relative;">
+                                    <img src="../../../images/cancel.png" style="width: 15px; height: 15px; position: absolute; right: 0;" @click="removePhoto(indx)">
+                                    <img style="width: 100px; height: 100px; border: 1px solid gray;" :src="photo.preview">
+                                </div>
+                                <div v-for="(video, indx) in review_video_send" :key="indx" style="position: relative; display: flex; flex-direction: column;">
+                                    <div style="width: 100%; justify-content: end; display: flex; flex-direction: row;">
+                                        <img src="../../../images/cancel.png" style="width: 15px; height: 15px; " @click="removeVideo(indx)">
+                                    </div>
+                                    <video style="width: 180px; height: 100px; border: 1px solid gray;" :src="video.preview" controls></video>
+                                </div>
                             </div>
                         </template>
                     </div>
-                    <input type="file" id="img" hidden @change="addPhoto">
+                    <input type="file" accept="image/*" id="img" hidden @change="addPhoto">
+                    <input type="file" accept="video/*" id="video" hidden @change="addVideo">
                     <button class="submit-btn">Submit</button>
-                </form>
+                </form> 
             </div>
 
             <div class="leave-comment" @click="show_rate = !show_rate" v-if="can_rate">
@@ -127,6 +148,7 @@
 <script>
 import MorePhotos from './MorePhotos.vue';
 import { useDataStore } from '../../stores/dataStore';
+import axios from 'axios';
 export default {
     components: {
         MorePhotos
@@ -138,6 +160,7 @@ export default {
             pic: null,
             show_morePhotos: false,
             review_photo_send: [],
+            review_video_send: [],
             review_info: {
                 rate: 0,
                 comment: "",
@@ -150,10 +173,38 @@ export default {
                 start: 3,
                 half: true,
                 no_star: 1,
-            }
+            },
+            videos: null,
         }
     },
     methods: {
+        
+        addVideo(e){
+            const file = e.target.files[0];
+
+            const reader = new FileReader();
+
+            reader.onload = (e) => {
+
+                this.review_video_send.push({
+                    file,
+                    preview: e.target.result
+                })
+                console.log('videos: ', this.review_video_send);
+            }
+
+            reader.readAsDataURL(file);
+
+            e.target.value = null;
+        },
+        async returnVideos(){
+            const data = new FormData();
+            data.append('id', this.product.id);
+            const res = await axios.post('/buyer/return-videos', data);
+
+            this.videos = res.data.videos;
+            console.log('videos: ', this.videos);
+        },
         goLocation(lat, long){
             console.log(lat + " " + long);
             const store = useDataStore();
@@ -178,6 +229,11 @@ export default {
         removePhoto(index){
             console.log(index);
             this.review_photo_send.splice(index, 1);
+        },
+        removeVideo(index){
+            console.log('index: ', index);
+            this.review_video_send.splice(index, 1);
+
         },
         isFloat(num){
           return (Number(num) === num) && (num % 1 !== 0);
@@ -241,6 +297,12 @@ export default {
 
                 data.append('photos[]', photo.file);
             });
+
+            this.review_video_send.forEach(video => {
+
+                data.append('videos[]', video.file);
+            })
+
             data.append('type', 'product');
             data.append('to_id', this.product.id);
             data.append('user_id', this.product.shop.user_id);
@@ -314,6 +376,7 @@ export default {
     async mounted(){
         this.$emit("changepathtext", "home");
         window.scrollTo(0, 0);
+        await this.returnVideos();
         await this.returnReviews();
     }
 }
@@ -415,6 +478,7 @@ export default {
     display: flex;
     flex-direction: row;
     gap: 10px;
+    overflow-x: auto;
 }
 .comment-text{
     font-size: 12px;

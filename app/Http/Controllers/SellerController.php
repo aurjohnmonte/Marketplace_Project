@@ -8,6 +8,7 @@ use App\Models\Follower;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Product;
+use App\Models\Pvideo;
 use App\Models\Record;
 use App\Models\Review;
 use App\Models\Shop;
@@ -27,7 +28,17 @@ class SellerController extends Controller
 
             $user = User::returnProfileInfo($email);
 
-            $shop = Shop::with(['products', 'products.shop', 'products.photos','reviews', 'products.reviews.user', 'user.followers.followedBy', 'reviews.user'])->where('shops.user_id',$user['id'])->first();
+            $shop = Shop::with(['products', 
+                                'products.shop', 
+                                'products.photos',
+                                'reviews', 
+                                'products.reviews.reviewphotos',
+                                'products.reviews.reviewvideos',
+                                'reviews.reviewphotos',
+                                'products.reviews.user', 
+                                'user.followers.followedBy', 
+                                'reviews.user',
+                                'products.videos'])->where('shops.user_id',$user['id'])->first();
 
             return response()->json(['message'=>$user, 'shop'=>$shop]);
         }
@@ -375,6 +386,7 @@ class SellerController extends Controller
             $record->seller_id = $data->seller_id;
 
             if($record->save()){
+
                 $notify = new Notification();
                 $shop = Shop::where('user_id',$data->seller_id)->first();
 
@@ -384,11 +396,33 @@ class SellerController extends Controller
                 $notify->record_id = $record->id;
                 $notify->product_id = $data->product_id;
                 $notify->user_id = $data->user_id;
-                $notify->status = 'pending';
-                $notify->text = "$shop->name has added you in the transaction record. Confirm if this is true";
+                $notify->status = 'success';
+                $notify->text = "$shop->name has added you in the transaction record. Please check your message.";
 
                 if($notify->save()){
-                    broadcast(new NotifyEvent($data->user_id, 'specific'));
+                    //pass
+                }   
+
+                $message = new Message();
+
+                $message->from_id = $data->seller_id;
+                $message->to_id = $data->user_id;
+                $message->messages = "Hi, you've purchase my product. Your review will be a big help for my store. Please click the view above.";
+                $message->mention = $data->product_id;
+                $message->seen = 0;
+                $message->seen_at = null;
+
+                if($message->save()){
+                    $notify = new Notification();
+                    $message = $notify->addNotification('message', $data->seller_id, null, $data->user_id, null, $message->id);
+
+                    $buyer = User::where('id', $data->user_id)->first();
+
+                    if($buyer){
+                        broadcast(new MessageEvent($buyer->name));
+                        broadcast(new NotifyEvent($data->user_id, 'specific'));
+                    }
+
                 }
 
                 return response()->json(['message' => 'successful']);
@@ -436,6 +470,37 @@ class SellerController extends Controller
             $record->delete();
 
             return response()->json(['message' => 'success']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex]);
+        }
+    }
+
+    public function attach_video(Request $req){
+        try{
+
+            $file = $req->file('video');
+
+            if(!$file){
+                return response()->json(['message' => 'file not exist']);
+            }
+
+            $filename = time() . "_" . $file->getClientOriginalName();
+
+            $file->storeAs('public/videos/', $filename);
+
+            $video = new Pvideo();
+            $video->path = $filename;
+            $video->product_id = $req->product_id;
+
+            if(!$video->save()){
+                return response()->json(['message' => 'error']);
+            }
+
+            $data = Pvideo::where('id', $video->id)->first();
+
+            return response()->json(['message' => 'successful', 'video' => $data]);
+
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex]);

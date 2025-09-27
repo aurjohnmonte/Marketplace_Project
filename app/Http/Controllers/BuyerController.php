@@ -9,6 +9,7 @@ use App\Models\Follower;
 use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Product;
+use App\Models\Pvideo;
 use App\Models\Record;
 use App\Models\Review;
 use App\Models\Shop;
@@ -276,6 +277,7 @@ class BuyerController extends Controller
                     $query->where('created_at','>=',now()->subDays(30))
                           ->orderBy('created_at', 'desc');
                 }
+
                 else if($info->filter === "Popular"){
                     $query->orderBy('overall_rate', 'desc');
                 }
@@ -298,6 +300,8 @@ class BuyerController extends Controller
             $review = new Review();
             $message = $review->addReview($request);
 
+    
+
             return response()->json(['message'=>$message]);
         }
         catch(\Exception $ex){
@@ -318,7 +322,7 @@ class BuyerController extends Controller
 
             if($request->type === "product"){
 
-                $reviews = Review::with(['user', 'reviewphotos'])
+                $reviews = Review::with(['user', 'reviewphotos', 'reviewvideos'])
                                  ->where('product_id', $request->product_id)
                                  ->where('to',$request->type)
                                  ->get();
@@ -669,6 +673,18 @@ class BuyerController extends Controller
             $follows->delete();
 
             return response()->json(['message' => 'success']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function return_videos_product(Request $req){
+        try{
+
+            $videos = Pvideo::where('product_id', $req->id)->get();
+
+            return response()->json(['videos' => $videos]);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex->getMessage()]);
