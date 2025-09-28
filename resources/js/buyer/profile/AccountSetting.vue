@@ -1,5 +1,10 @@
 <template>
   <div class="deactivate-account">
+
+    <div class="overlay" v-if="show_loading">
+      <img src="../../../images/kOnzy.gif" style="width: 100px; height: 100px;">
+    </div>
+
     <header class="header">
       <h1>Deactivate Account</h1>
     </header>
@@ -13,10 +18,8 @@
         This will remove all your past interactions such as:
       </p>
       <ul>
-        <li>Shop ratings and reviews</li>
-        <li>Product ratings</li>
         <li>Messages sent to shops</li>
-        <li>Other public activity</li>
+        <li>Notifications</li>
       </ul>
       <p>
         You can reactivate your account anytime by logging in again with your
@@ -68,7 +71,8 @@ export default {
     return {
       email: "",
       otpCode: "",
-      showOtpModal: false
+      showOtpModal: false,
+      show_loading: false,
     };
   },
   methods: {
@@ -77,6 +81,8 @@ export default {
         alert("Please enter your email before deactivating.");
         return;
       }
+
+      this.show_loading = true;
 
       const data = new FormData();
       data.append("email", this.email);
@@ -93,6 +99,9 @@ export default {
         console.error(err);
         alert("Error sending OTP.");
       }
+      finally{
+        this.show_loading = false;
+      }
     },
     closeModal() {
       this.showOtpModal = false;
@@ -104,6 +113,8 @@ export default {
         return;
       }
 
+      this.show_loading = true;
+
       try {
         const data = new FormData();
         data.append("email", this.email);
@@ -113,14 +124,27 @@ export default {
         const res = await axios.post("/verify-otp", data);
 
         if (res.data.message === "successful") {
-          alert("Account deactivated successfully.");
-          this.closeModal();
-          this.email = "";
+
           const store = useDataStore();
           let id = store.currentUser_info.id;
-          this.$emit('stopLocation');
-          store.reset();
-          window.location.href=`/buyer/logout?id=${id}`;
+
+          const data = new FormData();
+          data.append('id', id);
+          const res = await axios.post('/buyer/deactivate', data);
+
+          if(res.data.message === 'successful'){
+            alert("Account deactivated successfully.");
+
+            this.closeModal();
+            this.email = "";
+
+            this.$emit('stopLocation');
+            store.reset();
+            window.location.href=`/buyer/logout?id=${id}`;
+            return;
+          }
+          alert("Account deactivated failed.");
+
         } else {
           alert(res.data.message || "Invalid OTP code.");
         }
@@ -128,12 +152,27 @@ export default {
         console.error(err);
         alert("Error verifying OTP.");
       }
+      finally{
+        this.show_loading = false;
+      }
     }
   }
 };
 </script>
 
 <style scoped>
+.overlay{
+  position: fixed;
+  background-color: rgba(0, 0, 0, 0.672);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
 .deactivate-account {
   max-width: 500px;
   margin: 0 auto;

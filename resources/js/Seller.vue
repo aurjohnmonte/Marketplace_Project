@@ -267,6 +267,7 @@ export default{
             this.page = switchPage;
         },
         toggleProfileBox() {
+            return;
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
         },

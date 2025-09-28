@@ -6,7 +6,7 @@
         <div class="product-profile">
             <div class="image-container" :class="{ 'center-images': product.photos.length < 3 }">
 
-                <button style="position: absolute; top: 0; right: 0; margin: 10px; border: none; padding: 5px; border: 1px solid gray; background-color: orange; cursor: pointer; border-radius: 5px;"
+                <button class="attach-btn"
                         @click="product_id = product.id">
                     Attach video
                 </button>
@@ -51,7 +51,7 @@
                 </div>
             </div>
 
-            <div style="width: 100%; margin-top: 20px; display: flex; flex-direction: row; align-items: center; gap: 10px;">
+            <div style="width: 100%; margin-top: 20px; display: flex; flex-direction: row; align-items: center; gap: 10px; overflow-x: auto;">
                 <template v-for="video in product.videos" :key="video">
                     <video :src="'/storage/videos/'+video.path" controls style="max-width: 200px; height: 100px;"></video>
                 </template>
@@ -763,5 +763,53 @@ h6 {
 .desc p{
     color: #3f3c3c !important;
     font-size: larger;
+}
+
+.attach-btn{
+    position: absolute; top: 0; right: 0; margin: 10px; border: none; padding: 5px; border: 1px solid gray; background-color: orange; cursor: pointer; border-radius: 5px;
+}
+
+@media (max-width: 480px) {
+    .details-container {
+        display: flex;
+        flex-direction: column;
+    }
+    .attach-btn{
+        width: 80px;
+        font-size: 10px;
+        right: -10px;
+    }
+    .rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5em;
+        background: #ffffff41;
+        border-radius: 1em;
+        width: fit-content;
+        padding: .3em .5em;
+    }
+
+    .rating p {
+        margin: 0;
+        font-weight: 600;
+        color: #252525;
+        font-size: 0.9em;
+    }
+
+    .rating .fa-star {
+        color: #a1a1a1;
+        font-size: 1.2em;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    .product-details {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1em;
+        padding: 0 1em;
+    }
 }
 </style>

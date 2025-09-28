@@ -23,7 +23,7 @@
                             <span class="change-link">Change</span>
                         </div>
                         <div class="menu-item" @click="changeSellerInformation">
-                            <span>Seller Info</span>
+                            <span>Account Info</span>
                             <span class="change-link">Change</span>
                         </div>
                     </div>
@@ -528,6 +528,7 @@ export default {
                 const res = await axios.post('/seller/change/seller-details', data);
 
                 console.log(res.data.message);
+                console.log('shop: ', res.data.shop);
 
                 this.store.setSelectedShop(res.data.shop);
 
@@ -789,7 +790,6 @@ export default {
     display: flex;
     justify-content: space-evenly;
     align-items: center;
-    padding: 0.75em 2em;
     border-top-left-radius: 1em;
     border-top-right-radius: 1em;
 }
@@ -801,6 +801,8 @@ export default {
     color: #e7e4e3;
     transition: color 0.3s ease;
     user-select: none;
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .body-header h5.active {
@@ -1059,6 +1061,19 @@ export default {
 
 /* Small mobile devices */
 @media (max-width: 480px) {
+    .profile-img {
+        position: absolute;
+        bottom: -5em;
+        left: 20px;
+        top: 30px;
+        width: 10em;
+        height: 10em;
+        border-radius: 50%;
+        border: 4px solid white;
+        background-color: white;
+        overflow: hidden;
+        z-index: 2;
+    }
     .body {
         padding: 0.5rem;
     }

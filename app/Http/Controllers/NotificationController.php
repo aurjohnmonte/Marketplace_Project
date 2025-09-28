@@ -18,7 +18,7 @@ class NotificationController extends Controller
         try{
             if($request->type === "buyer"){
                 $following_shops = Follower::select('user_id')->where('follower_id',$request->id)->get()->toArray();
-                $notifications = Notification::with(['users', 'users.shop', 'products.photos', 'products.shop', 'products.records', 'reviews', 'messages'])
+                $data = Notification::with(['users', 'users.shop', 'products.photos', 'products.shop', 'products.records', 'reviews', 'messages'])
                                             ->where(function ($query) use($following_shops) {
                                                 
                                                 $query->where('notifications.type', '=', 'product')
@@ -34,9 +34,18 @@ class NotificationController extends Controller
                                             ->where('notifications.user_id', $request->id)
                                             ->orderBy('notifications.created_at', 'desc')
                                             ->get();
+                    
+                $data = [];
+
+                foreach($notifications as $notify){
+
+                    if($notify->users->is_deactivate === 0){
+                        array_push($data, $notify);
+                    }
+                }
             }
             
-            return response()->json(['message'=>$notifications]);
+            return response()->json(['message'=>$data]);
         }
         catch(\Exception $err){
             return response()->json(['message'=>$err->getMessage()]);
@@ -194,6 +203,8 @@ class NotificationController extends Controller
                                 ->join("users as sender",'messages.from_id','=','sender.id')
                                 ->join("users as receiver",'messages.to_id','=','receiver.id')
                                 ->whereIn('messages.id',$array)
+                                ->where('sender.is_deactivate', '=', 0)
+                                ->where('receiver.is_deactivate', '=', 0)
                                ->get();
 
             Log::info('messages', ['messages'=>$messages]);

@@ -278,12 +278,23 @@ class SellerController extends Controller
             $user->gender = $req->gender;
             $user->birthday = $req->birthday;
             $user->current_address = $req->address;
+
+
             
             $message = '';
             if(!$user->save()){
                 $message = 'error';
             }
             else{
+
+                $shop = Shop::where('user_id', $req->id)->first();
+
+                if($shop){
+                    $shop->address = $req->address;
+
+                    $shop->save();
+                }
+
                 $message = 'successful';
             }
 
@@ -313,7 +324,13 @@ class SellerController extends Controller
     public function return_followers(Request $req){
         try{
             
-            $followers = Follower::with('followedBy')->where('user_id', $req->id)->get();
+            $followers = Follower::with('followedBy')
+                                    ->whereHas('followedBy', function($query){
+
+                                        $query->where('is_deactivate', 0);
+                                    })
+                                    ->where('user_id', $req->id)
+                                    ->get();
 
             Log::info('followers', ['followers' => $followers]);
 

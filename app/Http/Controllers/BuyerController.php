@@ -12,6 +12,8 @@ use App\Models\Product;
 use App\Models\Pvideo;
 use App\Models\Record;
 use App\Models\Review;
+use App\Models\Reviewphoto;
+use App\Models\Reviewvideo;
 use App\Models\Shop;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -685,6 +687,148 @@ class BuyerController extends Controller
             $videos = Pvideo::where('product_id', $req->id)->get();
 
             return response()->json(['videos' => $videos]);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function buyer_deactivate(Request $req){
+        try{
+
+            $id = $req->id;
+
+            $user = User::where('id', $id)->first();
+
+            if(!$user){
+                return response()->json(['message' => 'user not found']);
+            }
+
+            $user->is_deactivate = 1;
+
+            if($user->save()){
+                return response()->json(['message' => 'successful']);
+            }
+
+            return response()->json(['message' => 'error']);
+        }
+        catch(\Exception $ex){
+            return response()->json(['message'=>$ex->getMessage()]);
+        }
+    }
+
+    public function buyer_delete_account(Request $req){
+        try{
+            
+            $id = $req->id;
+
+            //notification and message delete
+            $messages = Message::where('from_id', $id)
+                               ->orWhere('to_id', $id)
+                               ->get();
+
+            if(!$messages->isEmpty()){
+
+                foreach($messages as $m){
+
+                    $notification = Notification::where('message_id', $m->id)->first();
+
+                    if($notification){
+                        $notification->delete();
+                    }
+
+                    $m->delete();
+                }
+            }
+
+            //reviews delete
+            $reviews = Review::where('from_id', $id)->get();
+
+            if(!$reviews->isEmpty()){
+
+                foreach($reviews as $r){
+
+                    //photo
+                    $photos = Reviewphoto::where('review_id', $r->id)->get();
+                    //video
+                    $videos = Reviewvideo::where('review_id', $r->id)->get();
+                    //notification
+                    $notifs = Notification::where('review_id', $r->id)->get();
+
+                    if(!$photos->isEmpty()){
+                        
+                        foreach($photos as $photo){
+                            $photo->delete();
+                        }
+                    }
+                    if(!$videos->isEmpty()){
+                        
+                        foreach($videos as $video){
+                            $video->delete();
+                        }
+                    }
+                    if(!$notifs->isEmpty()){
+                        
+                        foreach($notifs as $n){
+                            $n->delete();
+                        }
+                    }
+
+
+                    //delete review
+                    $r->delete();
+
+                }
+            }
+            
+
+            //records
+            $records = Record::where('user_id', $id)->get();
+
+            if(!$records->isEmpty()){
+
+                foreach($records as $re){
+
+                    $notif = Notification::where('record_id', $re->id)->first();
+
+                    if($notif){
+                        $notif->delete();
+                    }
+
+                    $re->delete();
+                }
+            }
+
+            //follower
+            $follower = Follower::where('follower_id', $id)->first();
+
+            if($follower){
+                $follower->delete();
+            }
+
+            //delete completely notification
+
+            $notifications = Notification::where('from_id', $id)->get();
+
+            if(!$notifications->isEmpty()){
+                
+                foreach($notifications as $notif){
+
+                    $notif->delete();
+                }
+            }
+
+            //DELETE ACCOUNT
+
+            $account = User::where('id', $id)->first();
+
+            if($account){
+
+                $account->delete();
+            }
+
+            return response()->json(['message' => 'successful']);
+
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex->getMessage()]);

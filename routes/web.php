@@ -145,6 +145,10 @@ Route::middleware('buyercheck')->group(function() {
     Route::post('/shop/unfollow', [BuyerController::class, 'unfollow']);
     //buyer return product videos
     Route::post('/buyer/return-videos', [BuyerController::class, 'return_videos_product']);
+    //buyer deactivate
+    Route::post('/buyer/deactivate', [BuyerController::class, "buyer_deactivate"]);
+    //buyer delete account
+    Route::post('/buyer/delete-account', [BuyerController::class, "buyer_delete_account"]);
 
     //LOGOUT
     Route::get('/buyer/logout', function(Request $request) {

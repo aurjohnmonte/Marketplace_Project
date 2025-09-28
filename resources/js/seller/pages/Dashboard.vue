@@ -88,7 +88,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="graph cards" style="overflow: hidden;">
+                    <div class="graph cards" style="overflow: auto;">
                         <LineGraph/>
                     </div>
                 </div>
@@ -352,7 +352,6 @@ export default {
                 return 0;
             }
             const result = (this.follower_statistics.female.length / this.follower_statistics.total) * 100;
-            console.log(this.follower_statistics);
             return result.toFixed(2);
         },
         computemalepercent(){
@@ -360,7 +359,6 @@ export default {
                 return 0;
             }
             const result = (this.follower_statistics.male.length / this.follower_statistics.total) * 100;
-            console.log(this.follower_statistics);
             return result.toFixed(2);
         },
         filteredProducts() {
@@ -381,8 +379,6 @@ export default {
         const store = useDataStore();
         const shop = store.selected_shop;
         this.user = store.currentUser_info;
-        console.log('SHOP: ',shop);
-
         //compute total shop reviews
         this.totalShopReviews();
         //compute total of products
@@ -416,13 +412,11 @@ export default {
             const res = await axios.post("/return/user-seller/info");
 
             const store = useDataStore();
-
-            console.log('user: ',res.data.message);
-            console.log('shop: ', res.data.shop);
             this.user = res.data.message;
             store.setUserInfo(res.data.message);
             store.setSelectedShop(res.data.shop);
-            console.log('id: ', store.currentUser_info.id);
+
+            console.log('soy kaneh: ',res.data.shop);
         },
 
         returnColor(notif){
@@ -440,7 +434,6 @@ export default {
                 data.append('id', store.currentUser_info.id);
 
                 const res = await axios.post('/seller/return/products', data);
-                console.log('PRODUCTSSSS: ',res.data.message);
                 this.searchResults = res.data.message;
                 this.orig_products = res.data.message;
             }
@@ -457,7 +450,6 @@ export default {
                     type: 'seller',
                 }
             });
-            console.log(res.data.message);
             let count = 0;
             for(let notif of res.data.message){
                 if(count === 10){
@@ -470,7 +462,6 @@ export default {
                 this.notifications.push(notif);
                 count++;
             }
-            console.log('notif: ', this.notifications);
         },
 
         async returnCategoriesProducts(){
@@ -484,7 +475,6 @@ export default {
                 }
             });
 
-            console.log(res.data.message);
 
             for(let product of res.data.message){
 
@@ -505,7 +495,6 @@ export default {
                 this.products_data_radial.data[product.category] = this.products_data_radial.data[product.category] + product.reviews.length;
             }
 
-            console.log('category: ', this.products_data_radial);
 
 
             this.show = true;
@@ -515,22 +504,16 @@ export default {
 
             const store = useDataStore();
 
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!', store.selected_shop);
-
             const followers = store.selected_shop.user.followers;
-            console.log('followers: ', followers);
             if(followers.length < 1){
-                console.log('way sulod');
                 return;
             }
-            console.log('followers: ', followers);
 
             this.follower_statistics.total = followers.length;
             this.follower_statistics.male = followers.filter(f => f.followed_by.gender === 'male');
             this.follower_statistics.female = followers.filter(f => f.followed_by.gender === 'female');
 
             for(let user of followers){
-                console.log('user: ', user);
                 if(user.followed_by.age < 18){
                     this.follower_statistics.below_18 = this.follower_statistics.below_18 + 1;
                 }
@@ -541,9 +524,6 @@ export default {
                     this.follower_statistics.above_25 = this.follower_statistics.above_25 + 1;
                 }
             }
-
-
-            console.log('follower statistics: ', this.follower_statistics);
         },
 
         totalOfProducts(shop){
@@ -551,15 +531,11 @@ export default {
             //PRODUCTS ARRAY IS SORTED ASCENDING BASED ON THE OVERALL_RATE
 
             if(shop.products.length < 1){
-                console.log('return')
                 return;
             }
 
-            console.log('SHOP DETAILS: ',shop);
-
             this.total_products.total = shop.products.length;
 
-            console.log('tota: ', this.total_products);
 
             let products = shop.products;
 
@@ -583,13 +559,9 @@ export default {
             }
             while(is_continue);
 
-            console.log('products: ', products);
-
             for(let i = 0; i < 3; i++){
                 this.total_products.high_reviews.push(products[i]);
             }
-
-            console.log(this.total_products);
 
             this.total_products.low_reviews.unshift(products[products.length - 1]);
 
@@ -613,7 +585,6 @@ export default {
             this.shop_reviews.male = arr_review.filter(r => r.user.gender === 'male').length;
             this.shop_reviews.female = arr_review.filter(r => r.user.gender === 'female').length;
 
-            console.log('shop_reviews: ', this.shop_reviews);
         },
 
         clearSearch() {
@@ -666,19 +637,15 @@ export default {
 
         // Improve the chart rendering method
         renderGenderChart() {
-            console.log('NEW AGI');
             const ctx = document.getElementById('genderViewsChart');
             if (!ctx) return;
 
             const context = ctx.getContext('2d');
             if (!context) return;
 
-            console.log(this.shop_reviews.male)
 
             const malePercentage = this.shop_reviews.male > 0 ? (this.shop_reviews.male / this.shop_reviews.unique_total) * 100 : 0;
             const femalePercentage = this.shop_reviews.female > 0 ? (this.shop_reviews.female / this.shop_reviews.unique_total) * 100 : 0;
-
-            console.log(`${malePercentage} - ${femalePercentage}`);
 
             new window.Chart(context, {
                 type: 'bar',
