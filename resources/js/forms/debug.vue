@@ -82,6 +82,24 @@
                         </label>
                     </template>
 
+                    <!-- for tel type inputs like contact numbers -->
+                    <template v-else-if="info.type === 'tel'">
+                        <input
+                            :type="info.type"
+                            :name="info.name"
+                            :id="info.id"
+                            :pattern="info.pattern"
+                            v-model="formData[info.name]"
+                            @input="validateField(info.name)"
+                            required
+                        />
+                        <label
+                            :for="info.id"
+                            class="label"
+                            :class="{ floated: formData[info.name] }">{{ info.label }}
+                        </label>
+                    </template>
+
                     <!-- for other input types that is not mentioned above -->
                     <template v-else>
                         <input
@@ -90,15 +108,13 @@
                             :id="info.id"
                             :maxlength="info.max > 0 ? info.max : null"
                             v-model="formData[info.name]"
-                            @focus="fieldStatus.focusedField = info.name"
-                            @blur="fieldStatus.focusedField = null"
                             @input="validateField(info.name, (info.name === 'age' ? true : false))"
                             :required="info.name !== 'm_initial'"
                         />
                         <label
                             :for="info.id"
                             class="label"
-                            :class="{ floated: formData[info.name] || fieldStatus.focusedField === info.name }"
+                            :class="{ floated: formData[info.name] }"
                         >
                             {{ info.label }}
                         </label>
@@ -128,7 +144,6 @@
                         <label
                             :for="info.id"
                             class="label"
-                            :class="{ floated: formData[info.name] }"
                             tabindex="0"
                         >
                             {{ info.label }}
@@ -139,7 +154,7 @@
                             @click="triggerFileInput(info.name)"
                         >
                             -
-                            <span v-if="formData[info.name]" class="file-name" :title="formData[info.name]?.name">
+                            <span v-if="formData[info.name]" class="file-name">
                                 {{ formData[info.name]?.name }}
                             </span>
                         </button>
@@ -354,7 +369,6 @@ export default {
                 terms: null,
                 showPassword: false,
                 showConfirmPassword: false,
-                focusedField: null,
             },
             debounceTimers: {},
             // Simulated existing data for async checks
@@ -366,7 +380,7 @@ export default {
     computed: {
         activeErrors() {
             // pick only relevant fields for the current step
-            const personalFields = ["firstname", "lastname", "email", "contact_no", "gender", "birthday", "age"];
+            const personalFields = ["firstname", "lastname", "m_initial", "email", "contact_no", "gender", "birthday", "age"];
             const accountFields = ["username", "password", "confirm_password", "terms", "location_access", "profile_image"];
 
 
@@ -567,13 +581,7 @@ export default {
             // If the field is empty, clear errors and status
             if (!value) {
                 this.validationMessages[field] = [];
-
-                if (field === 'm_initial') {
-                    this.fieldStatus[field] = true;
-                } else {
-                    this.fieldStatus[field] = null;
-                }
-                return;
+                this.fieldStatus[field] = null;
             } else {
                 // Run all rules
                 const errors = this.validationRules(field, value).map(rule => typeof rule === 'function' ? rule(value) : true).filter(msg => msg !== true);
@@ -931,8 +939,6 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   align-items: start;
   justify-content: center;
-  gap: 1em;
-  margin-bottom: 1rem;
 }
 
 /* for the input */
@@ -965,7 +971,7 @@ export default {
   font-size: 12px;
   color: #575454;
   background-color: #ffffff;
-  width: 60%;
+  width: 70%;
   padding: .2em 1em;
   margin: 0 .2em;
   pointer-events: none;
@@ -984,6 +990,32 @@ export default {
   border-radius: 10px;
   color: #ffffff;
 }
+
+.input-box input:focus + .label,
+.input-box input.focus + .label {
+  top: -8px;
+  left: .5px;
+  width: fit-content;
+  font-size: 10px;
+  padding: 0 .8em;
+  background-color: #091f36;
+  border: #9e363a 1px solid;
+  border-radius: 10px;
+  color: #ffffff;
+}
+
+/* input type="date" */
+  .input-box input[type="date"]:focus + .label {
+    top: -8px;
+    left: 5px;
+    width: fit-content;
+    font-size: 10px;
+    padding: 0 10px;
+    background-color: #091f36;
+    border: #9e363a 1px solid;
+    border-radius: 10px;
+    color: #ffffff;
+  }
 
   input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
@@ -1009,11 +1041,6 @@ export default {
   display: block;
   font-size: 12px;
   color: #333;
-  max-width: 150px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
 }
 
 

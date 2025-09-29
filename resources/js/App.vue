@@ -107,6 +107,21 @@ export default {
     width: 35em;
 }
 
+/* Main container */
+.login-container {
+  background-color:	#F5F5DC;
+  display: flex;
+  flex-direction: column;
+  width: 30%;
+  min-width: 320px;
+  max-width: 600px;
+  margin: 0 5em 0 0;
+  padding: 3em 0;
+  border: 1px solid #000;
+  border-radius: 10px;
+  border-radius: 10px;
+  box-sizing: border-box;
+}
 
 /* Responsive Design */
 @media (min-width: 901px) and (max-width: 1200px) {

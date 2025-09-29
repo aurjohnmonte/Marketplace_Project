@@ -13,8 +13,8 @@
                 :key="field.id"
                 class="input-group"
             >
-            <div class="input-box">
-                <!-- 👇 Normal fields -->
+                <div class="input-box">
+                <!-- Normal fields -->
                  <div v-if="field.id !== 'password'" class="wrapper">
                     <input
                         v-model="data[field.id]"
@@ -28,7 +28,7 @@
                     <label class="label" :for="field.id">{{ field.label }}</label>
                 </div>
 
-                <!-- 👇 Password field with toggle -->
+                <!-- Password field with toggle -->
                 <div v-else class="wrapper">
                     <input
                         v-model="data.password"
@@ -154,22 +154,8 @@ export default {
 }
 </script>
 
-<style>
-/* Main container */
-.login-container  {
-  background-color:	#F5F5DC;
-  display: flex;
-  flex-direction: column;
-  width: 30%;
-  min-width: 320px;
-  max-width: 600px;
-  margin: 0 5em 0 0;
-  padding: 3em 0;
-  border: 1px solid #000;
-  border-radius: 10px;
-  border-radius: 10px;
-  box-sizing: border-box;
-}
+<style scoped>
+
 
 .form-success {
     display: flex;
@@ -234,6 +220,20 @@ export default {
   height: 20px;
   color: #555;
 }
+
+/* input type="date" */
+  .input-box input:focus + .label,
+  .input-box input:valid + .label {
+    top: -8px;
+    left: 5px;
+    width: fit-content;
+    font-size: 10px;
+    padding: 0 10px;
+    background-color: #091f36;
+    border: #9e363a 1px solid;
+    border-radius: 10px;
+    color: #ffffff;
+  }
 
 /* Disabling the browser's password icon feature */
 /* For Microsoft Edge */
