@@ -1369,7 +1369,7 @@ export default {
 }
 
 .total-followers {
-    font-size: 0.7em;
+    font-size: 1.5em;
     color: #333;
     margin: 0;
 }

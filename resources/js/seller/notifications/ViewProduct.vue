@@ -1,7 +1,7 @@
 <template>
     <div class="product-notif-container" v-if="product">
         <teleport to="body">
-            <AttachVideo @exit_modal="exit_modal" @exitModal="exitModal" v-if="product_id" :product="product"/>
+            <AttachVideo @exit_modal="exit_modal" @exitModal="exitModal" @goExit="goExit" v-if="product_id" :product="product"/>
         </teleport>
         <div class="product-profile">
             <div class="image-container" :class="{ 'center-images': product.photos.length < 3 }">
@@ -51,10 +51,13 @@
                 </div>
             </div>
 
-            <div style="width: 100%; margin-top: 20px; display: flex; flex-direction: row; align-items: center; gap: 10px; overflow-x: auto;">
-                <template v-for="video in product.videos" :key="video">
-                    <video :src="'/storage/videos/'+video.path" controls style="max-width: 200px; height: 100px;"></video>
-                </template>
+            <div style="width: 100%; margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 10px; overflow-x: auto;">
+                <div style="width: 100%; text-align: start;">
+                    <h5>PRODUCT VIDEO</h5>
+                </div>
+                <div style="width: 100%; display: flex; flex-direction: row; gap: 15px;">
+                    <video :src="'/storage/videos/'+video.path" controls style="max-width: 200px; height: 100px;" v-for="video in product.videos" :key="video" ></video>
+                </div>
             </div>
 
 
@@ -148,10 +151,10 @@
                         </div>
                         <div>
                             <div class="item-rate">
-                                <label>( {{ product.overall_rate }} )</label>
-                                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
-                                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
-                                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                                <label>( {{ review.rate }} )</label>
+                                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',review.rate)" :key="turn">
+                                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',review.rate)" :key="turn">
+                                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',review.rate)" :key="turn">
                             </div>
                         </div>
                     </div>
@@ -193,6 +196,9 @@ export default {
     },
 
     methods: {
+        goExit(){
+            this.exit_modal();
+        },
         exitModal(video){
             this.product.videos.push(video);
             this.exit_modal();

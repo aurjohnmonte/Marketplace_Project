@@ -21,7 +21,7 @@
 
       <!-- Footer -->
       <div class="modal-actions">
-        <button class="btn cancel">Cancel</button>
+        <button class="btn cancel" @click="$emit('goExit')">Cancel</button>
         <button class="btn confirm" @click="goAttach()">Attach</button>
       </div>
     </div>

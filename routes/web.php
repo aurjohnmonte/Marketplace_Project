@@ -360,6 +360,7 @@ Route::middleware('usercheck')->group(function() {
     Route::post('/seller/record/delete', [SellerController::class, 'deleteRecord']);
     //seller attach video
     Route::post('/seller/attach-video', [SellerController::class, 'attach_video']);
+    
 
     Route::get('/seller/logout', function(Request $request) {
 

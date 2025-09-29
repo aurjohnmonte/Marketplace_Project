@@ -29,6 +29,7 @@ class SellerController extends Controller
             $user = User::returnProfileInfo($email);
 
             $shop = Shop::with(['products', 
+                                'products.videos',
                                 'products.shop', 
                                 'products.photos',
                                 'reviews', 
@@ -37,8 +38,7 @@ class SellerController extends Controller
                                 'reviews.reviewphotos',
                                 'products.reviews.user', 
                                 'user.followers.followedBy', 
-                                'reviews.user',
-                                'products.videos'])->where('shops.user_id',$user['id'])->first();
+                                'reviews.user'])->where('shops.user_id',$user['id'])->first();
 
             return response()->json(['message'=>$user, 'shop'=>$shop]);
         }

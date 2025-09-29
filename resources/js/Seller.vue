@@ -319,12 +319,26 @@ export default{
 
             this.notifyEventListener = Echo.channel(`sellernotify.${this.user.name}`);
 
-            this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
+            this.notifyEventListener.listen('.sellernotify.sent', async(event) => { 
                                             console.log('HELLO WORLDDDDDD');
                                             this.unread_notif = true;
                                             console.log('NEEEH AGIIIIIII');
                                             this.notifymessage = "You have new notification. Check it out.";
                                             this.is_visible = true;
+
+                                            //update product
+                                            const store = useDataStore();
+                                            let id = store.currentUser_info.id;
+
+                                            const data = new FormData();
+                                            data.append('id', id);
+                                            const res = await axios.post('/seller/return/products', data);
+
+                                            const products = res.data.message;
+
+                                            store.selected_shop.products = products;
+
+                                            console.log('MAOH NEH PRODUCT SOY: ', store.selected_shop.products);
                                         });
         }
     }

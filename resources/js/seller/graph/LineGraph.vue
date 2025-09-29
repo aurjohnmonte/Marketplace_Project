@@ -131,12 +131,24 @@ export default {
         console.log('reviews: ', reviews);
 
         const today = new Date();
+        console.log(today.toLocaleDateString())
         let result;
         for(let review of reviews){
 
             let date = new Date(review.created_at);
 
             console.log(today.getDate() - date.getDate() + " : " + date.toLocaleDateString());
+
+            console.log('today: ', today.getDate());
+            console.log('date: ', date.getDate());
+
+            if(date.getDate() > today.getDate()){
+
+              result = 30 - (date.getDate() - today.getDate());
+              result++;
+              this.shopreviews_arr_date[result] = this.shopreviews_arr_date[result]+1;
+              continue;
+            }
 
             result = today.getDate() - date.getDate();
             if(result <= 30){

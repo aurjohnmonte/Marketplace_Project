@@ -7,9 +7,11 @@ use App\Models\Message;
 use App\Models\Notification;
 use App\Models\Photo;
 use App\Models\Product;
+use App\Models\Pvideo;
 use App\Models\Record;
 use App\Models\Review;
 use App\Models\Reviewphoto;
+use App\Models\Reviewvideo;
 use App\Models\Shop;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -85,7 +87,7 @@ weight: ''
                 if($notify->save()){
 
                     broadcast(new NotifyEvent($shop->user_id));
-                    $products = Product::with(['shop', 'records', 'photos', 'reviews'])->where('shop_id', $shop->id)->get();
+                    $products = Product::with(['shop', 'records', 'photos', 'reviews', 'videos'])->where('shop_id', $shop->id)->get();
                 }
 
                 return response()->json(['message'=>'successful', 'products' => $products]);
@@ -107,7 +109,7 @@ weight: ''
                 return response()->json(['message'=>'shop not found']);
             }
 
-            $products = Product::with('photos', 'reviews', 'reviews.user', 'reviews.reviewphotos', 'reviews.reviewvideos')
+            $products = Product::with('photos', 'reviews', 'reviews.user', 'reviews.reviewphotos', 'reviews.reviewvideos','shop', 'videos')
                                ->where('shop_id', $shop->id)
                                ->orderBy('created_at','desc')->get();
 
@@ -216,10 +218,6 @@ weight: ''
                         $photo->delete();
                     }
                 }
-
-                foreach($reviews as $review){
-                    $review->delete();
-                }
             }
 
             if(!$records->isEmpty()){
@@ -258,6 +256,18 @@ weight: ''
                 foreach($photos as $photo){
                     $photo->delete();
                 }
+            }
+
+            $videos = Pvideo::where('product_id', $product->id)->get();
+            if(!empty($videos)){
+
+                foreach($videos as $video){
+                    $video->delete();
+                }
+            }
+
+            foreach($reviews as $review){
+                $review->delete();
             }
 
             $product->delete();
