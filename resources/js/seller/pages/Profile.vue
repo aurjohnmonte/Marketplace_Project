@@ -82,19 +82,36 @@
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 0 2em; overflow-y: hidden;">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="shopName">Shop Name:</label>
                         <input
                             type="text"
                             id="shopName"
-                            v-model="newShopNameForSeller"
+                            v-model="shop.name"
                             placeholder="Enter shop name"
                             :class="{ 'error': shopNameError }"
                             disabled
                         >
-                        <span v-if="shopNameError" class="error-message">{{ shopNameError }}</span>
                     </div>
+
+                    <div class="form-group">
+                        <label for="shopName">Shop Categories:</label>
+                        <div class="category-label" style="margin-left:1em;">
+                            <template v-for="(option, idx) in categories.options" :key="idx">
+                                <input
+                                    type="checkbox"
+                                    :id="categories.id + '_' + option.value"
+                                    :value="option.value"
+                                    v-model="selectedCategories"
+                                />
+                                <label :for="categories.id + '_' + option.value">
+                                    {{ option.label }}
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="shopDescription">Shop Description:</label>
                         <textarea
@@ -272,6 +289,23 @@ export default {
             genderError: '',
             birthdayError: '',
             addressError: '',
+            selectedCategories: [],
+            categories: {
+                label: 'Shop Category',
+                type: 'checkbox',
+                name: 'shop_category',
+                id: 'shop_category',
+                options: [
+                    { value: 'Kitchenware', label: 'Kitchenware' },
+                    { value: 'Musical Instrument', label: 'Musical Instrument' },
+                    { value: 'Decorative Items', label: 'Decorative Items' },
+                    { value: 'Games', label: 'Games' },
+                    { value: 'Outdoor Enhancements', label: 'Outdoor Enhancements' },
+                    { value: 'Home Decor', label: 'Home Decor' },
+                    { value: 'Furniture', label: 'Furniture' },
+                    { value: 'Personal accessories', label: 'Personal accessories' },
+                ]
+            }
         }
     },
     computed: {
@@ -355,6 +389,15 @@ export default {
             if (this.shop) {
                 this.newShopNameForSeller = this.shop.name || '';
                 this.newDescription = this.shop.description || '';
+
+                // Support both array field `categories` and JSON string field `category`
+                if (Array.isArray(this.shop.categories)) {
+                    this.selectedCategories = [...this.shop.categories];
+                } else if (typeof this.shop.category === 'string' && this.shop.category.length > 0) {
+                    try { this.selectedCategories = JSON.parse(this.shop.category) || []; } catch(e) { this.selectedCategories = []; }
+                } else {
+                    this.selectedCategories = [];
+                }
                 this.showDetailsModal = true;
             }
             this.closeMenu();
@@ -419,24 +462,21 @@ export default {
         },
         async saveDetails() {
             let hasError = false;
-
-            if (!this.newShopNameForSeller || this.newShopNameForSeller.trim() === '') {
-                this.shopNameError = 'Shop name is required.';
-                hasError = true;
-            } else {
-                this.shopNameError = '';
-            }
-
             if (!hasError) {
-
                 const data = new FormData();
                 data.append('description', this.newDescription);
                 data.append('id', this.shop.id);
 
+                this.selectedCategories.forEach(cat => {
+                    data.append('categories[]', cat);
+                });
+
                 const res = await axios.post('/seller/change/shop-details', data);
 
                 console.log(res.data.message);
-
+                // Keep store fields consistent: set both `categories` (array) and `category` (JSON string)
+                this.store.selected_shop.categories = res.data.categories || [];
+                this.store.selected_shop.category = JSON.stringify(res.data.categories || []);
                 this.store.selected_shop.description = res.data.description;
 
                 this.closeDetailsModal();
@@ -949,7 +989,7 @@ export default {
 }
 
 .modal-body {
-    padding: .5em 1.5em;
+    padding: 0 1.5em;
     overflow-y: auto;
 }
 
@@ -963,6 +1003,13 @@ export default {
     margin-bottom: 0.5em;
     color: #333;
     font-weight: 500;
+}
+
+.category-label {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 8px 16px;
+    align-items: center;
 }
 
 .form-group input,

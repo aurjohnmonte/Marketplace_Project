@@ -47,8 +47,8 @@
                 <span>Address:</span>
                 <p>{{ shop.address }}</p>
             </div>
-            <div class="row">
-                <div class="details-container category">
+            <div class="row category">
+                <div class="details-container ">
                     <span>Category:</span>
                     <p v-for="cat of category" :key="cat">{{ cat }}</p>
                 </div>
@@ -182,6 +182,17 @@ export default {
     margin: 0;
     color: #666;
     overflow-wrap: anywhere;
+}
+
+.category {
+    display: flex !important;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.category div {
+    width: 100%;
+    display: flex !important;
 }
 
 @media screen and (max-width: 767px) {
