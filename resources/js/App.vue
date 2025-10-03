@@ -179,6 +179,13 @@ export default {
   }
 }
 
+@media (max-width: 780px) {
+    .login-container{
+        padding: 1em;
+        margin: 0;
+    }
+}
+
 @media (min-width: 481px) and (max-width: 600px) {
   .container {
     min-width: 0;

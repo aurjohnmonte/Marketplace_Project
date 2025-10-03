@@ -22,6 +22,7 @@
         </div>
 
         <div class="dashboard-content">
+            <!-- card-container with graphs and charts
             <div class="card-container">
                 <div class="left-container">
                     <div class="top-section">
@@ -102,8 +103,58 @@
                         <RadialGraph :products_data_radial="products_data_radial" v-if="show"/>
                     </div>
                 </div>
-            </div>
-            <div class="card-container-2">
+            </div>-->
+
+            <!-- card-container with no graphs -->
+            <div class="card-container">
+                <div class="cards card-group-2">
+                    <div class="product-container">
+                        <div class="review-section">
+                            <div class="section-header">
+                                <h6>Top product with highest reviews</h6>
+                                <a href="#" class="view-all">view all</a>
+                            </div>
+                            <div class="product-list">
+                                <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
+                                    <div class="product-icon" v-if="product">
+                                    <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="product-details" v-if="product">
+                                        <p class="product-name">{{ product.name }}</p>
+                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                    </div>
+                                    <div class="rating-info" v-if="product">
+                                        <span class="rating-score">{{ product.overall_rate }}</span>
+                                        <i class="fi fi-sr-star filled"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <div class="section-header">
+                                <h6>Top product with lowest reviews</h6>
+                                <a href="#" class="view-all">view all</a>
+                            </div>
+                            <div class="product-list" v-if="total_products.low_reviews.length > 0">
+                                <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
+                                    <div class="product-icon">
+                                        <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="product-details">
+                                        <p class="product-name">{{ product.name }}</p>
+                                        <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                    </div>
+                                    <div class="rating-info">
+                                        <span class="rating-score">{{ product.overall_rate }}</span>
+                                        <i class="fi fi-sr-star filled"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="follower-card cards" style="">
                     <div class="follower-stats">
                         <h4>Follower Statistics</h4>
@@ -140,6 +191,45 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card-container-2">
+                <!-- Add this if you use the card-container with graphs and charts
+                <div class="follower-card cards" style="">
+                    <div class="follower-stats">
+                        <h4>Follower Statistics</h4>
+                        <p class="total-followers"><span>{{ follower_statistics.total }}</span> total followers</p>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stat-item">
+                            <span class="stat-label" style="font-weight: bolder;">Gender</span>
+                            <div style="display: flex; flex-direction: column; margin-top: 10px; gap: .5em; font-size: smaller;">
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Male - ({{ computemalepercent }}%)</label>
+                                    <div class="progress-bar" style="margin-left: 10px;">
+                                        <div class="follower-gender-male fill" :style="{width: `${computemalepercent}%`}"></div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Female - ({{ computefemalepercent }}%)</label>
+                                    <div class="progress-bar">
+                                        <div class="follower-gender-female fill" :style="{width: `${computefemalepercent}%`}"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label" style="font-weight: bolder;">Age</span>
+                            <div style="display: grid; grid-template-columns: 100px 60px 10px; font-size: .7em; padding-left: .5em;">
+                                <label>Below 18</label><label>-</label><label>{{ follower_statistics.below_18 }}</label>
+                                <label>18 - 25</label><label>-</label><label>{{ follower_statistics.middle }}</label>
+                                <label>Above 25</label><label>-</label><label>{{ follower_statistics.above_25 }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div> --->
                 <div class="box">
                     <div class="search-section">
                         <div class="search-bar">
@@ -788,10 +878,8 @@ export default {
 
 /* contents */
 .dashboard-content {
-    display: grid;
-    grid-template-areas:
-    'card-container'
-    'card-container-2';
+    display: flex;
+    flex-direction: column;
     gap: 3.5em;
     height: 100%;
     padding: 0;
@@ -799,17 +887,17 @@ export default {
 .cards {
     border-radius: 1em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.582);
-    height: 100%;
+    height: auto;
     width: 100%;
 }
 .card-container {
+    flex: 1;
     display: flex;
     width: 100%;
     height: 100%;
     gap: 2em;
-    flex-wrap: wrap;
 }
-
+/* use this if the graphs and charts are added in card-container
 .left-container {
     flex: 2;
     display: flex;
@@ -874,8 +962,8 @@ export default {
 }
 
 .gender-chart {
-    height: 130px !important;   /* ✅ small height */
-    width: 100% !important;    /* fills container */
+    height: 130px !important;
+    width: 100% !important;
     font-size: .7em;
 }
 
@@ -889,12 +977,6 @@ export default {
     display: flex;
     justify-content: space-between;
     font-size: .8em;
-}
-
-.card-group-2 {
-    grid-area: card-group-2;
-    background-color: #f1c5ab;
-    padding: 1em;
 }
 
 .graph {
@@ -928,22 +1010,23 @@ export default {
     gap: 0.8em;
     padding: 0.8em;
 }
+*/
 
+.card-group-2 {
+    grid-area: card-group-2;
+    background-color: #f1c5ab;
+    padding: 1em;
+}
 
 .card-container-2 {
-    display: grid;
+    display: flex;
     width: 100%;
     gap: 2em;
     height: 100%;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 15em 25em;
-    grid-template-areas:
-        'card chart'
-        'box chart';
 }
 
 .notif-card {
-    grid-area: 'chart';
+    flex: 1;
     background: rgb(219, 205, 184);
     padding: 1.5em;
     display: flex;
@@ -1423,7 +1506,7 @@ export default {
 
 /* Box layout styles */
 .box {
-    grid-area: box;
+    flex: 2;
     display: flex;
     flex-direction: column;
     padding: 1em 1em 0;
@@ -1434,6 +1517,7 @@ export default {
 }
 
 .search-section {
+    flex: 1;
     border: none;
 }
 
@@ -1506,16 +1590,18 @@ export default {
 }
 
 .table-section {
-    flex: 1;
+    flex: 21;
     display: flex;
     justify-content: center;
     overflow: hidden;
     user-select: none;
     width: 100%;
+    height: auto;
 }
 
 /* Table styles */
 .table-wrapper {
+    height: 100%;
     width: auto;
     border-radius: 0.8em;
 }
@@ -1536,10 +1622,11 @@ export default {
 .products-table {
     text-align: center;
     font-size: .95em;
-    width: 100%;
+    width: 99%;
+    height: 99%;
     border-radius: 1em;
-    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.733);
-    background: white;
+    background: rgb(255, 255, 255);
+    box-shadow: 1px 1px 4px #2020204b;
 }
 
 .products-table thead {
@@ -1566,7 +1653,6 @@ export default {
 
 .products-table tbody {
     display: block;
-    height: 16em;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1849,7 +1935,7 @@ export default {
 
     .box {
         padding: 0.8em;
-        gap: 1em;
+        gap: 2em;
     }
 
     .search-bar {
@@ -1901,6 +1987,10 @@ export default {
     height: auto;
   }
 
+  .search-section {
+    margin-bottom: auto;
+  }
+
   .top-section {
     flex-direction: column;
   }
@@ -1910,7 +2000,7 @@ export default {
   .card-container-2 {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: auto;
   }
 }
 

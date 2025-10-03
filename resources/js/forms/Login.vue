@@ -14,56 +14,65 @@
                 class="input-group"
             >
                 <div class="input-box">
-                <!-- Normal fields -->
-                 <div v-if="field.id !== 'password'" class="wrapper">
-                    <input
-                        v-model="data[field.id]"
-                        :type="field.type"
-                        :name="field.id"
-                        :id="field.id"
-                        required
-                        @blur="validateField(field.id)"
-                        @input="validateField(field.id)"
-                    />
-                    <label class="label" :for="field.id">{{ field.label }}</label>
-                </div>
+                    <!-- Normal fields -->
+                    <div v-if="field.id !== 'password'" class="wrapper">
+                        <input
+                            v-model="data[field.id]"
+                            :type="field.type"
+                            :name="field.id"
+                            :id="field.id"
+                            required
+                            @blur="validateField(field.id)"
+                            @input="validateField(field.id)"
+                        />
+                        <label class="label" :for="field.id">{{ field.label }}</label>
+                    </div>
 
-                <!-- Password field with toggle -->
-                <div v-else class="wrapper">
-                    <input
-                        v-model="data.password"
-                        :type="showPassword ? 'text' : 'password'"
-                        name="password"
-                        id="password"
-                        required
-                        @blur="validateField('password')"
-                        @input="validateField('password')"
-                    />
-                    <label class="label" :for="field.id">{{ field.label }}</label>
-                    <span class="toggle-icon" @click="togglePassword">
-                    <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <!-- Eye-off icon -->
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M3.98 8.223A10.477 10.477 0 0 0 1.5 12c1.36 4.45 5.58 7.5 10.5 7.5
-                            1.83 0 3.55-.43 5.06-1.223M6.223 6.223A10.477 10.477 0 0 1
-                            12 4.5c4.92 0 9.14 3.05 10.5 7.5a10.477 10.477 0 0 1-2.223
-                            3.277M6.223 6.223 3 3m3.223 3.223 12.554 12.554" />
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                        <!-- Eye icon -->
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M2.25 12c0 0 4.5-7.5 9.75-7.5S21.75 12
-                            21.75 12s-4.5 7.5-9.75 7.5S2.25 12 2.25 12Z" />
-                        <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 15.75a3.75 3.75 0 1 0 0-7.5
-                            3.75 3.75 0 0 0 0 7.5Z" />
-                    </svg>
-                    </span>
+                    <!-- Password field with toggle -->
+                    <div v-else class="wrapper">
+                        <input
+                            v-model="data.password"
+                            :type="showPassword ? 'text' : 'password'"
+                            name="password"
+                            id="password"
+                            required
+                            @blur="validateField('password')"
+                            @input="validateField('password')"
+                        />
+                        <label class="label" :for="field.id">{{ field.label }}</label>
+                        <span class="toggle-icon" @click="togglePassword">
+                        <svg v-if="showPassword" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <!-- Eye-off icon -->
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3.98 8.223A10.477 10.477 0 0 0 1.5 12c1.36 4.45 5.58 7.5 10.5 7.5
+                                1.83 0 3.55-.43 5.06-1.223M6.223 6.223A10.477 10.477 0 0 1
+                                12 4.5c4.92 0 9.14 3.05 10.5 7.5a10.477 10.477 0 0 1-2.223
+                                3.277M6.223 6.223 3 3m3.223 3.223 12.554 12.554" />
+                        </svg>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                            <!-- Eye icon -->
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M2.25 12c0 0 4.5-7.5 9.75-7.5S21.75 12
+                                21.75 12s-4.5 7.5-9.75 7.5S2.25 12 2.25 12Z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 15.75a3.75 3.75 0 1 0 0-7.5
+                                3.75 3.75 0 0 0 0 7.5Z" />
+                        </svg>
+                        </span>
+                    </div>
                 </div>
-                <div v-if="errors[field.id]" class="error-message">{{ errors[field.id] }}</div>
             </div>
+
+            <!-- This is for the warning messages -->
+            <div v-if="activeErrors.length" class="form-warnings">
+                <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
+                </svg>
+                <ul>
+                    <li v-for="(msg, i) in activeErrors" :key="i">{{ msg }}</li>
+                </ul>
             </div>
             <button
                 class="form-btn style"
@@ -91,6 +100,11 @@ export default {
             },
             errors: {},
             showPassword: false
+        }
+    },
+    computed: {
+        activeErrors() {
+            return Object.values(this.errors);
         }
     },
     methods: {
@@ -143,10 +157,10 @@ export default {
                     }
                 }
                 else if(res.data.message === 'user not found'){
-                    window.alert('USER NOT FOUND');
+                    this.errors.password = 'User not found!';
                 }
                 else{
-                    window.alert("PASSWORD INCORRECT");
+                    this.errors.password = "Incorrect Password!";
                 }
             }
         }
@@ -251,6 +265,35 @@ export default {
 /* Also, set -moz-appearance to none just in case */
 .wrapper input[type="password"] {
   -moz-appearance: none;
+}
+
+.form-warnings {
+  width: 100%;
+  margin: .5em 0 0;
+  padding: 0.8em;
+  background: #ffe6e6;
+  border: 1px solid #ff4d4d;
+  border-radius: .8em;
+  color: #cc0000;
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 1em;
+}
+
+.form-warnings svg {
+    width: 2em;
+    margin-left: 1em;
+}
+
+.form-warnings ul {
+  padding-left: 1.2em;
+  margin: 0;
+  list-style: none;
+}
+
+.form-warnings ul li a {
+  margin-bottom: 0.3em;
 }
 
 /* submit/next button */
