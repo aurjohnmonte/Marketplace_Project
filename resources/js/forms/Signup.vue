@@ -220,15 +220,7 @@
             </div>
         </div>
 
-        <!-- This is for the warning messages -->
-        <div v-if="activeErrors.length" class="form-warnings">
-            <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
-            </svg>
-            <ul>
-                <li v-for="(msg, i) in activeErrors" :key="i">{{ msg }}</li>
-            </ul>
-        </div>
+        <!-- warnings are emitted to App.vue -->
         <div class="btn-container">
             <button v-if="accountInfo === false"
                 class="form-btn style"
@@ -411,7 +403,15 @@ export default {
             return groupInPairs(this.requiredInfo.accountInformation);
         }
     },
-
+    watch: {
+        activeErrors: {
+            handler(newVal) {
+                this.$emit('update-signup-errors', newVal);
+            },
+            immediate: true,
+            deep: true
+        }
+    },
     methods: {
         togglePassword(field) {
             this.passwordVisibility[field] = !this.passwordVisibility[field]
@@ -1030,46 +1030,6 @@ export default {
 
 input[type="password"]::-ms-reveal {
   display: none;
-}
-
-/* error message design */
-.error-message {
-    color: red;
-    font-size: 11px;
-    margin-top: 4px;
-    line-height: 1.3;
-    word-wrap: break-word;
-    margin-left: .2em;
-}
-
-
-.form-warnings {
-  width: 73%;
-  margin: .5em 0 0;
-  padding: 0.8em;
-  background: #ffe6e6;
-  border: 1px solid #ff4d4d;
-  border-radius: .8em;
-  color: #cc0000;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 1em;
-}
-
-.form-warnings svg {
-    width: 3em;
-    margin-left: 1em;
-}
-
-.form-warnings ul {
-  padding-left: 1.2em;
-  margin: 0;
-  list-style: none;
-}
-
-.form-warnings ul li a {
-  margin-bottom: 0.3em;
 }
 
 .checkbox input {
