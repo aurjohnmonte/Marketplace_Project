@@ -14,20 +14,21 @@
             <option value="Product">Product name</option>
             <option value="Shop">Shop name</option>
           </select>
-          <input placeholder="Search ..." v-model="search_text">
+          <input type="text" placeholder="Search ..." v-model="search_text">
           <!-- <img src="../../../images/cancel (1).png" style="width: 10px; height: 10px; padding-left: 20px;" > -->
         </div><br>
-            
+
         <div class="more-filter-option" v-if="hide_more_filter">
           <select v-model="search_info.category">
             <option value="" disabled>Category</option>
-            <option value="Any" disabled>Any</option>
+            <option value="Any">Any</option>
             <option value="Furniture">Furniture</option>
             <option value="Kitchenware">Kitchenware</option>
             <option value="Musical Instrument">Musical Instrument</option>
-            <option value="Decorative Items">Decorative Items</option>
-            <option value="Games">Games</option>
-            <option value="Outdoor Decor">Outdoor Decor</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Toys and Games">Toys and Games</option>
+            <option value="Outdoor enhancements">Outdoor enhancements</option>
+            <option value="Personal accessories">Personal accessories</option>
             <option value="Home Decor">Home Decor</option>
           </select>
           <select v-model="search_info.filter">
@@ -37,7 +38,7 @@
           </select>
         </div>
 
-        <input type="submit" hidden>
+        <input type="submit" style="margin-top: 10px; background-color: green; color: white;" value="Search">
       </form>
     </div>
 

@@ -8,7 +8,7 @@
 <body>
     <h2>Hello!</h2>
 
-    <p>Thank you for registering at <strong>TimberShoppee</strong>.</p>
+    <p>Thank you for registering at <strong>Craftify</strong>.</p>
 
     <p>Here is your one-time password (OTP) to continue your process:</p>
 

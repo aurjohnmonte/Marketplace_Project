@@ -48,15 +48,15 @@ Route::middleware('buyercheck')->group(function() {
     Route::get('/buyer/browse/{name}/{category}/{filter}', function(){
 
         return view('buyer_home');
-    })->whereIn("name", ["Product", "Shop", "Seller"])
-    ->whereIn("category", ["Any"])
+    })->where("category",'[A-Za-z _-]+')
+    ->whereIn("name", ["Product", "Shop", "Seller"])
     ->whereIn("filter", ["Popular", "New"]);
 
     Route::get('/buyer/browse-shop/{name}/{category}/{filter}', function(){
 
         return view('buyer_home');
     })->whereIn("name", ["Product", "Shop", "Seller"])
-    ->whereIn("category", ["Any"])
+    ->where("category",'[A-Za-z _-]+')
     ->whereIn("filter", ["Popular", "New"]);
 
     Route::get('/buyer/product/{id}', function(){

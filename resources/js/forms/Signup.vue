@@ -82,20 +82,6 @@
                         </label>
                     </template>
 
-                    <!-- for tel type inputs like contact numbers -->
-                    <template v-else-if="info.type === 'tel'">
-                        <input
-                            :type="info.type"
-                            :name="info.name"
-                            :id="info.id"
-                            :pattern="info.pattern"
-                            v-model="formData[info.name]"
-                            @input="validateField(info.name)"
-                            required novalidate
-                        />
-                        <label :for="info.id" class="label" >{{ info.label }}</label>
-                    </template>
-
                     <!-- for other input types that is not mentioned above -->
                     <template v-else>
                         <input
@@ -104,10 +90,18 @@
                             :id="info.id"
                             :maxlength="info.max > 0 ? info.max : null"
                             v-model="formData[info.name]"
+                            @focus="fieldStatus.focusedField = info.name"
+                            @blur="fieldStatus.focusedField = null"
                             @input="validateField(info.name, (info.name === 'age' ? true : false))"
-                            required
+                            :required="info.name !== 'm_initial'"
                         />
-                        <label :for="info.id" class="label" >{{ info.label }}</label>
+                        <label
+                            :for="info.id"
+                            class="label"
+                            :class="{ floated: formData[info.name] || fieldStatus.focusedField === info.name }"
+                        >
+                            {{ info.label }}
+                        </label>
                     </template>
                 </div>
             </div>
@@ -134,6 +128,7 @@
                         <label
                             :for="info.id"
                             class="label"
+                            :class="{ floated: formData[info.name] }"
                             tabindex="0"
                         >
                             {{ info.label }}
@@ -144,7 +139,7 @@
                             @click="triggerFileInput(info.name)"
                         >
                             -
-                            <span v-if="formData[info.name]" class="file-name">
+                            <span v-if="formData[info.name]" class="file-name" :title="formData[info.name]?.name">
                                 {{ formData[info.name]?.name }}
                             </span>
                         </button>
@@ -225,15 +220,7 @@
             </div>
         </div>
 
-        <!-- This is for the warning messages -->
-        <div v-if="activeErrors.length" class="form-warnings">
-            <svg data-slot="icon" fill="none" stroke-width="1.5" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"></path>
-            </svg>
-            <ul>
-                <li v-for="(msg, i) in activeErrors" :key="i">{{ msg }}</li>
-            </ul>
-        </div>
+        <!-- warnings are emitted to App.vue -->
         <div class="btn-container">
             <button v-if="accountInfo === false"
                 class="form-btn style"
@@ -359,6 +346,7 @@ export default {
                 terms: null,
                 showPassword: false,
                 showConfirmPassword: false,
+                focusedField: null,
             },
             debounceTimers: {},
             // Simulated existing data for async checks
@@ -370,7 +358,7 @@ export default {
     computed: {
         activeErrors() {
             // pick only relevant fields for the current step
-            const personalFields = ["firstname", "lastname", "m_initial", "email", "contact_no", "gender", "birthday", "age"];
+            const personalFields = ["firstname", "lastname", "email", "contact_no", "gender", "birthday", "age"];
             const accountFields = ["username", "password", "confirm_password", "terms", "location_access", "profile_image"];
 
 
@@ -385,12 +373,12 @@ export default {
             // List of required fields for each user type
             const requiredFields = this.userType === 'buyer'
                 ? [
-                    'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age',
+                    'firstname', 'lastname', 'gender', 'birthday', 'age',
                     'email', 'contact_no', 'username', 'password', 'confirm_password', 'profile_image',
                     'location_access', 'terms'
                 ]
                 : [
-                    'firstname', 'm_initial', 'lastname', 'gender', 'birthday', 'age',
+                    'firstname', 'lastname', 'gender', 'birthday', 'age',
                     'email', 'contact_no', 'username', 'password', 'confirm_password', 'profile_image'
                 ];
 
@@ -415,7 +403,15 @@ export default {
             return groupInPairs(this.requiredInfo.accountInformation);
         }
     },
-
+    watch: {
+        activeErrors: {
+            handler(newVal) {
+                this.$emit('update-signup-errors', newVal);
+            },
+            immediate: true,
+            deep: true
+        }
+    },
     methods: {
         togglePassword(field) {
             this.passwordVisibility[field] = !this.passwordVisibility[field]
@@ -571,7 +567,13 @@ export default {
             // If the field is empty, clear errors and status
             if (!value) {
                 this.validationMessages[field] = [];
-                this.fieldStatus[field] = null;
+
+                if (field === 'm_initial') {
+                    this.fieldStatus[field] = true;
+                } else {
+                    this.fieldStatus[field] = null;
+                }
+                return;
             } else {
                 // Run all rules
                 const errors = this.validationRules(field, value).map(rule => typeof rule === 'function' ? rule(value) : true).filter(msg => msg !== true);
@@ -929,6 +931,8 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   align-items: start;
   justify-content: center;
+  gap: 1em;
+  margin-bottom: 1rem;
 }
 
 /* for the input */
@@ -961,7 +965,7 @@ export default {
   font-size: 12px;
   color: #575454;
   background-color: #ffffff;
-  width: 70%;
+  width: 60%;
   padding: .2em 1em;
   margin: 0 .2em;
   pointer-events: none;
@@ -980,33 +984,6 @@ export default {
   border-radius: 10px;
   color: #ffffff;
 }
-
-.input-box input:focus + .label,
-.input-box input.has-content + .label {
-  top: -8px;
-  left: .5px;
-  width: fit-content;
-  font-size: 10px;
-  padding: 0 .8em;
-  background-color: #091f36;
-  border: #9e363a 1px solid;
-  border-radius: 10px;
-  color: #ffffff;
-}
-
-/* input type="date" */
-  .input-box input:focus + .label,
-  .input-box input:valid + .label {
-    top: -8px;
-    left: 5px;
-    width: fit-content;
-    font-size: 10px;
-    padding: 0 10px;
-    background-color: #091f36;
-    border: #9e363a 1px solid;
-    border-radius: 10px;
-    color: #ffffff;
-  }
 
   input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
@@ -1032,6 +1009,11 @@ export default {
   display: block;
   font-size: 12px;
   color: #333;
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
 
 
@@ -1048,46 +1030,6 @@ export default {
 
 input[type="password"]::-ms-reveal {
   display: none;
-}
-
-/* error message design */
-.error-message {
-    color: red;
-    font-size: 11px;
-    margin-top: 4px;
-    line-height: 1.3;
-    word-wrap: break-word;
-    margin-left: .2em;
-}
-
-
-.form-warnings {
-  width: 73%;
-  margin: .5em 0 0;
-  padding: 0.8em;
-  background: #ffe6e6;
-  border: 1px solid #ff4d4d;
-  border-radius: .8em;
-  color: #cc0000;
-  font-size: 0.8rem;
-  display: flex;
-  align-items: center;
-  gap: 1em;
-}
-
-.form-warnings svg {
-    width: 3em;
-    margin-left: 1em;
-}
-
-.form-warnings ul {
-  padding-left: 1.2em;
-  margin: 0;
-  list-style: none;
-}
-
-.form-warnings ul li a {
-  margin-bottom: 0.3em;
 }
 
 .checkbox input {

@@ -62,11 +62,18 @@
 </template>
 
 <script>
+import { useDataStore } from '../../stores/dataStore';
 export default {
     props: ['shop'],
     data() {
         return {
             category: [],
+            store: useDataStore(),
+        }
+    },
+    watch: {
+        'store.selected_shop.category'(){
+            this.category = JSON.parse(this.store.selected_shop.category);
         }
     },
     mounted(){

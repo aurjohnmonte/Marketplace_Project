@@ -84,15 +84,26 @@
                 <form @submit.prevent="goSentReview">
                     <label class="user-comment-text">User Rate</label>
                     <div class="user-rate-star">
-                        <select v-model="review_info.rate" required>
-                            <option disable value=0>Rate</option>
+                        <select v-model="review_info.product_rate" id="for-product" required>
+                            <option disable value=''>Rate for product</option>
                             <option value=1>1 star</option>
                             <option value=2>2 stars</option>
                             <option value=3>3 stars</option>
                             <option value=4>4 stars</option>
                             <option value=5>5 stars</option>
                         </select>
-                        <label>(Choose your rating for this product)</label>
+                        <label for="for-product">(How's the product?)</label>
+                    </div>
+                    <div class="user-rate-star">
+                        <select v-model="review_info.shop_rate" id="for-shop" required>
+                            <option disable value=''>Rate for shop</option>
+                            <option value=1>1 star</option>
+                            <option value=2>2 stars</option>
+                            <option value=3>3 stars</option>
+                            <option value=4>4 stars</option>
+                            <option value=5>5 stars</option>
+                        </select>
+                        <label for="for-shop">(How's the shop?)</label>
                     </div>
                     <textarea placeholder="Leave a comment" required v-model="review_info.comment"></textarea>
                     <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
@@ -162,7 +173,8 @@ export default {
             review_photo_send: [],
             review_video_send: [],
             review_info: {
-                rate: 0,
+                product_rate: '',
+                shop_rate: '',
                 comment: "",
             },
             photos: [],
@@ -280,7 +292,8 @@ export default {
         reset(){
             this.review_photo_send = [];
             this.review_info = {
-                rate: 0,
+                product_rate: '',
+                shop_rate: '',
                 comment: "",
             };
         },
@@ -291,6 +304,7 @@ export default {
             }
             const store = useDataStore();
             const data = new FormData();
+
             data.append('review_info', JSON.stringify(this.review_info));
 
             this.review_photo_send.forEach(photo => {
@@ -300,7 +314,7 @@ export default {
 
             this.review_video_send.forEach(video => {
 
-                data.append('videos[]', video.file);
+                data.append('videos[]', video.file);    
             })
 
             data.append('type', 'product');
@@ -309,8 +323,12 @@ export default {
             data.append('shop_id', this.product.shop.id);
             data.append('from_id', store.currentUser_info.id);
 
+            console.log('to id: ', this.product.id);
+            console.log('shop id: ', this.product.shop.id);
+
             const res = await axios.post('/buyer/add/review', data);
             console.log(res.data.message);
+            this.review_video_send = [];
             this.product.overall_rate = res.data.message;
             this.reset();
             await this.returnReviews();

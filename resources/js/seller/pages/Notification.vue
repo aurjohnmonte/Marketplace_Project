@@ -178,7 +178,7 @@ export default {
         },
         async openMessage(notification) {
 
-            console.log(notification);
+            console.log('notify soy: ', notification);
 
             this.store.setSelectedNotification(notification);
 
@@ -346,7 +346,7 @@ export default {
                     type: 'seller',
                 }
             });
-            console.log(res.data.message);
+            console.log("e check soy: ", res.data.message);
             this.notifications = res.data.message;
             this.orig_notifications = res.data.message;
         },

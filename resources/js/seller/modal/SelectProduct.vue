@@ -28,7 +28,7 @@
           <tbody>
             <!-- Loading -->
             <tr v-if="is_loading">
-              <td colspan="2" style="text-align: center; color: red;">
+              <td colspan="3" style="text-align: center; color: red;">
                 <img src="../../../images/kOnzy.gif" style="width: 30px; height: 30px;">
               </td>
             </tr>
@@ -49,7 +49,7 @@
 
             <!-- No Result -->
             <tr v-else>
-              <td colspan="2" style="text-align: center; color: red;">No result</td>
+              <td colspan="3" style="text-align: center; color: red;">No result</td>
             </tr>
           </tbody>
         </table>

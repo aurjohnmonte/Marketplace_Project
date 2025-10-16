@@ -13,9 +13,10 @@
               <option value="Furniture">Furniture</option>
               <option value="Kitchenware">Kitchenware</option>
               <option value="Musical Instrument">Musical Instrument</option>
-              <option value="Decorative Items">Decorative Items</option>
-              <option value="Games">Games</option>
-              <option value="Outdoor Decor">Outdoor Decor</option>
+              <option value="Office Supplies">Office Supplies</option>
+              <option value="Toys and Games">Toys and Games</option>
+              <option value="Outdoor enhancements">Outdoor enhancements</option>
+              <option value="Personal accessories">Personal accessories</option>
               <option value="Home Decor">Home Decor</option>
           </select>
           <select v-model="search_info.filter">
@@ -35,32 +36,38 @@
         <img src="../../../images/kOnzy.gif"/>
     </div>
     <div class="buyer-browse-content" v-else>
-        <div class="item-content" v-for="shop in result" :key="shop">
-          <div class="option-icon">
-            <img src="../../../images/location.png" @click="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
-            <img src="../../../images/send.png" @click="goMessage(shop.user_id)">
+        <template v-if="result.length > 0">
+          <div class="item-content" v-for="shop in result" :key="shop">
+            <div class="option-icon">
+              <img src="../../../images/location.png" @click="goLocation(parseFloat(shop.latitude), parseFloat(shop.longitude))">
+              <img src="../../../images/send.png" @click="goMessage(shop.user_id)">
+            </div>
+            <div class="item-pic">
+              <img :src="'/' + shop.profile_photo" @click="goShop(shop.id)">
+            </div>
+            <div class="item-info" @click="goShop(shop.id)">
+              <div class="item-rate">
+                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',shop.overall_rate)" :key="turn">
+                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',shop.overall_rate)" :key="turn">
+                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',shop.overall_rate)" :key="turn">
+                <label>({{ shop.overall_rate }})</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ shop.reviews.length }} Review/s</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ shop.followers.length }} Follower/s</label>
+              </div>
+              <div class="item-shopname">
+                <label>{{ shop.name }}</label>
+              </div>
+            </div>
           </div>
-          <div class="item-pic">
-            <img :src="'/' + shop.profile_photo" @click="goShop(shop.id)">
-          </div>
-          <div class="item-info" @click="goShop(shop.id)">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',shop.overall_rate)" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',shop.overall_rate)" :key="turn">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',shop.overall_rate)" :key="turn">
-              <label>({{ shop.overall_rate }})</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Reviews</label>
-            </div>
-            <div class="item-comment">
-              <label>{{ shop.total_followers }} Follower/s</label>
-            </div>
-            <div class="item-shopname">
-              <label>{{ shop.name }}</label>
-            </div>
-          </div>
-        </div>
+        </template>
+
+        <template v-else>
+          <h2>NO RESULT</h2>
+        </template>
     </div>
   </div>
 </template>
@@ -138,7 +145,7 @@ export default {
             data.append("search_text", this.search_text);
             const res = await axios.post("/buyer/search-shop", data);
 
-            console.log(res.data.message);
+            console.log('here po: ',res.data.message);
 
             this.result = res.data.message;
 
@@ -175,6 +182,7 @@ export default {
         window.scrollTo(0, 0);
         this.initialize_params();
         this.returnSearchShops();
+
     }
 }
 </script>

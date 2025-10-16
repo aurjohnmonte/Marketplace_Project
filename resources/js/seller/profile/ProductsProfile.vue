@@ -23,9 +23,9 @@
 
         <div class="product-body">
             <div class="row">
-                <div class="item-card" v-for="product in products" :key="product.id" @click="toggleDescription(product.id)">
-                    <img :src="'/'+product.photos[0].filename" alt="Product Image">
-                    <div class="item-info">
+                <div class="item-card" v-for="product in products" :key="product.id">
+                    <img :src="'/'+product.photos[0].filename" alt="Product Image" @click.stop="$router.push({name: 'ViewProduct', params: {id: product.id}})" style="cursor: pointer;">
+                    <div class="item-info" @click.stop="toggleDescription(product.id)" style="cursor: pointer;">
                         <p>{{ product.name }}</p>
                         <i :class="[getStatusIcon(product.status), getStatusClass(product.status)]"></i>
                         <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
@@ -68,7 +68,7 @@ export default{
         productCategory(newval){
             this.filter = 'latest';
 
-            if (this.productCategory === "Any") {
+            if (this.productCategory === "All") {
                 this.products = this.shop.products;
             } else {
                 this.products = this.shop.products.filter(product =>

@@ -3,7 +3,7 @@
     <ProfileModal v-if="show_profile" @goexit="goexit" @changepathtext="changepathtext" @stopLocation="stopLocation"/>
     <BuyerNotification v-if="show_notify" @goexit="goexit" @changepathtext="changepathtext" @modifyseen="modifyseen" :notifications="notifications"/>
     <header :class="{hidden: ishidden}">
-      <div class="header1" style="cursor: pointer;" @click="show_profile = true; show_notify = false;">
+      <div class="header1" style="cursor: pointer;" @click="show_profile = !show_profile; show_notify = false;">
         <div class="profile-pic">
           <img :src="'/'+store.currentUser_info.profile">
 
@@ -18,7 +18,7 @@
         <img src="../images/logo.png" class="bell-icon">
         <img src="../images/maps-and-flags.png" class="locate-icon" @click="locateCurrent">
 
-        <img :src="bell_type" class="bell-icon" style="cursor: pointer" @click="show_notify = true; show_profile = false;">
+        <img :src="bell_type" class="bell-icon" style="cursor: pointer" @click="show_notify = !show_notify; show_profile = false;">
       </div>
     </header>
     <div class="content" v-if="show_content">

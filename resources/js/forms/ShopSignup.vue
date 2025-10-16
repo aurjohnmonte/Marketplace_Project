@@ -342,6 +342,20 @@ export default {
     width: 10em !important;
 }
 
+/* input type="date" */
+.input-box input:focus + .label,
+.input-box input:valid + .label {
+top: -8px;
+left: 5px;
+width: fit-content;
+font-size: 10px;
+padding: 0 10px;
+background-color: #091f36;
+border: #9e363a 1px solid;
+border-radius: 10px;
+color: #ffffff;
+}
+
 /* Custom style for Shop Category checkbox */
 .input-box input[type="checkbox"] {
     width: 18px;

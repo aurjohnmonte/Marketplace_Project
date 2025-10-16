@@ -9,13 +9,14 @@
       <div class="filter-search-browse">
         <select v-model="search_info.category">
             <option value="" disabled>Category</option>
-            <option value="Any">Any</option>
+            <option value="Any" disabled>Any</option>
             <option value="Furniture">Furniture</option>
             <option value="Kitchenware">Kitchenware</option>
             <option value="Musical Instrument">Musical Instrument</option>
-            <option value="Decorative Items">Decorative Items</option>
-            <option value="Games">Games</option>
-            <option value="Outdoor Decor">Outdoor Decor</option>
+            <option value="Office Supplies">Office Supplies</option>
+            <option value="Toys and Games">Toys and Games</option>
+            <option value="Outdoor enhancements">Outdoor enhancements</option>
+            <option value="Personal accessories">Personal accessories</option>
             <option value="Home Decor">Home Decor</option>
         </select>
         <select v-model="search_info.filter">
@@ -35,35 +36,41 @@
         <img src="../../../images/kOnzy.gif"/>
     </div>
     <div class="buyer-browse-content" v-else>
-        <div class="item-content" v-for="product in products" :key="product">
-          <div class="option-icon">
-              <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
-              <img src="../../../images/send.png" @click.stop="goMessage(product.shop.user_id, product)">
+        <template v-if="products.length > 0">
+          <div class="item-content" v-for="product in products" :key="product">
+            <div class="option-icon">
+                <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">
+                <img src="../../../images/send.png" @click.stop="goMessage(product.shop.user_id, product)">
+            </div>
+            <div class="item-pic">
+              <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
+            </div>
+            <div class="item-info" @click="goProduct(product)">
+              <div class="item-rate">
+                <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
+                <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
+                <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
+                <label>{{ product.overall_rate }}</label>
+              </div>
+              <div class="item-comment">
+                <label>{{ countProductReviews(product.reviews) }} review/s</label>
+              </div>
+              <div class="item-shopname">
+                <label>{{ product.name }}</label>
+              </div>
+              <div class="item-name" @click.stop="goShop(product.shop.id)">
+                <label>{{ product.shop.name }}</label>
+              </div>
+              <div class="item-price">
+                <label>PHP {{ product.price }}</label>
+              </div>
+            </div>
           </div>
-          <div class="item-pic">
-            <img :src="'/'+product.photos[0].filename" @click="goProduct(product)">
-          </div>
-          <div class="item-info" @click="goProduct(product)">
-            <div class="item-rate">
-              <img src="../../../images/star.png" class="star-rate" v-for="turn in returnStar('whole',product.overall_rate)" :key="turn">
-              <img src="../../../images/half-star.png" class="star-rate" v-for="turn in returnStar('half',product.overall_rate)" :key="turn">
-              <img src="../../../images/no-star.png" class="star-rate" v-for="turn in returnStar('none',product.overall_rate)" :key="turn">
-              <label>{{ product.overall_rate }}</label>
-            </div>
-            <div class="item-comment">
-              <label>99+ Comments</label>
-            </div>
-            <div class="item-shopname">
-              <label>{{ product.name }}</label>
-            </div>
-            <div class="item-name" @click.stop="goShop(product.shop.id)">
-              <label>{{ product.shop.name }}</label>
-            </div>
-            <div class="item-price">
-              <label>PHP {{ product.price }}</label>
-            </div>
-          </div>
-        </div>
+        </template>
+        
+        <template v-else>
+          <h2>NO RESULT</h2>
+        </template>
     </div>
   </div>
 </template>
@@ -97,6 +104,15 @@ export default {
         }
     },
     methods: {
+      countProductReviews(reviews){
+
+        console.log('reviews: ', reviews);
+        if(reviews.length > 0){
+          return reviews.length;
+        }
+
+        return 0;
+      },
     goShop(id){
       this.$router.push({name: "ShopAbout", params: {id: id}});
     },

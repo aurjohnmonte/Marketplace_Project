@@ -22,6 +22,7 @@
         </div>
 
         <div class="dashboard-content">
+            <!-- card-container with graphs and charts
             <div class="card-container">
                 <div class="left-container">
                     <div class="top-section">
@@ -88,7 +89,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="graph cards" style="overflow: auto;">
+                    <div class="graph cards" style="overflow: hidden;">
                         <LineGraph/>
                     </div>
                 </div>
@@ -102,8 +103,70 @@
                         <RadialGraph :products_data_radial="products_data_radial" v-if="show"/>
                     </div>
                 </div>
-            </div>
-            <div class="card-container-2">
+            </div>-->
+
+            <!-- card-container with no graphs -->
+            <div class="card-container">
+                <div class="cards card-group-2">
+                    <div class="product-container">
+                        <div class="review-section">
+                            <div class="section-header">
+                                <h6>Top product with highest reviews</h6>
+                                <!-- <a href="#" class="view-all">view all</a> -->
+                            </div>
+                            <div class="product-list" v-if="checkRate('highest', total_products.high_reviews)">
+                                <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
+                                    <template v-if="product">
+                                        <div class="product-icon" v-if="product.overall_rate >= 3">
+                                        <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                        </div>
+                                        <div class="product-details" v-if="product.overall_rate >= 3">
+                                            <p class="product-name">{{ product.name }}</p>
+                                            <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                        </div>
+                                        <div class="rating-info" v-if="product.overall_rate >= 3">
+                                            <span class="rating-score">{{ product.overall_rate }}</span>
+                                            <i class="fi fi-sr-star filled"></i>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="product-list" v-else>
+                                <br>
+                                <p style="color: red;">NO PRODUCT HAVE EXCEEDED AN OVERALL RATE OF 3</p>
+                            </div>
+                        </div>
+
+                        <div class="review-section">
+                            <div class="section-header">
+                                <h6>Top product with lowest reviews</h6>
+                                <!-- <a href="#" class="view-all">view all</a> -->
+                            </div>
+                            <div class="product-list" v-if="checkRate('lowest', total_products.low_reviews)">
+                                <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
+                                    <template v-if="product">
+                                        <div class="product-icon" v-if="product.overall_rate < 3 && product.overall_rate >= 1">
+                                            <img :src="'/'+product.photos[0].filename" style="width: 100%; height: 100%; object-fit: cover;">
+                                        </div>
+                                        <div class="product-details" v-if="product.overall_rate < 3 && product.overall_rate >= 1">
+                                            <p class="product-name">{{ product.name }}</p>
+                                            <p class="review-count">{{ product.reviews.length }} reviews</p>
+                                        </div>
+                                        <div class="rating-info" v-if="product.overall_rate < 3 && product.overall_rate >= 1">
+                                            <span class="rating-score">{{ product.overall_rate }}</span>
+                                            <i class="fi fi-sr-star filled"></i>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                            <div class="product-list" v-else>
+                                <br>
+                                <p style="color: red;">No product exceeded an overall rate of 1 but less than 3</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="follower-card cards" style="">
                     <div class="follower-stats">
                         <h4>Follower Statistics</h4>
@@ -140,6 +203,45 @@
                         </div>
                     </div>
                 </div>
+            </div>
+            <div class="card-container-2">
+                <!-- Add this if you use the card-container with graphs and charts
+                <div class="follower-card cards" style="">
+                    <div class="follower-stats">
+                        <h4>Follower Statistics</h4>
+                        <p class="total-followers"><span>{{ follower_statistics.total }}</span> total followers</p>
+                    </div>
+                    <div class="stats-content">
+                        <div class="stat-item">
+                            <span class="stat-label" style="font-weight: bolder;">Gender</span>
+                            <div style="display: flex; flex-direction: column; margin-top: 10px; gap: .5em; font-size: smaller;">
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Male - ({{ computemalepercent }}%)</label>
+                                    <div class="progress-bar" style="margin-left: 10px;">
+                                        <div class="follower-gender-male fill" :style="{width: `${computemalepercent}%`}"></div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+                                    <label>Female - ({{ computefemalepercent }}%)</label>
+                                    <div class="progress-bar">
+                                        <div class="follower-gender-female fill" :style="{width: `${computefemalepercent}%`}"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label" style="font-weight: bolder;">Age</span>
+                            <div style="display: grid; grid-template-columns: 100px 60px 10px; font-size: .7em; padding-left: .5em;">
+                                <label>Below 18</label><label>-</label><label>{{ follower_statistics.below_18 }}</label>
+                                <label>18 - 25</label><label>-</label><label>{{ follower_statistics.middle }}</label>
+                                <label>Above 25</label><label>-</label><label>{{ follower_statistics.above_25 }}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div> --->
                 <div class="box">
                     <div class="search-section">
                         <div class="search-bar">
@@ -352,6 +454,7 @@ export default {
                 return 0;
             }
             const result = (this.follower_statistics.female.length / this.follower_statistics.total) * 100;
+            console.log(this.follower_statistics);
             return result.toFixed(2);
         },
         computemalepercent(){
@@ -359,6 +462,7 @@ export default {
                 return 0;
             }
             const result = (this.follower_statistics.male.length / this.follower_statistics.total) * 100;
+            console.log(this.follower_statistics);
             return result.toFixed(2);
         },
         filteredProducts() {
@@ -370,6 +474,8 @@ export default {
     },
     async mounted() {
 
+        console.log('first: ', this.total_products);
+
         this.is_loading = true;
 
         await this.returnUserInfo();
@@ -379,6 +485,8 @@ export default {
         const store = useDataStore();
         const shop = store.selected_shop;
         this.user = store.currentUser_info;
+        console.log('SHOP: ',shop);
+
         //compute total shop reviews
         this.totalShopReviews();
         //compute total of products
@@ -408,15 +516,58 @@ export default {
 
     methods: {
 
+        checkRate(type, data){
+
+            console.log('type: ', type);
+            console.log('data: ', data);
+
+            if(type === 'highest'){
+
+                if(data.length > 0){
+
+                    for(let d of data){
+
+                        if(d.overall_rate >= 3){
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+                else{
+                    return false;
+                }
+            }
+            else{
+
+                if(data.length > 0){
+
+                    for(let d of data){
+
+                        if(d.overall_rate < 3 && d.overall_rate >= 1){
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+                else{
+                    return false;
+                }
+            }
+        },
+
         async returnUserInfo(){
             const res = await axios.post("/return/user-seller/info");
 
             const store = useDataStore();
+
+            console.log('user: ',res.data.message);
+            console.log('shop: ', res.data.shop);
             this.user = res.data.message;
             store.setUserInfo(res.data.message);
             store.setSelectedShop(res.data.shop);
-
-            console.log('soy kaneh: ',res.data.shop);
+            console.log('id: ', store.currentUser_info.id);
         },
 
         returnColor(notif){
@@ -434,6 +585,7 @@ export default {
                 data.append('id', store.currentUser_info.id);
 
                 const res = await axios.post('/seller/return/products', data);
+                console.log('PRODUCTSSSS: ',res.data.message);
                 this.searchResults = res.data.message;
                 this.orig_products = res.data.message;
             }
@@ -450,6 +602,7 @@ export default {
                     type: 'seller',
                 }
             });
+            console.log(res.data.message);
             let count = 0;
             for(let notif of res.data.message){
                 if(count === 10){
@@ -462,6 +615,7 @@ export default {
                 this.notifications.push(notif);
                 count++;
             }
+            console.log('notif: ', this.notifications);
         },
 
         async returnCategoriesProducts(){
@@ -475,6 +629,7 @@ export default {
                 }
             });
 
+            console.log(res.data.message);
 
             for(let product of res.data.message){
 
@@ -495,6 +650,7 @@ export default {
                 this.products_data_radial.data[product.category] = this.products_data_radial.data[product.category] + product.reviews.length;
             }
 
+            console.log('category: ', this.products_data_radial);
 
 
             this.show = true;
@@ -504,16 +660,22 @@ export default {
 
             const store = useDataStore();
 
+            console.log('!!!!!!!!!!!!!!!!!!!!!!!', store.selected_shop);
+
             const followers = store.selected_shop.user.followers;
+            console.log('followers: ', followers);
             if(followers.length < 1){
+                console.log('way sulod');
                 return;
             }
+            console.log('followers: ', followers);
 
             this.follower_statistics.total = followers.length;
             this.follower_statistics.male = followers.filter(f => f.followed_by.gender === 'male');
             this.follower_statistics.female = followers.filter(f => f.followed_by.gender === 'female');
 
             for(let user of followers){
+                console.log('user: ', user);
                 if(user.followed_by.age < 18){
                     this.follower_statistics.below_18 = this.follower_statistics.below_18 + 1;
                 }
@@ -524,6 +686,9 @@ export default {
                     this.follower_statistics.above_25 = this.follower_statistics.above_25 + 1;
                 }
             }
+
+
+            console.log('follower statistics: ', this.follower_statistics);
         },
 
         totalOfProducts(shop){
@@ -531,11 +696,14 @@ export default {
             //PRODUCTS ARRAY IS SORTED ASCENDING BASED ON THE OVERALL_RATE
 
             if(shop.products.length < 1){
+                console.log('return')
                 return;
             }
 
-            this.total_products.total = shop.products.length;
+            console.log('SHOP DETAILS: ',shop);
+            console.log('tota: ', this.total_products);
 
+            this.total_products.total = shop.products.length;
 
             let products = shop.products;
 
@@ -559,9 +727,19 @@ export default {
             }
             while(is_continue);
 
-            for(let i = 0; i < 3; i++){
-                this.total_products.high_reviews.push(products[i]);
+            console.log('products: ', products);
+
+            for(let i = 0; i < products.length; i++){
+                
+                if(i < 2){
+                    this.total_products.high_reviews.push(products[i]);
+                }
+                else{
+                    break;
+                }
             }
+
+            console.log('total product: ',this.total_products);
 
             this.total_products.low_reviews.unshift(products[products.length - 1]);
 
@@ -585,6 +763,7 @@ export default {
             this.shop_reviews.male = arr_review.filter(r => r.user.gender === 'male').length;
             this.shop_reviews.female = arr_review.filter(r => r.user.gender === 'female').length;
 
+            console.log('shop_reviews: ', this.shop_reviews);
         },
 
         clearSearch() {
@@ -637,15 +816,19 @@ export default {
 
         // Improve the chart rendering method
         renderGenderChart() {
+            console.log('NEW AGI');
             const ctx = document.getElementById('genderViewsChart');
             if (!ctx) return;
 
             const context = ctx.getContext('2d');
             if (!context) return;
 
+            console.log(this.shop_reviews.male)
 
             const malePercentage = this.shop_reviews.male > 0 ? (this.shop_reviews.male / this.shop_reviews.unique_total) * 100 : 0;
             const femalePercentage = this.shop_reviews.female > 0 ? (this.shop_reviews.female / this.shop_reviews.unique_total) * 100 : 0;
+
+            console.log(`${malePercentage} - ${femalePercentage}`);
 
             new window.Chart(context, {
                 type: 'bar',
@@ -755,10 +938,8 @@ export default {
 
 /* contents */
 .dashboard-content {
-    display: grid;
-    grid-template-areas:
-    'card-container'
-    'card-container-2';
+    display: flex;
+    flex-direction: column;
     gap: 3.5em;
     height: 100%;
     padding: 0;
@@ -766,17 +947,17 @@ export default {
 .cards {
     border-radius: 1em;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.582);
-    height: 100%;
+    height: auto;
     width: 100%;
 }
 .card-container {
+    flex: 1;
     display: flex;
     width: 100%;
     height: 100%;
     gap: 2em;
-    flex-wrap: wrap;
 }
-
+/* use this if the graphs and charts are added in card-container
 .left-container {
     flex: 2;
     display: flex;
@@ -841,8 +1022,8 @@ export default {
 }
 
 .gender-chart {
-    height: 130px !important;   /* ✅ small height */
-    width: 100% !important;    /* fills container */
+    height: 130px !important;
+    width: 100% !important;
     font-size: .7em;
 }
 
@@ -856,12 +1037,6 @@ export default {
     display: flex;
     justify-content: space-between;
     font-size: .8em;
-}
-
-.card-group-2 {
-    grid-area: card-group-2;
-    background-color: #f1c5ab;
-    padding: 1em;
 }
 
 .graph {
@@ -895,22 +1070,23 @@ export default {
     gap: 0.8em;
     padding: 0.8em;
 }
+*/
 
+.card-group-2 {
+    grid-area: card-group-2;
+    background-color: #f1c5ab;
+    padding: 1em;
+}
 
 .card-container-2 {
-    display: grid;
+    display: flex;
     width: 100%;
     gap: 2em;
     height: 100%;
-    grid-template-columns: 2fr 1fr;
-    grid-template-rows: 15em 25em;
-    grid-template-areas:
-        'card chart'
-        'box chart';
 }
 
 .notif-card {
-    grid-area: 'chart';
+    flex: 1;
     background: rgb(219, 205, 184);
     padding: 1.5em;
     display: flex;
@@ -1369,7 +1545,7 @@ export default {
 }
 
 .total-followers {
-    font-size: 1.5em;
+    font-size: 0.7em;
     color: #333;
     margin: 0;
 }
@@ -1390,7 +1566,7 @@ export default {
 
 /* Box layout styles */
 .box {
-    grid-area: box;
+    flex: 2;
     display: flex;
     flex-direction: column;
     padding: 1em 1em 0;
@@ -1401,6 +1577,7 @@ export default {
 }
 
 .search-section {
+    flex: 1;
     border: none;
 }
 
@@ -1473,16 +1650,18 @@ export default {
 }
 
 .table-section {
-    flex: 1;
+    flex: 21;
     display: flex;
     justify-content: center;
     overflow: hidden;
     user-select: none;
     width: 100%;
+    height: auto;
 }
 
 /* Table styles */
 .table-wrapper {
+    height: 100%;
     width: auto;
     border-radius: 0.8em;
 }
@@ -1503,10 +1682,11 @@ export default {
 .products-table {
     text-align: center;
     font-size: .95em;
-    width: 100%;
+    width: 99%;
+    height: 99%;
     border-radius: 1em;
-    box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.733);
-    background: white;
+    background: rgb(255, 255, 255);
+    box-shadow: 1px 1px 4px #2020204b;
 }
 
 .products-table thead {
@@ -1533,7 +1713,6 @@ export default {
 
 .products-table tbody {
     display: block;
-    height: 16em;
     overflow-y: auto;
     overflow-x: hidden;
 }
@@ -1816,7 +1995,7 @@ export default {
 
     .box {
         padding: 0.8em;
-        gap: 1em;
+        gap: 2em;
     }
 
     .search-bar {
@@ -1868,6 +2047,10 @@ export default {
     height: auto;
   }
 
+  .search-section {
+    margin-bottom: auto;
+  }
+
   .top-section {
     flex-direction: column;
   }
@@ -1877,7 +2060,7 @@ export default {
   .card-container-2 {
     display: flex;
     flex-direction: column;
-    gap: 1em;
+    gap: auto;
   }
 }
 
@@ -2039,4 +2222,3 @@ export default {
     }
 }
 </style>
-

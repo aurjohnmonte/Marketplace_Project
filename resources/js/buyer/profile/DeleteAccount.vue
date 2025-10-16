@@ -131,7 +131,7 @@ export default {
 
           console.log('RES: ', res.data.message);
           if(res.data.message === 'successful'){
-            alert("Account deactivated successfully.");
+            alert("Account deleted successfully.");
             this.closeModal();
             this.email = "";
             this.$emit('stopLocation');

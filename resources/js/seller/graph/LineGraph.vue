@@ -71,7 +71,7 @@ export default {
                     borderColor: '#42b983',
                     backgroundColor: 'white',
                     tension: 0.4,
-                    fill: true
+                    fill: true,
                 },
                 {
                     label: 'All products reviews',
@@ -88,7 +88,10 @@ export default {
             responsive: true,
             plugins: {
                 legend: {
-                position: 'top'
+                  position: 'top',
+                  labels: {
+                    color: 'white'
+                  }
                 },
                 title: {
                 display: true,
@@ -143,7 +146,7 @@ export default {
             console.log('date: ', date.getDate());
 
             if(date.getDate() > today.getDate()){
-
+              
               result = 30 - (date.getDate() - today.getDate());
               result++;
               this.shopreviews_arr_date[result] = this.shopreviews_arr_date[result]+1;

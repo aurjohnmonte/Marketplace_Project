@@ -1,0 +1,72 @@
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{0}: checkout: moving from recover-my-code to def395e
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{1}: checkout: moving from backup-local to recover-my-code
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{2}: reset: moving to def395e
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{3}: checkout: moving from backup-local to backup-local
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{4}: reset: moving to HEAD
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{5}: reset: moving to HEAD
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{6}: checkout: moving from recover-my-code to backup-local
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{7}: checkout: moving from main to recover-my-code
+[33m35ccd1f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{8}: reset: moving to 35ccd1f6aca8d06e0c0a86cfcf1f2d5a66431e3e
+[33mdef395e[m[33m ([m[1;36mHEAD[m[33m, [m[1;32mrecover-my-code[m[33m, [m[1;32mbackup-local[m[33m)[m HEAD@{9}: commit: changes
+[33m35ccd1f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{10}: commit: updated deactivate deletion feature on buyer side
+[33mc96f44b[m HEAD@{11}: commit (merge): Merge branch 'main' of https://github.com/aurjohnmonte/Marketplace_Project
+[33m4b92547[m HEAD@{12}: commit: added video rating
+[33ma042762[m HEAD@{13}: pull: Fast-forward
+[33mffa8680[m HEAD@{14}: pull: Fast-forward
+[33m9bf6892[m HEAD@{15}: commit: Added Transaction Record vue in seller side
+[33m89584a0[m HEAD@{16}: pull: Fast-forward
+[33mc73ef44[m HEAD@{17}: commit: Added transaction record in seller side
+[33m433c605[m HEAD@{18}: pull: Fast-forward
+[33m1a7f60f[m HEAD@{19}: commit: fix notification part
+[33m9042691[m HEAD@{20}: pull: Fast-forward
+[33m71e735b[m HEAD@{21}: pull: Fast-forward
+[33md2fd6b8[m HEAD@{22}: pull: Fast-forward
+[33mea6dcbe[m HEAD@{23}: commit: fix dashboard loading
+[33m58689b1[m HEAD@{24}: commit: fix dashboard data
+[33mad4efa9[m HEAD@{25}: pull: Fast-forward
+[33m5cc8309[m HEAD@{26}: commit: changes seller and buyer side
+[33md32bf83[m HEAD@{27}: commit (merge): Merge branch 'main' of https://github.com/aurjohnmonte/Marketplace_Project
+[33mb310f4e[m HEAD@{28}: rebase (abort): returning to refs/heads/main
+[33m8fcc3e8[m HEAD@{29}: rebase (continue): local changes
+[33m69869ac[m HEAD@{30}: rebase (continue): WIP: saving all local changes before merge
+[33md90ad17[m HEAD@{31}: pull --rebase (pick): WIP: my local changes to Seller.vue
+[33mb61b30e[m HEAD@{32}: pull --rebase (start): checkout b61b30e9c8b1ced06f478feacbba466d0315f3bc
+[33mb310f4e[m HEAD@{33}: commit: WIP: local changes before pulling
+[33m8acfe60[m HEAD@{34}: commit: Temp commit to save current work before applying stash
+[33m3fd6838[m HEAD@{35}: commit (merge): Merge branch 'main' of https://github.com/aurjohnmonte/Marketplace_Project
+[33ma9778bd[m HEAD@{36}: reset: moving to HEAD
+[33ma9778bd[m HEAD@{37}: commit (merge): Merge branch 'main' of https://github.com/aurjohnmonte/Marketplace_Project
+[33med4d79e[m HEAD@{38}: commit: local changes
+[33mfc6c70d[m HEAD@{39}: pull --rebase (finish): returning to refs/heads/main
+[33mfc6c70d[m HEAD@{40}: pull --rebase (pick): WIP: save local changes before rebase
+[33m99aa7ee[m HEAD@{41}: pull --rebase (pick): WIP: saving all local changes before merge
+[33m5ddf1f1[m HEAD@{42}: pull --rebase (pick): WIP: my local changes to Seller.vue
+[33mce05912[m HEAD@{43}: pull --rebase (start): checkout ce05912d8085da68fd7b786398043fa0a7f3d5fe
+[33m87f7cb5[m HEAD@{44}: commit: WIP: save local changes before rebase
+[33ma616b99[m HEAD@{45}: reset: moving to HEAD
+[33ma616b99[m HEAD@{46}: commit: WIP: saving all local changes before merge
+[33mc7dc042[m HEAD@{47}: reset: moving to HEAD
+[33mc7dc042[m HEAD@{48}: commit: WIP: my local changes to Seller.vue
+[33mf00f6b3[m HEAD@{49}: commit (merge): Finished merge: resolved conflict in Products.vue
+[33m58e0ca2[m HEAD@{50}: commit: update products
+[33m14b2601[m HEAD@{51}: pull: Fast-forward
+[33ma01d63e[m HEAD@{52}: pull: Fast-forward
+[33m417f4b2[m HEAD@{53}: pull: Fast-forward
+[33m6e4a7e6[m HEAD@{54}: commit (merge): Added backend in Add product in seller
+[33m8378709[m HEAD@{55}: commit: Seller side updation
+[33mdafc644[m HEAD@{56}: commit (merge): Resolve merge conflict in index.js
+[33m22cf582[m HEAD@{57}: commit: WIP: local changes before pull
+[33md6a3cb6[m HEAD@{58}: commit: UPDATE SELLER PAGES
+[33m06d591a[m HEAD@{59}: pull: Fast-forward
+[33m4ec57c0[m HEAD@{60}: commit: Authentication Update
+[33m4985ebd[m HEAD@{61}: pull: Fast-forward
+[33m21c8213[m HEAD@{62}: pull: Fast-forward
+[33m457eb7d[m HEAD@{63}: pull: Fast-forward
+[33ma34e611[m HEAD@{64}: reset: moving to HEAD
+[33ma34e611[m HEAD@{65}: pull: Fast-forward
+[33mbe707c0[m HEAD@{66}: reset: moving to HEAD
+[33mbe707c0[m HEAD@{67}: pull: Fast-forward
+[33medd298a[m HEAD@{68}: pull: Fast-forward
+[33m14d8b2d[m HEAD@{69}: commit: New Database added
+[33m4e1d151[m HEAD@{70}: Branch: renamed refs/heads/master to refs/heads/main
+[33m4e1d151[m HEAD@{72}: commit (initial): First commit

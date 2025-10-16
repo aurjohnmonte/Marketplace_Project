@@ -262,7 +262,7 @@ class BuyerController extends Controller
         try{    
             $info = json_decode($request->shop_info);
             Log::info('filter',['filter'=>$info->filter]);
-            $query = Product::with(['photos','shop', 'records'])
+            $query = Product::with(['photos','shop', 'records', 'reviews'])
                                ->where('name','like',"%$request->search_text%")
                                ->where(function($q) use($info) {
 

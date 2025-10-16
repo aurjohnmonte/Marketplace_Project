@@ -77,9 +77,9 @@
                     <button class="action-btn view" @click="goMessage(follower.followed_by.name)">
                       <i class="fa-regular fa-comment"></i> Message
                     </button>
-                    <button class="action-btn remove" @click="goRemoveFollower(follower.followed_by.id)">
+                    <!-- <button class="action-btn remove" @click="goRemoveFollower(follower.followed_by.id)">
                       <i class="fa-solid fa-user-minus"></i> Remove
-                    </button>
+                    </button> -->
                   </td>
                 </tr>
               </tbody>

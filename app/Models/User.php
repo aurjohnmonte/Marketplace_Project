@@ -63,19 +63,32 @@ class User extends Authenticatable
                 else{
                     $result = $result->orderBy("shops.created_at", 'desc')->limit(10)->get()->toArray();
                 }      
-                
-                if($search_info->category !== "Any" && $search_info->category !== ""){
-                    $dummy = [];
-                    foreach($result as $shop){
+            
+                $dummy = [];
+                foreach($result as $shop){
+                    
+                    //push reviews array
+                    $shop['reviews'] = Review::where('shop_id', $shop['id'])
+                                            ->where('review_type', 'shop')
+                                            ->get();
+                    //push followers
+                    $shop['followers'] = Follower::where('user_id', $shop['user_id'])->get();
+                    Log::info('shop', ['shop' => $shop]);
+                    
+                    if($search_info->category !== "Any" && $search_info->category !== ""){
                         $category = json_decode($shop['category']);
                         Log::info('category', ['category'=>$category]);
                         if(in_array($search_info->category, $category)){
-                            array_unshift($dummy, $shop);
+                            array_push($dummy, $shop);
                         }
                     }
-                    Log::info('dummy',['dummy'=>$dummy]);
-                    $result = $dummy;
+                    else{
+                        array_push($dummy, $shop);
+                    }
                 }
+
+                $result = $dummy;
+                Log::info('dummy',['dummy'=>$dummy]);
             }
 
             return $result;

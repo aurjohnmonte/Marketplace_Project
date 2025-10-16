@@ -24,7 +24,7 @@
                             <img src="../../../images/send.png" class="option-img" @click="goMessage(shop.user_id, product)">
                           </div>
                           <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                            <img src="../../../images/star (2).png" class="option-rate" @click="$router.push({name: 'ShopReview', params: {id: shop.id}})">
+                            <!-- <img src="../../../images/star (2).png" class="option-rate" @click="$router.push({name: 'ShopReview', params: {id: shop.id}})"> -->
                             <img :src="returnPath" class="option-img" @click="followShop(shop.user_id)">
                           </div>
                       </div>
@@ -33,7 +33,13 @@
                       </div>
                       <h2>{{ shop.name }}</h2>
                       <div class="stats">
-                      <span @click="$router.push({name: 'ShopReview', params: {id: shop.id}})">{{ shop.overall_rate }} (overall rate)</span>
+                      <span @click="$router.push({name: 'ShopReview', params: {id: shop.id}})">
+                        <div style="display: flex; flex-direction: row; align-items: center; gap: 2px; position: relative;">
+                          <label>{{ shop.overall_rate }}</label>
+                          <img src="../../../images/star (2).png" style="width: 15px; height: 15px; position: relative;">
+                          <label style="font-size: 12px;">({{ countShopReviews(shop.reviews) }} review/s)</label>
+                        </div>
+                      </span>
                       <span>{{ shop.user.followers.length }} followers</span>
                   </div>
               </div>
@@ -43,7 +49,7 @@
       <div class="tabs">
         <router-link :to="{name: 'ShopAbout', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">ABOUT</router-link>
         <router-link :to="{name: 'ShopProducts', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">PRODUCTS</router-link>
-        <router-link :to="{name: 'ShopReview', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">REVIEW</router-link>
+        <!-- <router-link :to="{name: 'ShopReview', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">REVIEW</router-link> -->
       </div>
 
       <div class="content">
@@ -88,6 +94,16 @@ export default{
       }
     },
     methods: {
+      countShopReviews(reviews){
+
+        if(reviews.length > 0){
+          let shop_reviews = reviews.filter(r => r.review_type === 'shop');
+
+          return shop_reviews.length;
+        }
+
+        return 0;
+      },
       async followShop(id){
 
         if(this.is_friend){
@@ -314,15 +330,18 @@ export default{
   padding: 5px;
   font-weight: bolder;
   font-size: 14px;
-  text-decoration: underline;
+  background-color: rgba(0, 0, 0, 0.218);
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .tabs {
   display: flex;
   justify-content: space-between;
   background-color: #ffffff;
-  padding-left: 20px;
-  padding-right: 20px;
+  padding-left: 25%;
+  padding-right: 25%;
   padding-top: 5px;
   padding-bottom: 5px;
   font-weight: bold;

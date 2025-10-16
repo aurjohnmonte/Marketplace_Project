@@ -59,8 +59,8 @@
                 <h5 @click="details = 'about'" :class="{ active: details === 'about' }">ABOUT</h5>
                 <div class="divider-line"></div>
                 <h5 @click="details = 'product'" :class="{ active: details === 'product' }">PRODUCT</h5>
-                <div class="divider-line"></div>
-                <h5 @click="details = 'review'" :class="{ active: details === 'review' }">SHOP'S REVIEW</h5>
+                <!-- <div class="divider-line"></div>
+                <h5 @click="details = 'review'" :class="{ active: details === 'review' }">SHOP'S REVIEW</h5> -->
             </div>
             <div class="body-details" v-if="details === 'about'">
                 <About :shop="shop" @edit-seller-info="changeSellerInformation"/>
@@ -82,19 +82,35 @@
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
-                <div class="modal-body" style="padding: 0 2em; overflow-y: hidden;">
+                <div class="modal-body">
                     <div class="form-group">
                         <label for="shopName">Shop Name:</label>
                         <input
                             type="text"
                             id="shopName"
-                            v-model="newShopNameForSeller"
+                            v-model="shop.name"
                             placeholder="Enter shop name"
                             :class="{ 'error': shopNameError }"
-                            disabled
                         >
-                        <span v-if="shopNameError" class="error-message">{{ shopNameError }}</span>
                     </div>
+
+                    <div class="form-group">
+                        <label for="shopName">Shop Categories:</label>
+                        <div class="category-label" style="margin-left:1em;">
+                            <template v-for="(option, idx) in categories.options" :key="idx">
+                                <input
+                                    type="checkbox"
+                                    :id="categories.id + '_' + option.value"
+                                    :value="option.value"
+                                    v-model="selectedCategories"
+                                />
+                                <label :for="categories.id + '_' + option.value">
+                                    {{ option.label }}
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="shopDescription">Shop Description:</label>
                         <textarea
@@ -246,6 +262,7 @@ export default {
                 half: true,
                 no_star: 2,
             },
+            shop_categories: [],
             shop: null,
             details: 'about',
             showMenu: false,
@@ -272,6 +289,23 @@ export default {
             genderError: '',
             birthdayError: '',
             addressError: '',
+            selectedCategories: [],
+            categories: {
+                label: 'Shop Category',
+                type: 'checkbox',
+                name: 'shop_category',
+                id: 'shop_category',
+                options: [
+                    { value: 'Kitchenware', label: 'Kitchenware' },
+                    { value: 'Musical Instrument', label: 'Musical Instrument' },
+                    { value: 'Decorative Items', label: 'Decorative Items' },
+                    { value: 'Games', label: 'Games' },
+                    { value: 'Outdoor Enhancements', label: 'Outdoor Enhancements' },
+                    { value: 'Home Decor', label: 'Home Decor' },
+                    { value: 'Furniture', label: 'Furniture' },
+                    { value: 'Personal accessories', label: 'Personal accessories' },
+                ]
+            }
         }
     },
     computed: {
@@ -420,7 +454,7 @@ export default {
         async saveDetails() {
             let hasError = false;
 
-            if (!this.newShopNameForSeller || this.newShopNameForSeller.trim() === '') {
+            if (!this.shop.name || this.shop.name.trim() === '') {
                 this.shopNameError = 'Shop name is required.';
                 hasError = true;
             } else {
@@ -431,6 +465,8 @@ export default {
 
                 const data = new FormData();
                 data.append('description', this.newDescription);
+                data.append('shop_name', this.shop.name);
+                data.append('categories', JSON.stringify(this.selectedCategories));
                 data.append('id', this.shop.id);
 
                 const res = await axios.post('/seller/change/shop-details', data);
@@ -438,6 +474,11 @@ export default {
                 console.log(res.data.message);
 
                 this.store.selected_shop.description = res.data.description;
+                this.store.selected_shop.category = res.data.categories;
+                this.store.selected_shop.name = res.data.shop_name;
+
+                this.shop.category = res.data.categories;
+                this.shop.name = res.data.shop_name;
 
                 this.closeDetailsModal();
             }
@@ -452,12 +493,12 @@ export default {
                 this.sellerFirstnameError = '';
             }
 
-            if (!this.newSellerMname || this.newSellerMname.trim() === '') {
-                this.sellerMnameError = 'Seller middle initial is required.';
-                hasError = true;
-            } else {
-                this.sellerMnameError = '';
-            }
+            // if (!this.newSellerMname || this.newSellerMname.trim() === '') {
+            //     this.sellerMnameError = 'Seller middle initial is required.';
+            //     hasError = true;
+            // } else {
+            //     this.sellerMnameError = '';
+            // }
 
             if (!this.newSellerLastname || this.newSellerLastname.trim() === '') {
                 this.sellerLastnameError = 'Seller lastname is required.';
@@ -567,6 +608,17 @@ export default {
                 this.closeMenu();
             }
         },
+        initiateCategories(categories){
+            this.selectedCategories = [];
+
+            const result = JSON.parse(categories);
+
+            for(let category of result){
+
+                console.log('category: ', category);
+                this.selectedCategories.push(category);
+            }
+        }
 
     },
     watch: {
@@ -585,6 +637,8 @@ export default {
     mounted(){
         this.shop = this.store.selected_shop;
 
+        this.initiateCategories(this.shop.category);
+
         console.log('ID: ', this.shop.id);
         console.log('SHOP', this.shop);
 
@@ -600,6 +654,13 @@ export default {
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+.category-label {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 8px 16px;
+    align-items: center;
+}
 
 .profile-container {
     padding: 0;

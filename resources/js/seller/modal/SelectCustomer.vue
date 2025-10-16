@@ -7,12 +7,20 @@
       <!-- Search Bar -->
       <div class="modal-header" style="margin-top: 20px;">
         <label style="font-size: 20px; font-weight: bolder;">Select Customer</label>
-        <input 
-          v-model="searchQuery" 
-          type="text" 
-          placeholder="Search..." 
-          class="search-input"
-        />
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <input 
+            v-model="searchQuery" 
+            type="text" 
+            placeholder="Search..." 
+            class="search-input"
+          />
+          <div style="width: 100%; display: flex; justify-content: end;">
+            <select style="width: 100px;" v-model="filter">
+              <option value="name">Name</option>
+              <option value="username">Username</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <!-- Table -->
@@ -20,14 +28,15 @@
         <table class="result-table">
           <thead>
             <tr>
-              <th style="width: 80%;">Name</th>
+              <th style="width: 60%;">Name</th>
+              <th>Username</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody>
             <!-- Loading -->
             <tr v-if="is_loading">
-              <td colspan="2" style="text-align: center; color: red;">
+              <td colspan="3" style="text-align: center; color: red;">
                 <img src="../../../images/kOnzy.gif" style="width: 30px; height: 30px;">
               </td>
             </tr>
@@ -35,6 +44,7 @@
             <!-- Data Rows -->
             <tr v-else-if="filteredData.length > 0" v-for="(item, idx) in filteredData" :key="idx">
               <td>{{ formatName(item) }}</td>
+              <td>{{ item.name }}</td>
               <td style="text-align: center;">
                 <button 
                   class="btn-select"
@@ -47,7 +57,7 @@
 
             <!-- No Result -->
             <tr v-else>
-              <td colspan="2" style="text-align: center; color: red;">No result</td>
+              <td colspan="3" style="text-align: center; color: red;">No result</td>
             </tr>
           </tbody>
         </table>
@@ -65,15 +75,29 @@ export default {
       searchQuery: "",
       customers: [],
       is_loading: true,
+      filter: 'name',
     };
   },
   computed: {
     filteredData() {
+      
       if (!this.searchQuery) return this.customers;
+
+
       const query = this.searchQuery.toLowerCase();
-      return this.customers.filter(c =>
-        this.formatName(c).toLowerCase().includes(query)
-      );
+
+      if(this.filter === 'name'){
+        //if search based on name
+        return this.customers.filter(c =>
+          this.formatName(c).toLowerCase().includes(query)
+        )
+      }
+      else{
+        //if search based on username
+        return this.customers.filter(c =>
+          c.name.toLowerCase().includes(query)
+        )
+      }
     },
   },
   methods: {

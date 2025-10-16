@@ -248,12 +248,14 @@ class SellerController extends Controller
             $shop = Shop::where('id', $req->id)->first();
 
             $shop->description = $req->description;
+            $shop->name = $req->shop_name;
+            $shop->category = $req->categories;
 
             if($shop->save()){
-                return response()->json(['message'=>'successful', 'description' => $req->description]);
+                return response()->json(['message'=>'successful', 'description' => $req->description, 'shop_name' => $req->shop_name, 'categories' => $req->categories]);
             }
 
-            return response()->json(['message'=>'error', 'description' => 'error']);
+            return response()->json(['message'=>'error', 'description' => 'error', 'categories' => '[]']);
         }
         catch(\Exception $ex){
             return response()->json(['message'=>$ex]);
@@ -270,9 +272,12 @@ class SellerController extends Controller
             if(!$user){
                 return response()->json(['message' => 'user not found']);
             }
+
+            if($req->m_i !== "null" && $req->m_i){
+                $user->m_initial = $req->m_i;
+            }
             
             $user->firstname = $req->fname;
-            $user->m_initial = $req->m_i;
             $user->lastname = $req->lname;
             $user->contact_no = $req->contact_no;
             $user->gender = $req->gender;
@@ -304,6 +309,7 @@ class SellerController extends Controller
             return response()->json(['message'=>$message, 'info'=>$user_info, 'shop' =>$shop]);
         }
         catch(\Exception $ex){
+            Log::info('error', ['error' => $ex->getMessage()]);
             return response()->json(['message'=>$ex]);
         }
     }
