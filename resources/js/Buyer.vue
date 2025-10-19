@@ -22,7 +22,7 @@
       </div>
     </header>
     <div class="content" v-if="show_content">
-      <router-view @changepathtext="changepathtext" @click="goexit" @stopLocation="stopLocation"/>
+      <router-view @changepathtext="changepathtext" @click="goexit" @stopLocation="stopLocation" :watch_id="watchID"/>
     </div>
 
     <div class="navbar">
