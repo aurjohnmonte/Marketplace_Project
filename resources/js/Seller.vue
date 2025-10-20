@@ -107,12 +107,15 @@
                         Map
                     </button>
                 </router-link>
+            <!-- Router link to follower
                 <router-link to="/seller/profile">
                     <button :class="{ active: $route.name === 'Profile' }">
                         <i class="fa-solid fa-user"></i>
                         Profile
                     </button>
                 </router-link>
+            -->
+
             <!--  Follower button
                 <router-link to="/seller/followers">
                     <button :class="{ active: $route.name === 'Followers' }">
@@ -150,9 +153,12 @@
                 <router-link to="/seller/map">
                     <i class="fa-solid fa-location-dot" :class="{ active: $route.name === 'Map' }" title="Map"></i>
                 </router-link>
+            <!-- Router link to follower
                 <router-link to="/seller/profile">
                     <i class="fa-regular fa-user" :class="{ active: $route.name === 'Profile' }" title="Profile"></i>
                 </router-link>
+            -->
+
             <!-- Router link to follower
                 <router-link to="/seller/followers">
                     <i class="fa-solid fa-user-group" :class="{ active: $route.name === 'Followers' }" title="Followers"></i>

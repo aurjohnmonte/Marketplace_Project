@@ -107,12 +107,13 @@
 
             <!-- card-container with no graphs -->
             <div class="card-container">
+                <!-- card container for reviews
                 <div class="cards card-group-2">
                     <div class="product-container">
                         <div class="review-section">
                             <div class="section-header">
                                 <h6>Top product with highest reviews</h6>
-                                <!-- <a href="#" class="view-all">view all</a> -->
+                                -- <a href="#" class="view-all">view all</a> --
                             </div>
                             <div class="product-list" v-if="checkRate('highest', total_products.high_reviews)">
                                 <div class="product-item" v-for="(product, index) in total_products.high_reviews" :key="index">
@@ -140,7 +141,7 @@
                         <div class="review-section">
                             <div class="section-header">
                                 <h6>Top product with lowest reviews</h6>
-                                <!-- <a href="#" class="view-all">view all</a> -->
+                                -- <a href="#" class="view-all">view all</a> --
                             </div>
                             <div class="product-list" v-if="checkRate('lowest', total_products.low_reviews)">
                                 <div class="product-item" v-for="(product, index) in total_products.low_reviews" :key="index">
@@ -166,6 +167,7 @@
                         </div>
                     </div>
                 </div>
+            -->
 
                 <div class="follower-card cards" style="">
                     <div class="follower-stats">
@@ -333,6 +335,8 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- notifaction container
                 <div class="cards notif-card">
                     <div class="chart-header">
                         <div class="header-left">
@@ -365,6 +369,7 @@
                         </div>
                     </div>
                 </div>
+                -->
             </div>
         </div>
     </div>
@@ -730,7 +735,7 @@ export default {
             console.log('products: ', products);
 
             for(let i = 0; i < products.length; i++){
-                
+
                 if(i < 2){
                     this.total_products.high_reviews.push(products[i]);
                 }
