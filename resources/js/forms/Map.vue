@@ -1,6 +1,17 @@
 <template>
         <!-- <button @click="showlocation()">Show location</button> -->
-    <div id="map"> 
+    <!-- Inline warning container -->
+    <div class="warning-container" v-if="showWarning">
+        <div class="warning-box">
+            <div class="warning-header">
+                <strong>Error</strong>
+                <button class="warning-close" @click="showWarning = false">×</button>
+            </div>
+            <div class="warning-body">{{ warningMessage }}</div>
+        </div>
+    </div>
+
+    <div id="map">
 
     </div>
 </template>
@@ -18,6 +29,8 @@ export default {
                 lat: null,
                 long: null,
             }
+            ,showWarning: false,
+            warningMessage: ''
         }
     },
     methods: {
@@ -38,7 +51,8 @@ export default {
         },
         getLocation() {
             if (!navigator.geolocation) {
-                alert("Geolocation is not supported by your browser.")
+                this.warningMessage = "Geolocation is not supported by your browser.";
+                this.showWarning = true;
                 return
             }
 
@@ -50,7 +64,8 @@ export default {
                 this.mapuserLoc(lat, lng);
                 },
                 (error) => {
-                alert("Unable to retrieve your location. You may have denied permission.")
+                this.warningMessage = "Unable to retrieve your location. You may have denied permission.";
+                this.showWarning = true;
                 console.error(error)
                 }
             )
@@ -119,9 +134,9 @@ export default {
             .bindPopup('Selected Coordinate')
             .openPopup()
         }
-        
+
         this.map_object.on('click', this.onMapClick);
-        
+
 
     }
 }
@@ -135,5 +150,45 @@ export default {
     object-fit: contain;
     display: flex;
     top: 0;
+}
+
+/* Warning container styles similar to the windows.alert */
+.warning-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4000;
+    width: calc(100% - 2rem);
+    max-width: 560px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+.warning-box {
+    pointer-events: auto;
+    background: #fff6f6;
+    border: 1px solid #ffcccc;
+    color: #7a1f1f;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+.warning-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+.warning-close{
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #7a1f1f;
+}
+.warning-body{
+    font-size: 0.95rem;
 }
 </style>

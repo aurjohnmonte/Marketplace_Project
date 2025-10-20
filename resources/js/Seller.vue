@@ -84,7 +84,7 @@
                     </button>
                 </router-link>
 
-
+            <!-- Notification button (remove comment here as well as the router-link below)
                 <router-link to="/seller/notifications">
                     <button :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" style="position: relative;">
                         <div style="width: 25px; height: 25px; border-radius: 25px; background-color: red; position: absolute; top: -10px; right: -10px;" v-if="unread_notif">
@@ -94,6 +94,7 @@
                         Notifications
                     </button>
                 </router-link>
+             -->
                 <router-link to="/seller/messages">
                     <button :class="{ active: $route.name === 'Messages' || $route.name === 'Chats' }">
                         <i class="fa-solid fa-message"></i>
@@ -112,11 +113,13 @@
                         Profile
                     </button>
                 </router-link>
+            <!--  Follower button
                 <router-link to="/seller/followers">
                     <button :class="{ active: $route.name === 'Followers' }">
                         <img src="../images/friends (white).png" alt="">
                         Followers</button>
                 </router-link>
+            -->
             </div>
         </div>
         <div v-else-if="!isMobile" class="sidebar-minimized">
@@ -136,10 +139,11 @@
                     <i class="fa-solid fa-list" :class="{ active: $route.name === 'TransactionRecord' || $route.name === 'AddRecord'}" title="TransactionRecord"></i>
                 </router-link>
 
-
+            <!-- Notification button
                 <router-link to="/seller/notifications">
                     <i class="fa-regular fa-bell" :class="{ active: $route.name === 'Notification' || $route.name === 'ViewNotification' }" title="Notifications"></i>
                 </router-link>
+            -->
                 <router-link to="/seller/messages">
                     <i class="fa-regular fa-message" :class="{ active: $route.name === 'Messages' || $route.name === 'Chats' }" title="Messages"></i>
                 </router-link>
@@ -149,9 +153,11 @@
                 <router-link to="/seller/profile">
                     <i class="fa-regular fa-user" :class="{ active: $route.name === 'Profile' }" title="Profile"></i>
                 </router-link>
+            <!-- Router link to follower
                 <router-link to="/seller/followers">
                     <i class="fa-solid fa-user-group" :class="{ active: $route.name === 'Followers' }" title="Followers"></i>
                 </router-link>
+            -->
             </div>
             <div class="sidebar-minimized-footer">
                 <i class="fa-solid fa-bars" @click="toggleMenu" title="Expand"></i>
@@ -319,7 +325,7 @@ export default{
 
             this.notifyEventListener = Echo.channel(`sellernotify.${this.user.name}`);
 
-            this.notifyEventListener.listen('.sellernotify.sent', async(event) => { 
+            this.notifyEventListener.listen('.sellernotify.sent', async(event) => {
                                             console.log('HELLO WORLDDDDDD');
                                             this.unread_notif = true;
                                             console.log('NEEEH AGIIIIIII');

@@ -28,6 +28,17 @@
         </div>
      </teleport>
 
+    <!-- Inline warning container -->
+    <div class="warning-container" v-if="showWarning">
+        <div class="warning-box">
+            <div class="warning-header">
+                <strong>Error</strong>
+                <button class="warning-close" @click="showWarning = false">×</button>
+            </div>
+            <div class="warning-body">{{ warningMessage }}</div>
+        </div>
+    </div>
+
     <!-- User Signup Form -->
     <form @submit.prevent="handleNext" class="form-content" v-if="currentStep === 'user'">
 
@@ -158,18 +169,18 @@
                             class="toggle-icon"
                             @click="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')] = !fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')]"
                             >
-                            <svg v-if="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
-                            </svg>
-                            <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.961 9.961 0 012.132-3.368m3.61-2.385A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7-.463 1.475-1.28 2.772-2.347 3.772M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M3 3l18 18" />
-                            </svg>
+                                <svg v-if="fieldStatus['show' + (info.name === 'password' ? 'Password' : 'ConfirmPassword')]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.961 9.961 0 012.132-3.368m3.61-2.385A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7-.463 1.475-1.28 2.772-2.347 3.772M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 3l18 18" />
+                                </svg>
+                                <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.478 0-8.268-2.943-9.542-7z" />
+                                </svg>
                             </span>
 
                             <label :for="info.id" class="label" :class="{ floated: formData[info.name] }">
@@ -194,7 +205,7 @@
             </div>
         </div>
 
-        <div class="terms" v-if="userType === 'buyer' & accountInfo === true">
+    <div class="terms" v-if="userType === 'buyer' && accountInfo === true">
             <div class="checkbox">
                 <input type="checkbox"
                     name="location_access"
@@ -232,16 +243,22 @@
                 @click="accountInfo = false">
                 Back
             </button>
-            <button v-if="userType==='buyer' & accountInfo === true"
+            <button v-if="userType==='buyer' && accountInfo === true"
                 class="form-btn style" type="submit">
                 Sign Up
             </button>
-            <button v-if="userType==='seller' & accountInfo === true" class="form-btn style" type="submit">Next</button>
+            <!-- For sellers, allow explicit navigation to shop step anytime -->
+            <button v-if="userType==='seller' && accountInfo === true" class="form-btn style" type="button" @click="goToShop">Go to Shop</button>
         </div>
     </form>
 
     <!-- Shop Signup Form -->
-    <ShopSignup v-if="currentStep === 'shop'" :userType="userType" :formData="formData" @shopinfosubmit="shopinfosubmit" @goloading="goloading"/>
+    <ShopSignup v-if="currentStep === 'shop'"
+        :userType="userType"
+        :formData="formData"
+        @shopinfosubmit="shopinfosubmit"
+        @goloading="goloading"
+        @goback="handleShopGoback"/>
 
     <!-- Buyer Signup Form -->
     <Login v-if="currentStep === 'login'" :userType="userType" :userData="formData" :message="message"/>
@@ -269,8 +286,12 @@ export default {
         Login,
         PermissionInfo
     },
+    emits: ["updateSignupErrors"],
     data() {
         return {
+            // warning UI
+            showWarning: false,
+            warningMessage: '',
             message: '',
             errormessage_otp: "",
             otpCode: null,
@@ -729,7 +750,9 @@ export default {
                 console.log(response.data.message);
 
                 if(response.data.message === 'exist'){
-                    window.alert("Email/Username have already used. Please try again.");
+                    // use inline warning container instead of alert
+                    this.warningMessage = "Email or Username has already been used. Please try again.";
+                    this.showWarning = true;
                     this.is_loading = false;
                     return;
                 }
@@ -774,6 +797,27 @@ export default {
                 if (coverInput) coverInput.value = '';
             });
         },
+        handleShopGoback() {
+            // Ensure parent shows account info and is ready for navigation
+            this.currentStep = 'user';
+            this.accountInfo = true;
+
+            // Reset warnings
+            this.message = '';
+            this.warningMsg = '';
+            this.show_otpContainer = false;
+            this.is_loading = false;
+
+            // Re-run minimal validation for account fields so UI updates
+            this.$nextTick(() => {
+                const fieldsToValidate = ['username', 'password', 'confirm_password', 'profile_image'];
+                fieldsToValidate.forEach((field) => this.validateField(field));
+            });
+        },
+        goToShop() {
+            // Allow user to navigate to shop signup anytime (sellers only)
+            this.currentStep = 'shop';
+        },
         checkAllCaps() {
             // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms)
             const skipFields = ['gender', 'birthday', 'age', 'contact_no', 'location_access', 'terms' ];
@@ -804,6 +848,9 @@ export default {
             if (file) {
                 // Update your formData or perform other actions with the file
                 this.formData[name] = file;
+                // mark file field as valid
+                this.validationMessages[name] = [];
+                this.fieldStatus[name] = true;
             }
         },
         validatePersonalInfo() {
@@ -1012,8 +1059,7 @@ export default {
   max-width: 150px;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  vertical-align: middle;
+    white-space: nowrap;
 }
 
 
@@ -1183,6 +1229,46 @@ input[type="password"]::-ms-reveal {
 
 .otp-submit:hover {
   background-color: #0056b3;
+}
+
+/* Warning container styles */
+.warning-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4000;
+    width: calc(100% - 2rem);
+    max-width: 560px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+.warning-box {
+    pointer-events: auto;
+    background: #fff6f6;
+    border: 1px solid #ffcccc;
+    color: #7a1f1f;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+.warning-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+.warning-close{
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #7a1f1f;
+}
+.warning-body{
+    font-size: 0.95rem;
 }
 
 /* Responsive Design */

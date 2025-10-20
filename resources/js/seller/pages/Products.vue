@@ -1,6 +1,6 @@
 <template>
     <div class="product-container">
-        
+
         <teleport to="body">
             <div class="overlay" v-if="is_overlay_loading">
                 <img src="../../../images/kOnzy.gif">
@@ -50,7 +50,7 @@
                     </tr>
                 </thead>
 
-            <tbody v-if="!is_loading">
+            <tbody class="tbody-scroll" v-if="!is_loading">
                 <tr v-if="filteredProducts.length === 0">
                     <td>NO PRODUCTS HAVE ADDED</td>
                 </tr>
@@ -62,106 +62,109 @@
                     <td class="views">{{ item.total_views }}</td>
                     <td class="status">{{ item.status }}</td>
                     <td class="action-btn">
-                        <!-- View button/form -->
-                        <button class="view-btn" @click="toggleViewProduct(item.id)">View</button>
-                        <div v-if="viewedProductId === item.id" class="toggle-details" :data-product-id="item.id">
-                            <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
-                                <h3>View Product</h3>
-                                <button @click="$router.push({name: 'ViewProduct', params: {id: item.id}})">Learn more</button>
-                            </div>
-                            <div class="image-container">
-                                <button class="nav-btn nav-left"
-                                    @click="scrollImages('left', item.id)"
-                                    v-if="item.photos.length>3">
-                                    <i class="fa fa-chevron-left"></i>
-                                </button>
-                                <div class="toggle-img">
-                                    <div v-for="image in item.photos"
-                                        :key="image"
-                                        class="image-wrapper"
-                                    >
-                                        <img :src="'/'+image.filename" alt="Image" @mouseover="displayIcon" >
-                                        <div class="zoom-overlay">
-                                            <i class="fa fa-search-plus zoom-icon" @click.stop="openZoomModal(image.filename)"></i>
+                        <div>
+                            <!-- View button/form -->
+                            <svg @click="toggleViewProduct(item.id)" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.3" stroke="currentColor" class="size-6 view-btn">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v16.5c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                            </svg>
+                            <div v-if="viewedProductId === item.id" class="toggle-details" :data-product-id="item.id">
+                                <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between;">
+                                    <h3>View Product</h3>
+                                    <button @click="$router.push({name: 'ViewProduct', params: {id: item.id}})">Learn more</button>
+                                </div>
+                                <div class="image-container">
+                                    <button class="nav-btn nav-left"
+                                        @click="scrollImages('left', item.id)"
+                                        v-if="item.photos.length>3">
+                                        <i class="fa fa-chevron-left"></i>
+                                    </button>
+                                    <div class="toggle-img">
+                                        <div v-for="image in item.photos"
+                                            :key="image"
+                                            class="image-wrapper"
+                                        >
+                                            <img :src="'/'+image.filename" alt="Image" @mouseover="displayIcon" >
+                                            <div class="zoom-overlay">
+                                                <i class="fa fa-search-plus zoom-icon" @click.stop="openZoomModal(image.filename)"></i>
+                                            </div>
                                         </div>
                                     </div>
+                                    <button class="nav-btn nav-right"
+                                        @click="scrollImages('right', item.id)"
+                                        v-if="item.photos.length>3">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </button>
                                 </div>
-                                <button class="nav-btn nav-right"
-                                    @click="scrollImages('right', item.id)"
-                                    v-if="item.photos.length>3">
-                                    <i class="fa fa-chevron-right"></i>
-                                </button>
-                            </div>
 
-                                <!-- Modal for zoomed image -->
-                                <div v-if="showZoom" class="modal">
-                                    <div class="modal-content">
-                                        <button class="close-modal-btn" @click="closeZoomModal">
-                                            <i class="fa fa-times" @click.stop="closeZoomModal"></i>
-                                        </button>
-                                        <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
+                                    <!-- Modal for zoomed image -->
+                                    <div v-if="showZoom" class="modal">
+                                        <div class="modal-content">
+                                            <button class="close-modal-btn" @click="closeZoomModal">
+                                                <i class="fa fa-times" @click.stop="closeZoomModal"></i>
+                                            </button>
+                                            <img :src="'/'+showZoom" alt="Zoomed Image" class="zoomed-image" />
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div class="view-row">
+                                    <div class="view-row">
+                                        <div class="rating">
+                                            <p>Viewer Rating:</p>
+                                            <span
+                                                v-for="star in 5"
+                                                :key="star"
+                                                class="fa fa-star"
+                                                :class="{ checked: star <= item.overall_rate }"
+                                            ></span>
+                                            <span class="rating-text">({{ item.overall_rate }}/5)</span>
+                                        </div>
+
                                     <div class="rating">
-                                        <p>Viewer Rating:</p>
-                                        <span
-                                            v-for="star in 5"
-                                            :key="star"
-                                            class="fa fa-star"
-                                            :class="{ checked: star <= item.overall_rate }"
-                                        ></span>
-                                        <span class="rating-text">({{ item.overall_rate }}/5)</span>
+                                        <p>Status:</p>
+                                        <span>{{ item.status }}</span>
                                     </div>
-
-                                <div class="rating">
-                                    <p>Status:</p>
-                                    <span>{{ item.status }}</span>
                                 </div>
-                            </div>
-                            <div class="comments-section">
-                                <h4>User Comments - ({{ item.reviews.length }} reviews)</h4>
-                                <div class="comments-list">
-                                    <div v-if="item.reviews && item.reviews.length">
-                                        <div v-for="(comment, idx) in item.reviews" :key="idx" class="comment">
-                                            <div style="display: flex; flex-direction: row; gap: 10px; align-items: center;">
-                                                <img :src="'/'+comment.user.profile" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid gray; padding: 2px;">
-                                                <span class="comment-user">{{ comment.user.firstname }} {{ comment.user.lastname }}</span>
-                                            </div>
-                                            <span class="comment-text">
-                                                <label>
-                                                    {{ comment.comment }}
-                                                </label>
-
-                                                <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
-                                                    <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
-                                                        <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
-                                                    </div>
+                                <div class="comments-section">
+                                    <h4>User Comments - ({{ item.reviews.length }} reviews)</h4>
+                                    <div class="comments-list">
+                                        <div v-if="item.reviews && item.reviews.length">
+                                            <div v-for="(comment, idx) in item.reviews" :key="idx" class="comment">
+                                                <div style="display: flex; flex-direction: row; gap: 10px; align-items: center;">
+                                                    <img :src="'/'+comment.user.profile" style="width: 30px; height: 30px; border-radius: 50%; border: 1px solid gray; padding: 2px;">
+                                                    <span class="comment-user">{{ comment.user.firstname }} {{ comment.user.lastname }}</span>
                                                 </div>
-                                                <label>
-                                                    {{ returnformatTime(comment.created_at) }}
-                                                </label>
-                                            </span>
-                                            <div class="rating" style="margin-left: 20px;">
-                                                <span
-                                                    v-for="star in 5"
-                                                    :key="star"
-                                                    class="fa fa-star"
-                                                    :class="{ checked: star <= comment.rate }"
-                                                ></span>
+                                                <span class="comment-text">
+                                                    <label>
+                                                        {{ comment.comment }}
+                                                    </label>
+
+                                                    <div v-if="comment.reviewphotos && comment.reviewphotos.length > 1" style="margin-left: 50px; margin-bottom: 10px;">
+                                                        <div style="display: flex; flex-direction: row; align-items: center; gap: 10px;">
+                                                            <img :src="'/'+photo.path" style="width: 40px; height: 40px; cursor: pointer;" v-for="photo in comment.reviewphotos" :key="photo">
+                                                        </div>
+                                                    </div>
+                                                    <label>
+                                                        {{ returnformatTime(comment.created_at) }}
+                                                    </label>
+                                                </span>
+                                                <div class="rating" style="margin-left: 20px;">
+                                                    <span
+                                                        v-for="star in 5"
+                                                        :key="star"
+                                                        class="fa fa-star"
+                                                        :class="{ checked: star <= comment.rate }"
+                                                    ></span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div v-else>
-                                        <span>No comment yet.</span>
+                                        <div v-else>
+                                            <span>No comment yet.</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
 
                             <!-- edit button/form -->
-                            <button class="edit-btn" @click="editProduct(item.id)">Edit</button>
+                            <i class="fa-solid fa-pen-to-square edit-btn"  @click="editProduct(item.id)"></i>
                             <div v-if="editedProductId === item.id" class="toggle-details">
                                 <form method="GET" class="form" @submit.prevent="saveProduct(item.id)">
                                     <h3>Edit Product</h3>
@@ -248,17 +251,18 @@
                                         {{ message }}
                                     </div>
 
-                                <div class="form-group" style="padding-bottom: 30px;">
-                                    <button type="submit">Save Changes</button>
-                                    <button type="button" @click="cancelEdit" style="margin-left: 10px; background-color: #6c757d;">Cancel</button>
-                                </div>
-                            </form>
+                                    <div class="form-group" style="padding-bottom: 30px;">
+                                        <button type="submit" class="btn" style=" padding: .5em; background-color: aliceblue; color: #6c757d;">Save Changes</button>
+                                        <button type="button" @click="cancelEdit"  class="btn" style="margin-left: 10px; background-color: #6c757d; padding: .5em; color: white;">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <i class="fa-solid fa-trash delete-btn"
+                                v-if="canDelete(item.status)"
+                                @click="deleteProduct(item.id)">
+                            </i>
                         </div>
-                        <button
-                            v-if="canDelete(item.status)"
-                            @click="deleteProduct(item.id)"
-                            class="delete-btn"
-                        >Delete</button>
                     </td>
                 </tr>
             </tbody>
@@ -457,7 +461,7 @@ export default {
         },
         updateScrollableClass() {
             this.$nextTick(() => {
-                const tbody = this.$el.querySelector('.product-table tbody');
+                const tbody = this.$el.querySelector('.product-table .tbody-scroll');
                 if (tbody) {
                     const isScrollable = tbody.scrollHeight > tbody.clientHeight;
                     tbody.classList.remove('scrollable', 'not-scrollable');
@@ -851,11 +855,15 @@ export default {
     box-shadow: 2px 2px 2px rgba(0,0,0, 0.585);
 }
 
-.product-table {
+    .product-table {
+    /* Keep proper table layout so th and td line up */
+    border-collapse: separate;
+    border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
     max-height: 500px;
     text-align: center;
     font-size: .95em;
-    width: 100%;
     border-radius: 1em;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.733);
 }
@@ -864,19 +872,19 @@ export default {
     position: sticky;
     top: 0;
     z-index: 1;
-    display: table;
-    width: 100%;
-    table-layout: fixed;
+    background-clip: padding-box;
 }
 
-.product-table tbody {
+/* Keep tbody as block for scrolling but keep rows as table-row to preserve alignment */
+.product-table .tbody-scroll {
     display: block;
     max-height: 450px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
-.product-table tbody tr {
+.product-table tbody tr,
+.product-table thead tr {
     display: table;
     width: 100%;
     table-layout: fixed;
@@ -927,9 +935,11 @@ export default {
 
 .product-table th {
     background-color: #DDD0C8;
-    padding: 1.1em 1em;
+    padding: 0.9em 1em; /* consistent padding with td */
     border-left: 2px solid #7e6556;
     border-bottom: 1px solid #818181;
+    vertical-align: middle; /* center header content vertically */
+    text-align: center; /* center header text as requested */
 }
 
 .product-table th:first-child {
@@ -941,45 +951,51 @@ export default {
     border-top-right-radius: 1em;
     width: 14.8%;
 }
-
 .product-table td {
     border: 1px solid #ffffffc7;
     outline: none;
-    padding: .5em 0;
+    padding: 0.9em 1em; /* match th padding */
+    vertical-align: middle; /* center cell content vertically */
+    text-align: center; /* default left alignment for text cells */
+}
+
+/* Numeric or small-column values center-aligned */
+.product-table td.qty,
+.product-table td.price,
+.product-table td.views {
+    text-align: center;
+}
+
+/* Product name should truncate if long */
+.product-table td.name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Action btn */
 .product-table td.action-btn {
+    text-align: center;
+    vertical-align: middle; /* Keep alignment consistent with others */
+    padding: 0.9em 1em;     /* match th/td padding */
+}
+
+.product-table td.action-btn > div {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 0.5em;
-    padding: 0.8em;
-    flex-wrap: wrap;
-    min-height: 40px;
+    gap: 1.5em;
 }
 
-.action-btn button {
-    padding: 0.15em 0.6em;
-    margin: 0;
-    min-width: 45px;
-    font-size: 0.75em;
-    color: #252525;
-    font-weight: 700;
-    border-radius: 0.5em;
-    border: .5px solid #818181;
-    outline: none;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
 .view-btn {
-    background-color: #8ABB6C;
+    width: 1.2em;
+    color: #5e7e4b;
 }
 .edit-btn {
-    background-color: #FFC107;
+    color: #aa8f18;
 }
 .delete-btn {
-    background-color: #E14434;
+    color: #812016;
 }
 
 /* status color for the table td background */
@@ -1730,11 +1746,6 @@ export default {
     .product-table tbody {
         background-color: #000;
         max-height: 28em;
-    }
-
-    .action-btn button {
-        padding: 0.5em;
-        font-size: 0.8em;
     }
 
     .toggle-details {

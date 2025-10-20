@@ -1,5 +1,15 @@
 <template>
     <form @submit.prevent="goSubmit" class="form-content">
+        <!-- Inline warning container -->
+        <div class="warning-container" v-if="showWarning">
+            <div class="warning-box">
+                <div class="warning-header">
+                    <strong>Error</strong>
+                    <button class="warning-close" @click="showWarning = false">×</button>
+                </div>
+                <div class="warning-body">{{ warningMessage }}</div>
+            </div>
+        </div>
         <teleport to="body">
             <PermissionInfo v-if="show_permission" @goCancel="goCancel" @goAllow="goAllow"/>
         </teleport>
@@ -125,7 +135,10 @@
                 </div>
             </div>
         </div>
-        <button class="form-btn style" id="next-btn" type="submit">Sign Up</button>
+        <div class="btn-container">
+            <button type="button" class="form-btn style" @click="goBack">Back</button>
+            <button class="form-btn style" id="next-btn" type="submit">Sign Up</button>
+        </div>
     </form>
 </template>
 
@@ -142,6 +155,9 @@ export default {
     },
     data() {
         return {
+            // warning UI
+            showWarning: false,
+            warningMessage: '',
             show_permission: false,
             shop_map: false,
             shopInfo: [
@@ -181,7 +197,8 @@ export default {
     methods: {
         map_save_coordinate(){
             if(this.shopData.longitude === "none" || this.shopData.latitude === "none"){
-                window.alert("Please select a the coordinate/location of your shop")
+                this.warningMessage = "Please select the coordinate/location of your shop.";
+                this.showWarning = true;
                 return;
             }
             console.log('coordinate: ', this.shopData);
@@ -212,7 +229,8 @@ export default {
         async goSubmit(){
 
             if(this.shopData.latitude === null || this.shopData.longitude === null){
-                window.alert("Please click the share location to proceed on registration. You can read the terms and condition.")
+                this.warningMessage = "Please click the share location to proceed on registration. You can read the terms and condition.";
+                this.showWarning = true;
                 return;
             }
             console.log('shopdata: ', this.shopData);
@@ -231,7 +249,8 @@ export default {
             console.log(response.data.message);
 
             if(response.data.message === 'exist'){
-                window.alert("Email/Username have already used.");
+                this.warningMessage = "Email or Username has already been used. Please try again.";
+                this.showWarning = true;
                 this.$emit('goloading', false);
                 return;
             }
@@ -246,6 +265,11 @@ export default {
             if (file) {
                 this.shopData[name] = file; // <-- assign to shopData
                 this.formData[name] = file; // (optional, if you need it in formData too)
+                // mark file field as valid on parent form data if possible
+                if (this.$parent && this.$parent.validationMessages) {
+                    this.$parent.validationMessages[name] = [];
+                    this.$parent.fieldStatus[name] = true;
+                }
             }
         },
         triggerFileInput(name) {
@@ -279,6 +303,10 @@ export default {
                 console.error(error)
                 }
             )
+        },
+        goBack(){
+            // emit an event to parent to go back to user signup
+            this.$emit('goback');
         },
     },
     mounted(){
@@ -485,6 +513,46 @@ color: #ffffff;
     height: 100%;
     width: 100%;
     position: relative;
+}
+
+/* Warning container styles (same as Signup.vue) */
+.warning-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 4000;
+    width: calc(100% - 2rem);
+    max-width: 560px;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+}
+.warning-box {
+    pointer-events: auto;
+    background: #fff6f6;
+    border: 1px solid #ffcccc;
+    color: #7a1f1f;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+.warning-header{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.4rem;
+}
+.warning-close{
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    color: #7a1f1f;
+}
+.warning-body{
+    font-size: 0.95rem;
 }
 
 hr {
