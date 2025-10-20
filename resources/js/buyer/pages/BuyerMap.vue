@@ -14,7 +14,7 @@
           <div style="border-bottom: 3px solid gray; width: 97%;"></div>
         </div>
     </div> -->
-    <examplemap @click="goHideResult" :shops="shops" v-if="show"/>
+    <examplemap @click="goHideResult" :shops="shops" v-if="show" :watch_id="watch_id"/>
   </div>
 </template>
 
@@ -24,6 +24,7 @@ export default {
     components: {
       examplemap
     },
+    props: ['watch_id'],
     data(){
       return{
         show: false,
@@ -51,6 +52,8 @@ export default {
         this.$emit("changepathtext", new_path);
         await this.returnShops();
         this.show = true;
+
+        console.log(" watch_id: ", this.watch_id);
     }
 }
 </script>
