@@ -4,6 +4,13 @@
     <div :class="['seller-container', showMenu ? 'with-sidebar' : 'no-sidebar']">
         <teleport to="body">
             <NewMessage :notifymessage="notifymessage" v-if="is_visible" @hidenotify="is_visible = false"/>
+
+            <EditModals
+                v-if="showEditModal"
+                :type="editType"
+                :shop="user.shop"
+                :seller="user"
+                @close="showEditModal = false" />
         </teleport>
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
@@ -15,14 +22,38 @@
             <a class="navbar-brand">{{ displayTitle }}</a>
             <div class="navbar-right" v-if="user.shop">
                 <div class="profile-circle" @click="toggleProfileBox">
-                    <img style="width: 30px; height: 30px;" :src="'/'+user.shop.profile_photo">
+                    <img style="width: 30px; height: 30px;" :src="'/' + (user.shop && user.shop.profile_photo ? user.shop.profile_photo : (user.profile_photo || ''))" />
                 </div>
                 <div v-if="showProfileBox" class="floating-box profile-box">
-                    <p>Profile Options</p>
-                    <router-link to="/seller/settings">Account Setting</router-link>
-                    <form @submit.prevent="goLogout">
-                        <button type="submit">Logout</button>
-                    </form>
+                    <div class="profile-header" style="display:flex; gap:1em; align-items:center;">
+                        <img :src="'/' + (user.shop && user.shop.profile_photo ? user.shop.profile_photo : (user.profile_photo || ''))" alt="Profile" style="width:60px; height:60px; border-radius:50%; object-fit:cover; background:#eee;" />
+                        <div style="display:flex; flex-direction:column;">
+                            <div style="font-weight:700; font-size:1rem; color:#333">{{ user.shop && user.shop.name ? user.shop.name : user.name }}</div>
+                            <div style="font-size:12px; color:#666">{{ user.email || '' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="profile-details" style="margin-top:1rem; display:flex; flex-direction:column; gap:0.25rem; font-size:13px; color:#333;">
+                        <ProfileInfo :shop="selectedShop" @edit-seller-info="changeSellerInformation"/>
+                    </div>
+
+                    <div class="menu-item" @click.stop="openEditModal('cover')">
+                        <span>Change Cover Photo</span>
+                        <span class="change-link">Change</span>
+                    </div>
+                    <div class="menu-item" @click.stop="openEditModal('profile')">
+                        <span>Change Profile Photo</span>
+                        <span class="change-link">Change</span>
+                    </div>
+                    <div class="menu-item" @click.stop="openEditModal('shop')">
+                        <span>Shop Details</span>
+                        <span class="change-link">Change</span>
+                    </div>
+                    <div class="menu-item" @click.stop="openEditModal('account')">
+                        <span>Account Info</span>
+                        <span class="change-link">Change</span>
+                    </div>
+
                 </div>
                 <span @click="toggleNotifBox" style="cursor:pointer">
                   <i class="fa-solid fa-bell" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.5);"></i>
@@ -182,12 +213,17 @@ import examplemap from './maps/examplemap.vue';
 import '../css/app.css';
 import axios from 'axios';
 import NewMessage from './seller/notifications/NewMessage.vue';
+import EditModals from './seller/profile/EditModals.vue';
 import { useDataStore } from './stores/dataStore';
+import ProfileInfo from './seller/profile/ProfileInfo.vue';
+import router from './router';
 
 export default{
     components: {
         examplemap,
-        NewMessage
+        NewMessage,
+        ProfileInfo,
+        EditModals
     },
     data(){
         return{
@@ -204,6 +240,8 @@ export default{
             messageEventListener: null,
             notifyEventListener: null,
             notifications: [],
+            showEditModal: false,
+            editType: null
         }
     },
     computed: {
@@ -215,6 +253,14 @@ export default{
                 return 'Notification';
             }
             return this.$route.name;
+        },
+        selectedShop(){
+            try{
+                const store = useDataStore();
+                return store.selected_shop || null;
+            }catch(e){
+                return null;
+            }
         }
     },
     async mounted() {
@@ -237,6 +283,11 @@ export default{
         this.messageEventListener = null;
     },
     methods: {
+        openEditModal(type) {
+            this.showProfileBox = false; // close dropdown
+            this.editType = type;
+            this.showEditModal = true;
+        },
         returnFormatTime(datetime){
 
             const date = new Date(datetime);
@@ -249,11 +300,6 @@ export default{
         },
         checknotif(){
             this.checkNotifications();
-        },
-        goLogout(){
-            const store = useDataStore();
-            store.reset();
-            window.location.href = "/seller/logout";
         },
         goLogout(){
 
@@ -279,7 +325,6 @@ export default{
             this.page = switchPage;
         },
         toggleProfileBox() {
-            return;
             this.showProfileBox = !this.showProfileBox;
             this.showNotifBox = false;
         },

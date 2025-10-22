@@ -15,6 +15,11 @@
             </div>
 
             <div class="dashboard-header-right">
+                <div class="follower-stats header-follower ">
+                    <img src="../../../images/friends grey.png" alt="">
+                    <p class="total-followers"><span>{{ follower_statistics.total }}</span> total followers</p>
+                </div>
+
                 <router-link :to="{ name: 'Map' }">
                     <i class="fi fi-tr-land-location"></i>
                 </router-link>
@@ -105,9 +110,9 @@
                 </div>
             </div>-->
 
-            <!-- card-container with no graphs -->
+            <!-- card-container with no graphs
             <div class="card-container">
-                <!-- card container for reviews
+                -- card container for reviews
                 <div class="cards card-group-2">
                     <div class="product-container">
                         <div class="review-section">
@@ -167,7 +172,6 @@
                         </div>
                     </div>
                 </div>
-            -->
 
                 <div class="follower-card cards" style="">
                     <div class="follower-stats">
@@ -206,6 +210,7 @@
                     </div>
                 </div>
             </div>
+        -->
             <div class="card-container-2">
                 <!-- Add this if you use the card-container with graphs and charts
                 <div class="follower-card cards" style="">
@@ -931,6 +936,7 @@ export default {
     display: flex;
     align-items: center;
     padding-right: 2em;
+    justify-content: space-between;
 }
 .dashboard-header-right i {
     font-size: 1.8em;
@@ -1508,6 +1514,34 @@ export default {
     border-radius: 1em;
 }
 
+.header-follower {
+    background-color: transparent !important;
+    align-items: center;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15em;
+    border-radius: 50%;
+    transition: background-color 160ms ease;
+}
+
+.header-follower img {
+    width: 2em;
+    margin-top: 1em;
+    display: inline-block;
+    transition: filter 150ms ease, transform 120ms ease;
+}
+
+.header-follower img:hover {
+    /* stronger tint toward #833d03 and slight scale for feedback */
+    filter: sepia(1) saturate(600%) hue-rotate(-20deg) brightness(0.9) contrast(0.95);
+    transform: scale(1.03);
+    cursor: pointer;
+}
+
+.header-follower:hover {
+    background-color: #833d03;
+}
+
 .stats-content {
     flex: 2;
     display: flex;
@@ -1687,7 +1721,7 @@ export default {
 .products-table {
     text-align: center;
     font-size: .95em;
-    width: 99%;
+    width: 100%;
     height: 99%;
     border-radius: 1em;
     background: rgb(255, 255, 255);
@@ -1871,8 +1905,7 @@ export default {
 
 /* Mobile First - Small devices */
 @media (max-width: 480px) {
-    .dashboard-header {
-    flex-direction: column;
+  .dashboard-header {
     align-items: flex-start;
     gap: 0.5em;
   }
@@ -1881,6 +1914,15 @@ export default {
   .dashboard-header-right {
     width: 100%;
     padding-right: 0;
+  }
+
+  .dashboard-header-right {
+    width: 50%;
+    height: 5em;
+  }
+
+  .dashboard-header-right div {
+    gap: 0;
   }
 
   .card-container,
