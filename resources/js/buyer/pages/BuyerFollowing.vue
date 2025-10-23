@@ -4,6 +4,10 @@
       <label>Following shops</label>
     </div>
 
+    <teleport to="body">
+      <Notify :message="message" v-if="message !== '' || message"/>
+    </teleport>
+
     <div class="search-bar">
       <input type="text" placeholder="Search" v-model="searchQuery" />
       <span v-if="searchQuery" class="clear-btn" @click="searchQuery = ''">✕</span>
@@ -50,9 +54,15 @@
 <script>
 import { useDataStore } from '../../stores/dataStore';
 import axios from 'axios';
+import Notify from '../notify-modal/Notify.vue';
+
 export default {
+  components: {
+    Notify
+  },
   data() {
     return {
+      message: '',
       searchQuery: '',
       store: useDataStore(),
       follows: null,
@@ -106,8 +116,12 @@ export default {
       data.append('follower_id', follower_id);
 
       const res = await axios.post('/shop/unfollow', data);
+      
+      this.message = "You have successfully unfollow the shop";
 
-      window.alert(res.data.message);
+      setTimeout(() => {
+        this.message = "";
+      }, 3000);
 
       if(res.data.message === 'success'){
         this.follows = this.follows.filter(f => this.removeFollowData(f, user_id, follower_id))

@@ -19,7 +19,7 @@ export default defineConfig({
         host: '0.0.0.0',  // Allows access from the network (not just localhost)
         port: 8000,  // Default port Vite uses, you can change if needed
         hmr: {
-            host: '192.168.1.6',  // Replace this with your local IPcmd
+            host: '192.168.1.3',  // Replace this with your local IPcmd
         },
     },
 });
