@@ -2,11 +2,11 @@
     <div class="profile-container">
 
         <!-- Shop Details Edit Modal -->
-        <div class="modal-overlay"  @click.self="$emit('close')">
+        <div class="modal-overlay" v-if="type === 'shop'" @click.self="$emit('close')">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
                     <h3>Change Shop Details</h3>
-                    <button class="close-btn" @click.self="$emit('close')">
+                    <button class="close-btn" @click="$emit('close')">
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
@@ -16,7 +16,7 @@
                         <input
                             type="text"
                             id="shopName"
-                            v-model="shop.name"
+                            v-model="shopLocal.name"
                             placeholder="Enter shop name"
                             :class="{ 'error': shopNameError }"
                         >
@@ -50,18 +50,18 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="closeDetailsModal">Cancel</button>
+                    <button class="btn-cancel" @click="$emit('close')">Cancel</button>
                     <button class="btn-save" @click="saveDetails">Save</button>
                 </div>
             </div>
         </div>
 
         <!-- Seller Information Edit Modal -->
-        <div class="modal-overlay" v-if="type === 'account'" @click.self="$emit('close')">
+    <div class="modal-overlay" v-if="type === 'account'" @click.self="$emit('close')">
             <div class="modal-content" @click.stop>
                 <div class="modal-header">
                     <h3>Edit Seller Information</h3>
-                    <button class="close-btn" @click.self="$emit('close')">
+                    <button class="close-btn" @click="$emit('close')">
                         <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
@@ -72,7 +72,7 @@
                             type="text"
                             id="sellerFirstname"
                             v-model="newSellerFirstname"
-                            placeholder="Enter seller name"
+                            placeholder="Enter seller first name"
                             :class="{ 'error': sellerFirstnameError }"
                         >
                         <span v-if="sellerFirstnameError" class="error-message">{{ sellerFirstnameError }}</span>
@@ -83,7 +83,7 @@
                             type="text"
                             id="sellerMname"
                             v-model="newSellerMname"
-                            placeholder="Enter seller name"
+                            placeholder="Enter seller middle name"
                             :class="{ 'error': sellerMnameError }"
                         >
                         <span v-if="sellerMnameError" class="error-message">{{ sellerMnameError }}</span>
@@ -94,7 +94,7 @@
                             type="text"
                             id="sellerLastname"
                             v-model="newSellerLastname"
-                            placeholder="Enter seller name"
+                            placeholder="Enter seller last name"
                             :class="{ 'error': sellerLastnameError }"
                         >
                         <span v-if="sellerLastnameError" class="error-message">{{ sellerLastnameError }}</span>
@@ -130,8 +130,8 @@
                             :class="{ 'error': genderError }"
                         >
                             <option value="">Select gender</option>
-                            <option value="male">Male</option>
-                            <option value="female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
                         </select>
                         <span v-if="genderError" class="error-message">{{ genderError }}</span>
                     </div>
@@ -158,7 +158,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn-cancel" @click="closeSellerInfoModal">Cancel</button>
+                    <button class="btn-cancel"  @click.self="$emit('close')">Cancel</button>
                     <button class="btn-save" @click="saveSellerInformation">Save</button>
                 </div>
             </div>
@@ -196,7 +196,7 @@ export default {
                 no_star: 2,
             },
             shop_categories: [],
-            shop: null,
+            shopLocal: null,
             details: 'about',
             showMenu: false,
             showShopNameModal: false,
@@ -278,80 +278,52 @@ export default {
         closeMenu() {
             this.showMenu = false;
         },
-        changeCoverPhoto() {
-            // Create a file input element
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = async (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const data = new FormData();
-                    data.append('id', this.shop.id);
-                    data.append('file', file);
-
-                    const res = await axios.post('/seller/change/cover-photo', data);
-
-                    console.log(res.data.message);
-
-                    this.store.selected_shop.cover_photo = res.data.path;
-
-                    this.closeMenu();
-                }
-            };
-            input.click();
-        },
-        changeProfilePhoto() {
-            // Create a file input element for profile photo
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = async (event) => {
-                const file = event.target.files[0];
-                if (file) {
-                    const data = new FormData();
-                    data.append('id', this.shop.id);
-                    data.append('file', file);
-
-                    const res = await axios.post('/seller/change/profile-photo', data);
-
-                    console.log(res.data.message);
-
-                    this.store.selected_shop.profile_photo = res.data.path;
-
-                    this.closeMenu();
-                }
-            };
-            input.click();
-        },
         changeShopName() {
             this.newShopName = this.user.shop;
             this.showShopNameModal = true;
             this.closeMenu();
         },
         changeShopDetails() {
-    this.closeMenu();
-    if (this.shop) {
-        this.newShopNameForSeller = this.shop.name || '';
-        this.newDescription = this.shop.description || '';
-        this.showDetailsModal = true;
-    }
-        },
-
-        changeSellerInformation() {
             this.closeMenu();
-            if (this.shop && this.shop.user) {
-                this.clearErrors();
-                this.newSellerFirstname = this.shop.user.firstname || '';
-                this.newSellerMname = this.shop.user.m_initial || '';
-                this.newSellerLastname = this.shop.user.lastname || '';
-                this.newEmail = this.shop.user.email || '';
-                this.newContacts = this.shop.user.contact_no || '';
-                this.newGender = this.shop.user.gender || '';
-                this.newBirthday = this.shop.user.birthday || '';
-                this.newAddress = this.shop.address || '';
-                this.showSellerInfoModal = true;
+            if (this.shopLocal) {
+                this.newShopNameForSeller = this.shopLocal.name || '';
+                this.newDescription = this.shopLocal.description || '';
+                this.showDetailsModal = true;
             }
+        },
+        changeSellerInformation() {
+            if (!this.shop || !this.shop.user) {
+                console.warn('Shop or user data not yet available.');
+                return;
+            }
+
+            // Clear previous errors
+            this.shopNameError = '';
+            this.sellerFirstnameError = '';
+            this.sellerMnameError = '';
+            this.sellerLastnameError = '';
+            this.emailError = '';
+            this.contactError = '';
+            this.genderError = '';
+            this.birthdayError = '';
+            this.addressError = '';
+
+            // ✅ Assign current data from shop/user
+            this.newSellerFirstname = this.shop.user.firstname || '';
+            this.newSellerMname = this.shop.user.m_initial || '';
+            this.newSellerLastname = this.shop.user.lastname || '';
+            this.newEmail = this.shop.user.email || '';
+            this.newContacts = this.shop.user.contact_no || '';
+            this.newGender = this.shop.user.gender || '';
+            this.newBirthday = this.shop.user.birthday || '';
+            this.newAddress = this.shop.address || seller.address ||
+                            (this.shop && this.shop.address) ||
+                            (this.shop && this.shop.user && this.shop.user.address) ||
+                            (this.store.currentUser_info && this.store.currentUser_info.address) ||
+                            '';
+            this.showSellerInfoModal = true;
+            this.closeMenu();
+
         },
         closeShopNameModal() {
             this.showShopNameModal = false;
@@ -390,7 +362,9 @@ export default {
         async saveDetails() {
             let hasError = false;
 
-            if (!this.shop.name || this.shop.name.trim() === '') {
+            const shop = this.shopLocal || this.shop;
+
+            if (!shop || !shop.name || shop.name.trim() === '') {
                 this.shopNameError = 'Shop name is required.';
                 hasError = true;
             } else {
@@ -401,22 +375,30 @@ export default {
 
                 const data = new FormData();
                 data.append('description', this.newDescription);
-                data.append('shop_name', this.shop.name);
+                data.append('shop_name', shop.name);
                 data.append('categories', JSON.stringify(this.selectedCategories));
-                data.append('id', this.shop.id);
+                data.append('id', shop.id);
 
                 const res = await axios.post('/seller/change/shop-details', data);
 
                 console.log(res.data.message);
 
-                this.store.selected_shop.description = res.data.description;
-                this.store.selected_shop.category = res.data.categories;
-                this.store.selected_shop.name = res.data.shop_name;
+                // update store and local shop copy
+                if (res.data.shop) {
+                    this.store.setSelectedShop(res.data.shop);
+                    this.shopLocal = res.data.shop;
+                } else {
+                    this.store.selected_shop.description = res.data.description;
+                    this.store.selected_shop.category = res.data.categories;
+                    this.store.selected_shop.name = res.data.shop_name;
 
-                this.shop.category = res.data.categories;
-                this.shop.name = res.data.shop_name;
+                    if (this.shopLocal) {
+                        this.shopLocal.category = res.data.categories;
+                        this.shopLocal.name = res.data.shop_name;
+                    }
+                }
 
-                this.closeDetailsModal();
+                this.$emit('close');
             }
         },
         async saveSellerInformation() {
@@ -509,7 +491,7 @@ export default {
 
                 this.store.setSelectedShop(res.data.shop);
 
-                this.closeSellerInfoModal();
+                this.$emit('close');
             }
         },
         validateEmail(email) {
@@ -544,49 +526,134 @@ export default {
                 this.closeMenu();
             }
         },
-        initiateCategories(categories){
-            this.selectedCategories = [];
-
-            const result = JSON.parse(categories);
-
-            for(let category of result){
-
-                console.log('category: ', category);
-                this.selectedCategories.push(category);
+        initiateCategories(categoryString) {
+            try {
+                this.selectedCategories = Array.isArray(categoryString)
+                ? categoryString
+                : JSON.parse(categoryString || '[]');
+            } catch (err) {
+                this.selectedCategories = [];
             }
+        },
+
+        saveChanges() {
+        if (this.type === 'shop') {
+            // Example: Update shop details
+            this.store.updateShopDetails({
+            name: this.newShopNameForSeller,
+            description: this.newDescription,
+            category: this.selectedCategories
+            });
+        }
+
+        if (this.type === 'account') {
+            // Example: Update account info
+            this.store.updateUserAccount({
+            firstname: this.newSellerFirstname,
+            m_initial: this.newSellerMname,
+            lastname: this.newSellerLastname,
+            email: this.newEmail,
+            contact_no: this.newContacts,
+            gender: this.newGender,
+            birthday: this.newBirthday,
+            address: this.newAddress
+            });
+        }
+
+        this.$emit('close');
         }
 
     },
     watch: {
+        // Detect modal type change
+        type(newType) {
+            if (newType === 'shop') {
+                this.shopLocal = this.shop || this.store.selected_shop || null;
+                if (this.shopLocal) {
+                    this.newShopNameForSeller = this.shopLocal.name || '';
+                    this.newDescription = this.shopLocal.description || '';
+                    if (this.shopLocal.category) {
+                        this.initiateCategories(this.shopLocal.category);
+                    }
+                }
+            }
+
+            if (newType === 'account') {
+                const seller = this.seller || this.store.currentUser_info;
+                if (seller) {
+                    this.newSellerFirstname = seller.firstname || '';
+                    this.newSellerMname = seller.m_initial || '';
+                    this.newSellerLastname = seller.lastname || '';
+                    this.newEmail = seller.email || '';
+                    this.newContacts = seller.contact_no || '';
+                    this.newGender = seller.gender || '';
+                    this.newBirthday = seller.birthday || '';
+                    this.newAddress = seller.address || '';
+                }
+            }
+        },
+
+        // Watch for shop prop updates
+        shop: {
+            handler(newShop) {
+                this.shopLocal = newShop || this.store.selected_shop || null;
+                if (this.shopLocal) {
+                this.newShopNameForSeller = this.shopLocal.name || '';
+                this.newDescription = this.shopLocal.description || '';
+                if (this.shopLocal.category) {
+                    this.initiateCategories(this.shopLocal.category);
+                }
+                }
+            },
+            immediate: true
+        },
+
+        // Watch for store updates to selected_shop
         'store.selected_shop': {
             handler(newShop) {
                 if (newShop) {
-                    this.shop = newShop;
-                    // Initialize modal data with shop data
-                    this.newShopNameForSeller = this.shop.name;
-                    this.newDescription = this.shop.description || '';
+                    this.shopLocal = newShop;
+                    this.newShopNameForSeller = newShop.name || '';
+                    this.newDescription = newShop.description || '';
+                    if (newShop.category) {
+                        this.initiateCategories(newShop.category);
+                    }
                 }
             },
             immediate: true
         }
     },
-    mounted(){
-        this.shop = this.store.selected_shop;
 
-        this.initiateCategories(this.shop.category);
-
-        console.log('ID: ', this.shop.id);
-        console.log('SHOP', this.shop);
-
-        // Initialize modal data with shop data
-        if (this.shop) {
-            this.newShopNameForSeller = this.shop.name;
-            this.newDescription = this.shop.description || '';
+    mounted() {
+        // Auto-fill on mount (in case watchers miss initial)
+        if (this.type === 'shop') {
+        const shop = this.shop || this.store.selected_shop;
+        if (shop) {
+            this.shopLocal = shop;
+            this.newShopNameForSeller = shop.name || '';
+            this.newDescription = shop.description || '';
+            if (shop.category) this.initiateCategories(shop.category);
         }
-        if (this.shop?.category) {
-            this.initiateCategories(this.shop.category);
         }
-    }
+
+        if (this.type === 'account') {
+            const seller = this.seller || this.store.currentUser_info;
+            if (seller) {
+                this.newSellerFirstname = seller.firstname || '';
+                this.newSellerMname = seller.m_initial || '';
+                this.newSellerLastname = seller.lastname || '';
+                this.newEmail = seller.email || '';
+                this.newContacts = seller.contact_no || '';
+                this.newGender = seller.gender || '';
+                this.newBirthday = seller.birthday || '';
+                this.newAddress = seller.address || seller.address ||
+                                (this.shop && this.shop.address) ||
+                                (this.shop && this.shop.user && this.shop.user.address) ||
+                                (this.store.currentUser_info && this.store.currentUser_info.address) ||
+                                '';
+            }
+        }
+    },
 }
 </script>
 

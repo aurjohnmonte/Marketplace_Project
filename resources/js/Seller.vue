@@ -10,7 +10,8 @@
                 :type="editType"
                 :shop="user.shop"
                 :seller="user"
-                @close="showEditModal = false" />
+                @close="showEditModal = false"
+            />
         </teleport>
         <nav class="navbar navbar-light justify-content-between">
             <div class="navbar-left">
@@ -37,45 +38,42 @@
                         <ProfileInfo :shop="selectedShop" @edit-seller-info="changeSellerInformation"/>
                     </div>
 
-                    <div class="menu-item" @click.stop="openEditModal('cover')">
-                        <span>Change Cover Photo</span>
-                        <span class="change-link">Change</span>
-                    </div>
-                    <div class="menu-item" @click.stop="openEditModal('profile')">
-                        <span>Change Profile Photo</span>
-                        <span class="change-link">Change</span>
-                    </div>
-                    <div class="menu-item" @click.stop="openEditModal('shop')">
-                        <span>Shop Details</span>
-                        <span class="change-link">Change</span>
-                    </div>
-                    <div class="menu-item" @click.stop="openEditModal('account')">
-                        <span>Account Info</span>
-                        <span class="change-link">Change</span>
+                    <div class="change-info">
+                        <div class="menu-item" @click="changeCoverPhoto">
+                            <span>Change Cover Photo</span>
+                        </div>
+                        <div class="menu-item" @click="changeProfilePhoto">
+                            <span>Change Profile Photo</span>
+                        </div>
+
+                        <!-- This accesses the EditModals.vue when clicked -->
+                        <div class="menu-item" @click.stop="openEditModal('shop')">
+                            <span>Change Shop Details</span>
+                        </div>
+                        <div class="menu-item" @click.stop="openEditModal('account')">
+                            <span>Change Account Info</span>
+                        </div>
                     </div>
 
                 </div>
-                <span @click="toggleNotifBox" style="cursor:pointer">
-                  <i class="fa-solid fa-bell" style="text-shadow: 0px 2px 2px rgba(0,0,0,0.5);"></i>
+                <span @click="toggleNotifBox" class="notif-bell-container">
+                    <img src="../images/bell (1).png" style="width: 1.5em;" alt="">
+                    <span v-if="unread_notif" class="notif-dot"></span>
                 </span>
 
                 <div v-if="showNotifBox" class="floating-box notif-box">
-                    <div style="width: 100%; display: flex; flex-direction: row; align-items: center; justify-content: space-between">
+                    <div style="width: 100%; display: flex; align-items: center; justify-content: space-between">
                         <p style="font-size: 20px;">Notifications</p>
                         <router-link to="/seller/notifications" style="text-decoration: underline;">View All</router-link>
                     </div>
-                    <div
-                            style="display: flex;
-                            flex-direction: row;
-                            width: 100%;
-                            align-items: center;
-                            justify-content: space-between;
-                            gap: 50px;"
-                    :class="{is_unread: !notify.seen}"
-                    v-for="notify in notifications" :key="notify"
-                    >
-                        <label>{{ notify.text }}s</label>
-                        <label>{{ returnFormatTime(notify.created_at) }}</label>
+                    <div class="notify-content">
+                        <div class="notify-item" v-for="notif in notifications" :key="notif" @click="goNavigate(notif)">
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <div style="width: 5px; height: 5px; margin-bottom: .6em; border-radius: 10px; background-color: red;" v-if="notif.seen === 0"></div>
+                                <label class="notify-text">{{ notif.text }}</label>
+                            </div>
+                            <label class="notify-time">{{ returnFormatTime(notif.created_at) }}</label>
+                        </div>
                     </div>
                 </div>
                 <button @click="goLogout">Logout</button>
@@ -241,7 +239,8 @@ export default{
             notifyEventListener: null,
             notifications: [],
             showEditModal: false,
-            editType: null
+            editType: null,
+            recentNotifications: [],
         }
     },
     computed: {
@@ -274,33 +273,155 @@ export default{
         if (!this.isMobile) {
             this.showMenu = true;
         }
+
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+        document.addEventListener('click', this.handleClickOutside);
+        }, 100);
     },
     beforeUnmount() {
         window.removeEventListener('resize', this.checkScreenSize);
+        document.removeEventListener('click', this.handleClickOutside);
     },
     unmounted(){
         this.notifyEventListener = null;
         this.messageEventListener = null;
     },
     methods: {
+        markAsRead(index) {
+            if (this.recentNotifications[index].status === 'unread') {
+                this.recentNotifications[index].status = 'read';
+            }
+        },
+        returnColor(notif){
+            if(!notif.seen){
+                return '#F0AE73';
+            }
+        },
+
         openEditModal(type) {
             this.showProfileBox = false; // close dropdown
             this.editType = type;
             this.showEditModal = true;
         },
-        returnFormatTime(datetime){
+        returnFormatTime(datetime) {
+            if (!datetime) return ''; // avoid undefined errors
 
-            const date = new Date(datetime);
+            // Replace space with 'T' to make it ISO compliant
+            const formatted = datetime.replace(' ', 'T');
 
-            return `${date.toLocaleDateString()} - ${date.toLocaleTimeString()}`;
+            const date = new Date(formatted);
+
+            if (isNaN(date.getTime())) {
+                console.warn('Invalid datetime:', datetime);
+                return 'Invalid Date';
+            }
+
+            const datePart = date.toLocaleDateString();
+            const timePart = date.toLocaleTimeString([], {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            });
+
+            return `${datePart} - ${timePart}`;
         },
+
         returnActiveStatus(active_status){
             this.active_status = active_status;
             console.log('active status: ',this.active_status);
         },
+        changeCoverPhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const store = useDataStore();
+                    const shop = store.selected_shop;
+
+                    if (!shop || !shop.id) {
+                        console.error("Shop not found or missing ID");
+                        return;
+                    }
+
+                    const data = new FormData();
+                    data.append('id', shop.id);
+                    data.append('file', file);
+
+                    try {
+                        const res = await axios.post('/seller/change/cover-photo', data);
+                        console.log(res.data.message);
+
+                        shop.cover_photo = res.data.path;
+                        this.user.shop.cover_photo = res.data.path;
+
+                        // Optionally force reload image if cached
+                        this.$forceUpdate();
+                    } catch (error) {
+                        console.error("Error updating cover photo:", error);
+                    }
+                }
+            };
+            input.click();
+        },
+
+        changeProfilePhoto() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = async (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const store = useDataStore();
+                    const shop = store.selected_shop;
+
+                    if (!shop || !shop.id) {
+                        console.error("Shop not found or missing ID");
+                        return;
+                    }
+
+                    const data = new FormData();
+                    data.append('id', shop.id);
+                    data.append('file', file);
+
+                    try {
+                        const res = await axios.post('/seller/change/profile-photo', data);
+                        console.log(res.data.message);
+
+                        shop.profile_photo = res.data.path;
+                        this.user.shop.profile_photo = res.data.path;
+
+                        this.$forceUpdate();
+                    } catch (error) {
+                        console.error("Error updating profile photo:", error);
+                    }
+                }
+            };
+            input.click();
+        },
+
         checknotif(){
             this.checkNotifications();
         },
+
+        async checkNotifications(){
+            const store = useDataStore();
+            const res = await axios.get('/check/notification', {
+                params: {
+                    id: store.currentUser_info.id,
+                    type: 'seller',
+                }
+            });
+
+            console.log(res.data.message);
+
+            this.notifications = res.data.notifications;
+            console.log('notifications: ',this.notifications);
+            this.unread_notif = res.data.message;
+        },
+
         goLogout(){
 
             console.log('here')
@@ -331,10 +452,33 @@ export default{
         toggleNotifBox() {
             this.showNotifBox = !this.showNotifBox;
             this.showProfileBox = false;
+
         },
         toggleMenu() {
             this.showMenu = !this.showMenu;
         },
+
+        handleClickOutside(event) {
+            // Check if click is on toggle buttons
+            const profileToggle = event.target.closest('.profile-circle');
+            const notifToggle = event.target.closest('.notif-bell-container');
+
+            if (profileToggle || notifToggle) {
+                return; // Don't close if clicking toggle buttons
+            }
+
+            // Check if click is inside the floating boxes
+            const profileBox = this.$refs.profileBox;
+            const notifBox = this.$refs.notifBox;
+
+            if (profileBox && profileBox.contains(event.target)) return;
+            if (notifBox && notifBox.contains(event.target)) return;
+
+            // Close both boxes
+            this.showProfileBox = false;
+            this.showNotifBox = false;
+            },
+
         checkScreenSize() {
             this.isMobile = window.innerWidth <= 768;
             if (this.isMobile) {
@@ -345,20 +489,38 @@ export default{
             }
         },
 
-        async checkNotifications(){
-            const store = useDataStore();
-            const res = await axios.get('/check/notification', {
-                params: {
-                    id: store.currentUser_info.id,
-                    type: 'seller',
-                }
+        async goNavigate(notif) {
+            this.notif = notif;
+
+            // Instantly mark as seen (frontend only)
+            this.notifications = this.notifications.map(n =>
+                n.id === notif.id ? { ...n, seen: 1 } : n
+            );
+
+            // Optionally notify backend (no need to wait)
+            axios.get('/seen-notify', { params: { id: notif.id } }).catch(() => {
+                console.warn('Failed to mark notification as seen (backend)');
             });
 
-            console.log(res.data.message);
+            const hasUnread = this.notifications.some(n => n.seen === 0);
+            this.unread_notif = hasUnread;
 
-            this.notifications = res.data.notifications;
-            console.log('notifications: ',this.notifications);
-            this.unread_notif = res.data.message;
+            // Emit event if parent needs to react
+            this.$emit('modifyseen', notif.id);
+
+            // Handle navigation by type
+            if (notif.type === 'message') {
+                this.$router.push('/seller/messages');
+            } else if (notif.type === 'order') {
+                this.$router.push('/seller/transaction-record');
+            } else if (notif.type === 'product') {
+                this.$router.push('/seller/products');
+            } else if (notif.type === 'review') {
+                this.$router.push('/seller/notifications');
+            } else {
+                // Default fallback
+                this.$router.push('/seller/notifications');
+            }
         },
 
         async initializeUser(){
@@ -404,34 +566,40 @@ export default{
 
 <style scoped>
 .is_unread{
-    background-color: rgb(198, 198, 198);
+    background-color: rgb(168, 166, 166);
 }
 .floating-box {
-  position: absolute;
-  top: 3.5em;
-  right: 2em;
-  min-width: 450px;
-  height: 300px;
-  background: #fff;
-  color: #333;
-  border-radius: 8px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
-  z-index: 1000;
-  padding: 1em;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5em;
-  overflow: auto;
-  padding: 20px;
-  font-size: 12px;
+    position: absolute;
+    top: 3.5em;
+    right: 2em;
+    min-width: 450px;
+    height: 300px;
+    background: #fff;
+    color: #333;
+    border-radius: 8px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+    z-index: 1000;
+    padding: 2em 3em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    overflow: auto;
+    font-size: 12px;
 }
 .profile-box {
-  top: 3.5em;
-  right: 7em;
+    top: 4.5em;
+    right: 7em;
+}
+
+.change-info {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    place-content: center;
+    place-items: center;
 }
 .notif-box {
-  top: 4.5em;
-  right: 2em;
+    top: 4.5em;
+    right: 2em;
 }
 
 /* parent container */
@@ -572,8 +740,88 @@ export default{
   border-radius: 50%;
 }
 
-.notif-box i {
-  font-size: 3.7rem;
+.notif-bell-container {
+  position: relative;
+  cursor: pointer;
+  display: inline-block;
+  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.5);
+}
+
+.notif-bell-container img {
+  filter: drop-shadow(0 1px 1px rgb(0, 0, 0));
+}
+
+/* The red dot */
+.notif-dot {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50%;
+  border: 1px solid white; /* for a clean border on light backgrounds */
+}
+
+.notify-time{
+    font-size: 1em;
+    color: #64220385;
+}
+.notify-item{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    border-radius: 1em;
+    gap: 2em;
+}
+.notify-item:hover{
+  background-color: rgba(138, 138, 138, 0.134);
+}
+.notify-text{
+    font-size: 10px;
+}
+.notify-content{
+    display: flex;
+    flex-direction: column;
+}
+.notify-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    color: rgb(44, 44, 44);
+    align-items: center;
+}
+.overlay{
+  position: fixed;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.568);
+  left: 0;
+  top: 0;
+  z-index: 999;
+  user-select: none;
+}
+.notify-container{
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  top: 10%;
+  right: 2%;
+  border-radius: 5px;
+  overflow-y: auto;
+  padding: 20px;
+  z-index: 1000;
+}
+@media (min-width: 768px){
+  .notify-container{
+    width: 500px;
+    height: 400px;
+    right: 5%;
+  }
 }
 
 /* Mobile navbar adjustments */
@@ -865,6 +1113,7 @@ export default{
   z-index: 1100;
   box-shadow: 2px 0 12px rgba(0,0,0,0.08);
 }
+
 
 /* Hide minimized sidebar on mobile */
 @media (max-width: 768px) {

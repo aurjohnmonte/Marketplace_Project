@@ -1,7 +1,6 @@
 <template>
-    <div class="about-container" v-if="shop">
-        <div class="about-details">
-            <div class="row" style="grid-template-columns: auto auto;">
+        <div class="about-details" v-if="shop">
+            <div class="row">
                 <div class="details-container">
                     <span>Seller Name:</span>
                     <p>{{shop.user.firstname}} {{ shop.user.m_initial }}. {{ shop.user.lastname }}</p>
@@ -37,18 +36,17 @@
                 <span>Address:</span>
                 <p>{{ shop.address }}</p>
             </div>
-            <div class="row">
-                <div class="details-container category">
-                    <span>Category:</span>
+            <div class="details-container category">
+                <span>Category:</span>
+                <div class="user-category">
                     <p v-for="cat of category" :key="cat">{{ cat }}</p>
                 </div>
-                <div class="details-container">
-                    <span>Total Products:</span>
-                    <p>{{ shop.products.length }}</p>
-                </div>
+            </div>
+            <div class="details-container">
+                <span>Total Products:</span>
+                <p>{{ shop.products.length }}</p>
             </div>
         </div>
-    </div>
 </template>
 
 <script>
@@ -79,36 +77,11 @@ export default {
 </script>
 
 <style scoped>
-.about-container {
-    padding: 0 1.5rem 0 1.5rem;
-    display: flex;
-    gap: 1.5rem;
-    flex-wrap: wrap;
-}
-
-.desc {
-    flex: 1.2;
-    padding: 1em;
-    border-radius: 0.5em;
-}
-
-.desc h6 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #333;
-    margin-bottom: .4em;
-}
-
-.desc p {
-    text-indent: 2em;
-}
-
 .about-details {
     flex: 1;
     display: flex;
     flex-direction: column;
-    padding: 1em 1em 1em 0em;
+    padding-bottom: 1em;
     border-radius: 0.5em;
     gap: 1em;
 }
@@ -179,6 +152,18 @@ export default {
     margin: 0;
     color: #666;
     overflow-wrap: anywhere;
+}
+
+.category {
+    display: flex;
+    align-items: flex-start;
+}
+
+.user-category {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    place-content: center;
+    place-items: center;
 }
 
 @media screen and (max-width: 767px) {
