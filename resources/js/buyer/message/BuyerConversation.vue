@@ -1,5 +1,10 @@
 <template>
   <div class="message-page" @click="show_option = false">
+
+    <teleport to="body">
+      <Notify :message="message" v-if="message !== '' || message"/>
+    </teleport>
+
     <div class="view-full-container" v-if="view_image" @click.stop="view_image = null; view_img = null">
       <div class="view-full-img">
         <img :src="'/'+view_img" v-if="!is_blob">
@@ -28,7 +33,7 @@
           </div>
         </div>
       </div>
-      <a class="rate-shop" href="#" @click="goShop(shop_info.shop.id)">Rate Shop</a>
+      <!-- <a class="rate-shop" href="#" @click="goShop(shop_info.shop.id)">Rate Shop</a> -->
     </div>
 
     <!-- Chat messages -->
@@ -114,8 +119,12 @@
 <script>
 import axios from 'axios';
 import { useDataStore } from '../../stores/dataStore';
+import Notify from '../notify-modal/Notify.vue';
 
 export default{
+  components: {
+    Notify
+  },
   data(){
     return{
       is_mention: false,
@@ -142,6 +151,7 @@ export default{
       messages: [],
       activeListener: null,
       messageListener: null,
+      message: '',
     }
   },
   methods: {
@@ -264,7 +274,11 @@ export default{
 
       const res = await axios.post("/edit/message", data);
 
-      window.alert(res.data.message);
+      this.message = "You have successfully edit your message.";
+
+      setTimeout(() => {
+        this.message = "";
+      }, 3000);
 
       this.messages[this.selected_index].messages = this.message_text;
       this.selected_edit_message = null;
@@ -272,7 +286,13 @@ export default{
     },
     async goMessageSent(){
       if((this.message_text === "" || this.message_text === null) && this.send_photo === null){
-        window.alert("Please send your message");
+
+        // this.message = "Please send a message.";
+
+        // setTimeout(() => {
+        //   this.message = "";
+        // }, 3000);
+
         return;
       }
       if(this.selected_edit_message){

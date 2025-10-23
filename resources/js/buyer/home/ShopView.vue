@@ -1,5 +1,10 @@
 <template>
   <div class="seller-profile">
+
+    <teleport to="body">
+      <Notify :message="message" v-if="message !== '' || message"/>
+    </teleport>
+
     <template v-if="is_loading">
       <div class="overlay">
         <img src="../../../images/kOnzy.gif">
@@ -13,6 +18,7 @@
           </div>
           <!-- <img src="../../../images/more (2).png" style=" cursor: pointer; width: 20px; height: 20px; border: 1px solid gray; padding-left: 10px; padding-right: 10px; border-radius: 10px;"> -->
       </div>
+      
       <div class="seller-info">
           <img :src="returncoverphoto" alt="Cover Photo" class="cover_photo-img">
           <div class="cover-section">
@@ -45,6 +51,7 @@
               </div>
           </div>
       </div>
+      
 
       <div class="tabs">
         <router-link :to="{name: 'ShopAbout', params: {shopname: $route.params.shopname}}" class="tab" active-class="active">ABOUT</router-link>
@@ -61,12 +68,17 @@
 <script>
 import axios from 'axios';
 import { useDataStore } from '../../stores/dataStore';
+import Notify from '../notify-modal/Notify.vue';
 
 export default{
+    components: {
+      Notify
+    },
     data(){
       return{
         is_loading: true,
         is_friend: false,
+        message: '',
         shop: null,
       }
     },
@@ -117,7 +129,12 @@ export default{
         data.append('id', store.currentUser_info.id);
 
         const res = await axios.post('/buyer/follow-shop', data);
-        window.alert(res.data.message);
+
+        this.message = "You have successfully followed this shop";
+
+        setTimeout(() => {
+          this.message = "";
+        }, 3000);
       },
 
       goLocation(lat, long){
