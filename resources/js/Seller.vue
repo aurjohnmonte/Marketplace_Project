@@ -23,7 +23,7 @@
             <a class="navbar-brand">{{ displayTitle }}</a>
             <div class="navbar-right" v-if="user.shop">
                 <div class="profile-circle" @click="toggleProfileBox">
-                    <img style="width: 30px; height: 30px;" :src="'/' + (user.shop && user.shop.profile_photo ? user.shop.profile_photo : (user.profile_photo || ''))" />
+                    <img style="width: 30px; height: 30px; cursor: pointer;" :src="'/' + (user.shop && user.shop.profile_photo ? user.shop.profile_photo : (user.profile_photo || ''))" />
                 </div>
                 <div v-if="showProfileBox" class="floating-box profile-box">
                     <div class="profile-header" style="display:flex; gap:1em; align-items:center;">
@@ -542,6 +542,7 @@ export default{
                                             console.log('HELLO WORLDDDDDD');
                                             this.unread_notif = true;
                                             console.log('NEEEH AGIIIIIII');
+                                            await this.checkNotifications();
                                             this.notifymessage = "You have new notification. Check it out.";
                                             this.is_visible = true;
 
@@ -565,6 +566,9 @@ export default{
 </script>
 
 <style scoped>
+.menu-item{
+    cursor: pointer;
+}
 .is_unread{
     background-color: rgb(168, 166, 166);
 }
