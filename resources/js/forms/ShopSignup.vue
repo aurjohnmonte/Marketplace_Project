@@ -60,8 +60,8 @@
                 <template v-if="details.type === 'file'">
                     <div class="shop-btns">
                         <div class="shop-img-btn">
-                            <span v-if="shopData[details.name]" class="file-name">
-                                {{ shopData[details.name]?.name }}
+                            <span v-if="shopData.shop_profile_name" class="file-name">
+                                {{ shopData.shop_profile_name }}
                             </span>
                             <input
                                 :type="details.type"
@@ -79,7 +79,7 @@
                                 @click="triggerFileInput(details.name)"
                                 style="margin-top: 5px;"
                             >
-                                Upload Image
+                                {{ shopData.shop_profile_base64 ? 'Replace Image' : 'Upload Image' }}
                             </button>
                         </div>
 
@@ -186,6 +186,9 @@ export default {
                 shop_name: '',
                 shop_address: '',
                 shop_description: '',
+                shop_profile: null,          // actual File object
+                shop_profile_name: '',       // file name
+                shop_profile_base64: '',     // Base64 string for persistence
                 shop_profile: '',
                 shop_category: [],
                 latitude: "none",
@@ -240,8 +243,16 @@ export default {
             const data = new FormData();
             data.append('data', JSON.stringify(this.formData));
             data.append('shopdata', JSON.stringify(this.shopData));
-            data.append('image', this.formData.profile_image);
-            data.append('shopimage', this.shopData.shop_profile);
+            if (this.formData.profile_image) data.append('image', this.formData.profile_image);
+            if (this.shopData.shop_profile) {
+                data.append('shopimage', this.shopData.shop_profile);
+            } else if (this.shopData.shop_profile_base64) {
+                const blob = this.dataURLtoFile(
+                    this.shopData.shop_profile_base64,
+                    this.shopData.shop_profile_name || 'shop_image.png'
+                );
+                data.append('shopimage', blob);
+            }
             data.append('role', 'seller');
 
             const response = await axios.post('/user/register', data);
@@ -254,6 +265,9 @@ export default {
                 this.$emit('goloading', false);
                 return;
             }
+            // Clear localStorage after successful submission
+            localStorage.removeItem('shopData');
+
 
             this.$emit('shopinfosubmit');
         },
@@ -263,12 +277,25 @@ export default {
         handleFileUpload(event, name) {
             const file = event.target.files[0];
             if (file) {
-                this.shopData[name] = file; // <-- assign to shopData
-                this.formData[name] = file; // (optional, if you need it in formData too)
-                // mark file field as valid on parent form data if possible
-                if (this.$parent && this.$parent.validationMessages) {
-                    this.$parent.validationMessages[name] = [];
-                    this.$parent.fieldStatus[name] = true;
+                this.shopData[name] = file; // actual file
+                this.shopData[name + "_name"] = file.name; // persist name
+
+                // Convert file to Base64 for persistence
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.shopData[name + "_base64"] = e.target.result;
+                     // Save updated shopData to localStorage (without raw File)
+                        localStorage.setItem('shopData', JSON.stringify({
+                            ...this.shopData,
+                            [name]: undefined
+                        }));
+                    };
+                    reader.readAsDataURL(file);
+
+                    // mark file field as valid on parent form data if possible
+                    if (this.$parent && this.$parent.validationMessages) {
+                        this.$parent.validationMessages[name] = [];
+                        this.$parent.fieldStatus[name] = true;
                 }
             }
         },
@@ -304,13 +331,51 @@ export default {
                 }
             )
         },
+        dataURLtoFile(dataurl, filename) {
+            const arr = dataurl.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+            return new File([u8arr], filename, { type: mime });
+        },
+
         goBack(){
             // emit an event to parent to go back to user signup
             this.$emit('goback');
         },
     },
+    watch: {
+         shopData: {
+            handler(newVal) {
+                // Save shopData to localStorage (except actual file object)
+                const storageData = { ...newVal, shop_profile: undefined };
+                localStorage.setItem('shopData', JSON.stringify(storageData));
+            },
+            deep: true
+        }
+    },
     mounted(){
         console.log('user: ', this.formData);
+        // Load persisted shopData
+        const savedShopData = localStorage.getItem('shopData');
+        if (savedShopData) {
+            const parsedData = JSON.parse(savedShopData);
+            this.shopData = { ...this.shopData, ...parsedData };
+        }
+
+        // Restore checkbox states
+        this.$nextTick(() => {
+            if (this.shopData.shop_category.length) {
+                this.shopData.shop_category.forEach(cat => {
+                    const checkbox = document.querySelector(`input[type="checkbox"][value="${cat}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+            }
+        });
     }
 }
 </script>

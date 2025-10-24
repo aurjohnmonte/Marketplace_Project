@@ -134,7 +134,6 @@
                             @change="handleFileUpload($event, info.name)"
                             :ref="'fileInput_' + info.name"
                             style="display: none;"
-                            required
                         />
                         <label
                             :for="info.id"
