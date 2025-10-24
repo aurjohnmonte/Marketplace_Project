@@ -279,7 +279,8 @@
                                         <tr>
                                             <th>Product Name</th>
                                             <th>Category</th>
-                                            <th>Overall Rate</th>
+                                            <th>Rating</th>
+                                            <th>Reviews</th>
                                             <th>Price</th>
                                             <th>Status</th>
                                         </tr>
@@ -294,8 +295,9 @@
                                                     <i class="fi fi-sr-star filled"></i>
                                                 </div>
                                             </td>
-                                            <td class="reviews-cell">{{ result.price || 0 }}</td>
-                                            <td class="followers-cell">{{ result.status || 0 }}</td>
+                                            <td class="reviews-cell">{{ result.total_views}}</td>
+                                            <td class="reviews-cell">{{ result.price }}</td>
+                                            <td class="followers-cell">{{ result.status }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -318,7 +320,8 @@
                                             <th>Category</th>
                                             <th>Rating</th>
                                             <th>Reviews</th>
-                                            <th>Followers</th>
+                                            <th>Price</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -331,8 +334,9 @@
                                                     <i class="fi fi-sr-star filled"></i>
                                                 </div>
                                             </td>
-                                            <td class="reviews-cell">{{ result.reviews.length }}</td>
-                                            <td class="followers-cell">{{ result.followers || 0 }}</td>
+                                            <td class="reviews-cell">{{ result.reviews.length}}</td>
+                                            <td class="reviews-cell">{{ result.price }}</td>
+                                            <td class="followers-cell">{{ result.status }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
