@@ -64,9 +64,8 @@
                     </div>
                 </div>
             </div>
-
-
             <button class="form-btn style"
+                :disabled="Object.keys(this.errors).length > 0"
                 >Login
             </button>
         </form>
@@ -79,6 +78,10 @@ export default {
     props: [
         'message',
     ],
+    mounted(){
+        this.errors.username = 'Username must be at least 4 characters.';
+        this.errors.password = 'Password must be at least 8 characters.';
+    },
     data() {
         return {
             action: 'login',

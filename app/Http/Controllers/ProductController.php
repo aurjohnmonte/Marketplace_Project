@@ -183,6 +183,7 @@ weight: ''
             $product->materials = $product_info->materials;
             $product->dimensions = $product_info->dimensions;
             $product->weight = $product_info->weight;
+            $product->price = $product_info->price;
 
             if($product->save()){
                 return response()->json(['message'=>'successful', 'photos' => $photos]);
