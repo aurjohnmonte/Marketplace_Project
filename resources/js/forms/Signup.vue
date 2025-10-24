@@ -254,6 +254,7 @@
 
     <!-- Shop Signup Form -->
     <ShopSignup v-if="currentStep === 'shop'"
+        ref="shopSignup"
         :userType="userType"
         :formData="formData"
         @shopinfosubmit="shopinfosubmit"
@@ -286,7 +287,7 @@ export default {
         Login,
         PermissionInfo
     },
-    emits: ["updateSignupErrors"],
+    emits: ["update-signup-errors"],
     data() {
         return {
             // warning UI
@@ -815,8 +816,27 @@ export default {
             });
         },
         goToShop() {
-            // Allow user to navigate to shop signup anytime (sellers only)
+            // Validate all account info fields first
+            const accountFields = ['username', 'password', 'confirm_password', 'profile_image'];
+
+            accountFields.forEach(field => this.validateField(field));
+
+            // Check if there are errors in any account field
+            const hasErrors = accountFields.some(
+                field => this.validationMessages[field]?.length > 0 || this.fieldStatus[field] !== true
+            );
+
+            if (hasErrors) {
+                // Show a warning box (using your inline warning UI)
+                this.warningMessage = 'Please fix all account information errors before proceeding to the shop setup.';
+                this.showWarning = true;
+                return; // Stop navigation
+            }
+
+            // If all fields are valid, proceed to shop
             this.currentStep = 'shop';
+
+            this.showWarning = false;
         },
         checkAllCaps() {
             // Check all form fields for all caps (excluding fields like gender, birthday, age, location_access, terms)
