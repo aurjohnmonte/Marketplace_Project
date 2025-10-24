@@ -331,7 +331,7 @@
                                                     <i class="fi fi-sr-star filled"></i>
                                                 </div>
                                             </td>
-                                            <td class="reviews-cell">{{ result.total_views || 0 }}</td>
+                                            <td class="reviews-cell">{{ result.reviews.length }}</td>
                                             <td class="followers-cell">{{ result.followers || 0 }}</td>
                                         </tr>
                                     </tbody>

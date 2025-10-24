@@ -119,6 +119,8 @@ export default {
 
         const res = await axios.post("/verify-otp", data);
 
+        console.log(res.data.message);
+
         if (res.data.message === "successful") {
 
           const store = useDataStore();
@@ -130,6 +132,7 @@ export default {
           const res = await axios.post('/buyer/delete-account', data);
 
           console.log('RES: ', res.data.message);
+
           if(res.data.message === 'successful'){
             alert("Account deleted successfully.");
             this.closeModal();
