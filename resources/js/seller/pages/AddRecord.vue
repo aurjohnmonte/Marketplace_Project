@@ -56,6 +56,21 @@
             <button class="btn btn-success" @click="goSubmit()">Add</button>
         </div>
   </div>
+
+    <!-- Popup Message -->
+    <div class="warning-container" v-if="showWarning">
+    <div
+        class="warning-box"
+        :class="warningType"
+    >
+        <div class="warning-header">
+            <strong>{{ warningType === 'error' ? 'Error' : 'Success' }}</strong>
+            <button class="warning-close" @click="showWarning = false">×</button>
+        </div>
+        <div class="warning-body">{{ warningMessage }}</div>
+    </div>
+    </div>
+
 </template>
 
 <script>
@@ -70,6 +85,9 @@ export default {
   },
   data() {
     return {
+        showWarning: false,
+        warningMessage: "",
+        warningType: "",
         store: useDataStore(),
       loading: false,
       show_customer_select: false,
@@ -114,33 +132,64 @@ export default {
             Weight: "",
         };
     },
-    async goSubmit(){
-        this.loading = true;
-        const seller_id = this.store.currentUser_info.id;
-        if(!this.product.Name || !this.user.Name){
-            window.alert("Please select");
-            this.loading = false;
-            return;
-        }
+    async goSubmit() {
+  this.loading = true;
+  const seller_id = this.store.currentUser_info.id;
 
-        const data = {
-            product_id: this.product.id,
-            user_id: this.user.id,
-            name: this.user.Name,
-            username: this.user.username,
-            description: this.product.Description,
-            seller_id: seller_id,
-        }
+  // Validation first
+  if (!this.product.Name || !this.user.Name) {
+    this.warningType = 'error';
+    this.warningMessage = 'Please select a customer and a product.';
+    this.showWarning = true;
+    this.loading = false;
+    return;
+  }
 
-        const obj = new FormData();
-        obj.append('data', JSON.stringify(data));
+  try {
+    const data = {
+      product_id: this.product.id,
+      user_id: this.user.id,
+      name: this.user.Name,
+      username: this.user.username,
+      description: this.product.Description,
+      seller_id: seller_id,
+    };
 
-        const res = await axios.post('/seller/new/add-record', obj);
+    const obj = new FormData();
+    obj.append('data', JSON.stringify(data));
 
-        console.log('here: ',res.data.message);
-        window.alert(res.data.message);
-        this.reset();
-        this.loading = false;
+    const res = await axios.post('/seller/new/add-record', obj);
+
+    console.log('Response:', res.data);
+
+    // Normalize response message
+    const message = (res.data.message || '').toString().trim().toLowerCase();
+
+    if (message === 'success' || message.includes('success')) {
+      this.warningType = 'success';
+      this.warningMessage = 'Transaction added successfully!';
+      this.reset();
+
+      // Auto close after 2 seconds for success
+      setTimeout(() => {
+        this.showWarning = false;
+      }, 2000);
+    } else {
+      this.warningType = 'error';
+      this.warningMessage = res.data.message || 'Something went wrong.';
+    }
+
+  } catch (err) {
+    console.error(err);
+    this.warningType = 'error';
+    this.warningMessage = 'An error occurred while adding the transaction.';
+  } finally {
+    this.showWarning = true;
+    this.loading = false;
+  }
+},
+    closePopup() {
+        this.showWarning  = false;
     },
     close(){
         this.show_customer_select = false;
@@ -303,6 +352,65 @@ export default {
   justify-content: center;
   margin-top: 20px;
 }
+
+/* Warning container (top floating) */
+.warning-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4000;
+  width: calc(100% - 2rem);
+  max-width: 560px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* Shared warning box base */
+.warning-box {
+  pointer-events: auto;
+  padding: 0.75rem .75em 1rem 1em;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+}
+
+/* Error styling */
+.warning-box.error {
+  background: #fff6f6;
+  border: 1px solid #ffcccc;
+  color: #7a1f1f;
+}
+
+/* Success styling */
+.warning-box.success {
+  background: #f6fff8;
+  border: 1px solid #b1f5c2;
+  color: #1f7a3f;
+}
+
+.warning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.warning-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+.warning-body {
+  font-size: 0.95rem;
+  padding-right: 1em;
+}
+
 
 @media (max-width: 480px) {
   .header h1 {

@@ -1,4 +1,15 @@
 <template>
+    <!-- Popup Message -->
+    <div class="warning-container" v-if="showWarning">
+        <div class="warning-box" :class="warningType">
+        <div class="warning-header">
+            <strong>{{ warningType === 'success' ? 'Success' : 'Error' }}</strong>
+            <button class="warning-close" @click="showWarning = false">×</button>
+        </div>
+        <div class="warning-body">{{ warningMessage }}</div>
+        </div>
+    </div>
+
   <div class="record-main-container">
     <!-- Add Product Button -->
     <div class="btn-add-container">
@@ -11,10 +22,10 @@
       <header>
         <div class="search-container">
           <div class="search-bar">
-            <input 
-              type="search" 
+            <input
+              type="search"
               v-model="searchQuery"
-              placeholder="Enter client name..." 
+              placeholder="Enter client name..."
               aria-label="Search client"
             />
             <i class="fa fa-search search-icon"></i>
@@ -40,8 +51,8 @@
                 </tr>
             </thead>
             <tbody v-if="products.length > 0">
-                <tr 
-                v-for="(product, indx) in filteredProducts" 
+                <tr
+                v-for="(product, indx) in filteredProducts"
                 :key="product.id"
                 >
                   <td>{{ indx + 1 }}</td>
@@ -79,6 +90,9 @@ export default {
     return {
       searchQuery: "",
       products: [],
+      showWarning: false,
+      warningType: "", // 'success' or 'error'
+      warningMessage: "",
     };
   },
   computed: {
@@ -90,19 +104,35 @@ export default {
   },
   methods: {
     async goDelete(id){
-      console.log('id: ', id);
-      const data = new FormData();
-      data.append('id', id);
+        try {
+            const data = new FormData();
+            data.append('id', id);
 
-      const res = await axios.post('/seller/record/delete', data);
+            const res = await axios.post('/seller/record/delete', data);
 
-      window.alert(res.data.message);
+            const message = (res.data.message || '').toLowerCase();
 
-      console.log(res.data.message);
-
-      if(res.data.message === 'success'){
-        this.products = this.products.filter(e => e.id !== id);
-      }
+            if (message.includes('success')) {
+            this.warningType = 'success';
+            this.warningMessage = 'Record deleted successfully!';
+            this.products = this.products.filter(e => e.id !== id);
+            } else {
+            this.warningType = 'error';
+            this.warningMessage = res.data.message || 'Failed to delete record.';
+            }
+        } catch (err) {
+            console.error(err);
+            this.warningType = 'error';
+            this.warningMessage = 'An error occurred while deleting the record.';
+        } finally {
+            this.showWarning = true;
+            setTimeout(() => {
+            this.showWarning = false;
+            }, 2500);
+        }
+    },
+    closePopup() {
+        this.showPopup = false;
     },
     formatDate(datetime){
 
@@ -249,6 +279,62 @@ export default {
 }
 .btn-delete:hover {
   background: #d9362c;
+}
+
+.warning-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4000;
+  width: calc(100% - 2rem);
+  max-width: 560px;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.warning-box {
+  pointer-events: auto;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  width: 100%;
+  transition: all 0.3s ease;
+}
+
+/* Error Theme */
+.warning-box.error {
+  background: #fff6f6;
+  border: 1px solid #ffcccc;
+  color: #7a1f1f;
+}
+
+/* Success Theme */
+.warning-box.success {
+  background: #f6fff8;
+  border: 1px solid #b3ffcc;
+  color: #1f7a3d;
+}
+
+.warning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.4rem;
+}
+
+.warning-close {
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: inherit;
+}
+
+.warning-body {
+  font-size: 0.95rem;
 }
 
 /* Responsive */
