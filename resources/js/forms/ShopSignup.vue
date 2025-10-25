@@ -71,7 +71,6 @@
                                 @change="handleFileUpload($event, details.name)"
                                 :ref="'fileInput_' + details.name"
                                 style="display: none;"
-                                required
                             />
                             <button
                                 type="button"

@@ -1,7 +1,7 @@
 <template>
   <div class="buyer-home">
     <div class="buyer-content1">
-      <h2>TIMBERSHOPPEE</h2>
+      <h2>CRAFTIFY</h2>
     </div>
     <div class="filter-search-container">
       <form @submit.prevent="goSubmitSearch">

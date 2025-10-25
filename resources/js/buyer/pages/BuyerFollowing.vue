@@ -129,14 +129,19 @@ export default {
     },
     removeFollowData(follow, user_id, follower_id){
 
-      if(follow){
+      console.log('follow: ', follow);
+      console.log('user_id: ', user_id);
+      console.log('follower_id: ', follower_id);
 
-        if(follow.user_id !== user_id && follow.follower_id !== follower_id){
-          return true;
+      if(follow){
+        console.log('sulod1');
+        if(follow.user_id === user_id && follow.follower_id === follower_id){
+          console.log('sulod2');
+          return false;
         }
       }
 
-      return false;
+      return true;
     },
     goShop(id){
       this.$router.push({name: "ShopAbout", params: {id: id}});

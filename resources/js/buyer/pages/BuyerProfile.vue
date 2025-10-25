@@ -76,7 +76,7 @@
         <label style="margin-top: 10px; margin-bottom: 10px;">Account Setting</label>
         <label class="label-setting" @click="$router.push({name: 'AccountSetting'})" style="color: yellowgreen;">Deactivate Account</label>
         <label class="label-setting" @click="$router.push({name: 'DeleteAccount'})" style="color: red;">Delete Account</label><br>
-        <label class="label-setting">Logout</label>
+        <label class="label-setting" @click="goLogout()">Logout</label>
       </main>
   </div>
 </template>
@@ -125,6 +125,13 @@ export default {
     }
   },
   methods: {
+    goLogout(){
+        const store = useDataStore();
+        const id = store.currentUser_info.id;
+        this.$emit('stopLocation');
+        store.reset();
+        window.location.href=`/buyer/logout?id=${id}`;
+      },
     async gosave_credential(){
       
       const data = new FormData();
@@ -133,6 +140,9 @@ export default {
       console.log(this.user.email);
 
       const res = await axios.post('/buyer/edit-credential', data);
+
+      console.log('user credential: ', this.user_credential);
+      console.log(res.data.message);
 
       this.message_text = "";
 
@@ -144,6 +154,8 @@ export default {
 
       this.store.setUserInfo(res.data.user);
       this.user = this.store.currentUser_info;
+
+      console.log('USER TEST: ', res.data.user);
 
       this.edit_credential = [];
 
@@ -192,6 +204,7 @@ export default {
       console.log(res.data.message);
     },
     cancel_editCredential(info){
+      console.log('info: ', info);
       if(info === 'password'){
         this.valid_password = true;
         this.show_confirm_pass = false;
@@ -200,7 +213,8 @@ export default {
         this.user_credential.confirm_password = "";
       }
       else{
-        this.user_credential[info] = this.user[info];  
+        console.log('user: ', this.user);
+        this.user_credential[info] = this.user['name'];  
       }
       
       if(this.edit_credential.includes(info)){

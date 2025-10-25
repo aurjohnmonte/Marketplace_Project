@@ -57,7 +57,7 @@ export default {
         minZoom: 3,
       });
 
-      L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: 'Tiles &copy; Esri — Sources: Esri, Garmin, USGS, etc.',
         maxZoom: 19,
         minZoom: 3,

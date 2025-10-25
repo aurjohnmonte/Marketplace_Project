@@ -93,13 +93,13 @@ export default {
 
     'search_filter.text': function (newval){
 
-      if(this.products.length > 0){
-        this.haveSearchContent(newval, 'text');
+      if(newval.trim() === ""){
+        this.products = this.store.selected_shop.products;
         return;
       }
 
-      if(newval === ''){
-        this.products = this.search_content;
+      if(this.products.length > 0){
+        this.haveSearchContent(newval, 'text');
         return;
       }
 
@@ -156,6 +156,8 @@ export default {
               partial.unshift(content);
             }
           });
+
+          this.products = partial;
         }
         else if(type === "filter"){
 
