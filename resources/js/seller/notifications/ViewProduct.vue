@@ -164,7 +164,7 @@
                         <video v-for="video in review.reviewvideos" :key="video" :src="'/'+video.path" style="width: 200px; height: 100px; border: 1px solid gray;" controls></video>
                     </div>
                 </div>
-            </div>  
+            </div>
         </div>
     </div>
 </template>
@@ -220,7 +220,7 @@ export default {
               return num;
 
             case 'half':
-              
+
               return is_float ? 1 : 0;
 
             case 'none':
@@ -230,7 +230,7 @@ export default {
           }
         },
         returnFormatDate(date){
-            
+
             return new Date(date).toLocaleDateString();
         },
         isFloat(num){
@@ -333,7 +333,7 @@ export default {
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
             console.log('PRODUCT: ', product);
             console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-            this.product = product; 
+            this.product = product;
 
 
         }
@@ -390,7 +390,7 @@ export default {
     background-color: #bdbbba98;
     padding: 10px;
     overflow: hidden;
-    height: 400px;  
+    height: 400px;
     border-radius: 15px;
     box-sizing: border-box;
     padding: 2em;
@@ -772,7 +772,19 @@ h6 {
 }
 
 .attach-btn{
-    position: absolute; top: 0; right: 0; margin: 10px; border: none; padding: 5px; border: 1px solid gray; background-color: orange; cursor: pointer; border-radius: 5px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 10px;
+    border: none;
+    padding: .5em;
+    border: 1px solid gray;
+    background-color: #FFC107;
+    cursor: pointer;
+    border-radius: 5px;
+    text-transform: capitalize;
+    color: #212121;
+    font-size: .9em;
 }
 
 @media (max-width: 480px) {

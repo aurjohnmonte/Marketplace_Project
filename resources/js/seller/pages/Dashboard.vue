@@ -258,16 +258,12 @@
                                     v-model="searchQuery"
                                     placeholder="Search products..."
                                     @focus="startSearching"
-                                    @input="startSearching"
+                                    @input="handleTyping"
                                     @keyup.enter="performSearch"
                                     class="search-input"
                                 >
                                 <i class="fi fi-sr-search search-icon"></i>
                             </div>
-                            <button @click="performSearch" class="search-button">
-                                <i class="fi fi-sr-search"></i>
-                                Search
-                            </button>
                         </div>
                     </div>
                     <div class="table-section">
@@ -281,8 +277,6 @@
                                             <th>Category</th>
                                             <th>Rating</th>
                                             <th>Reviews</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -296,8 +290,6 @@
                                                 </div>
                                             </td>
                                             <td class="reviews-cell">{{ result.total_views}}</td>
-                                            <td class="reviews-cell">{{ result.price }}</td>
-                                            <td class="followers-cell">{{ result.status }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -320,8 +312,6 @@
                                             <th>Category</th>
                                             <th>Rating</th>
                                             <th>Reviews</th>
-                                            <th>Price</th>
-                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -335,8 +325,6 @@
                                                 </div>
                                             </td>
                                             <td class="reviews-cell">{{ result.reviews.length}}</td>
-                                            <td class="reviews-cell">{{ result.price }}</td>
-                                            <td class="followers-cell">{{ result.status }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -778,6 +766,29 @@ export default {
             this.shop_reviews.female = arr_review.filter(r => r.user.gender === 'female').length;
 
             console.log('shop_reviews: ', this.shop_reviews);
+        },
+
+        handleTyping() {
+            clearTimeout(this.searchTimeout);
+
+            this.isSearching = true;
+
+            // Add a small delay (for performance & UX)
+            this.searchTimeout = setTimeout(() => {
+                if (this.searchQuery.trim() === '') {
+                    this.searchResults = this.orig_products;
+                    this.isSearching = false;
+                    return;
+                }
+
+                this.searchResults = this.orig_products.filter(product =>
+                    product.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                    product.category.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                    product.description.toLowerCase().includes(this.searchQuery.toLowerCase())
+                );
+
+                this.isSearching = false;
+            }, 300); // 300ms debounce for smoother searching
         },
 
         clearSearch() {
@@ -1629,6 +1640,7 @@ export default {
     display: flex;
     align-items: center;
     gap: 1em;
+    width: 50%;
 }
 
 .search-input-wrapper {
@@ -1642,7 +1654,7 @@ export default {
     width: 100%;
     padding: 0.5em 2.5em 0.5em 1em;
     border: 2px solid #e0e0e0;
-    border-radius: 0.8em;
+    border-radius: 1em;
     font-size: 0.9em;
     outline: none;
     transition: all 0.3s ease;
