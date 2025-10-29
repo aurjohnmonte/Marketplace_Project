@@ -176,10 +176,6 @@ export default {
     transition: .3s ease-in-out;
 }
 
-.details-container:hover {
-    transform: scale(1.1);
-}
-
 .details-container span {
     font-weight: 600;
     color: #333;

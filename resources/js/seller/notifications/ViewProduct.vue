@@ -718,11 +718,6 @@ h6 {
     width: 100%;
 }
 
-.full>.details-box:hover,
-.desc>.details-box:hover {
-    transform: scale(1.05) !important;
-}
-
 .details-box {
     background-color: #bdbbba98;
     display: grid;
@@ -734,11 +729,6 @@ h6 {
     border-radius: 1em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.479);
     font-size: .8em;
-    transition: .3s ease-in-out
-}
-
-.details-box:hover {
-    transform: scale(1.1);
 }
 
 .details-box span {

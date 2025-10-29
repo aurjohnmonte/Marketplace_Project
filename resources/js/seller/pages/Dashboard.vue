@@ -380,6 +380,9 @@ import axios from 'axios';
 import router from '../../router';
 
 export default {
+    name: 'Dashboard',
+    emits: ['checknotif', 'returnActiveStatus'],
+    props: ['active_status'],
     components: {
         RadialGraph,
         LineGraph

@@ -136,13 +136,7 @@ export default {
     border-radius: 1em;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.479);
     font-size: .8em;
-    transition: .3s ease-in-out;
 }
-
-.details-container:hover {
-    transform: scale(1.1);
-}
-
 .details-container span {
     font-weight: 600;
     color: #333;

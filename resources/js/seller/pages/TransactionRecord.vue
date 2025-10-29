@@ -2,11 +2,23 @@
     <!-- Popup Message -->
     <div class="warning-container" v-if="showWarning">
         <div class="warning-box" :class="warningType">
-        <div class="warning-header">
-            <strong>{{ warningType === 'success' ? 'Success' : 'Error' }}</strong>
-            <button class="warning-close" @click="showWarning = false">×</button>
+            <div class="warning-header">
+                <strong>{{ warningType === 'success' ? 'Success' : 'Error' }}</strong>
+                <button class="warning-close" @click="showWarning = false">×</button>
+            </div>
+            <div class="warning-body">{{ warningMessage }}</div>
         </div>
-        <div class="warning-body">{{ warningMessage }}</div>
+    </div>
+
+    <!-- Confirmation Popup -->
+    <div v-if="showConfirm" class="confirm-overlay">
+        <div class="confirm-box">
+            <h3>Confirm Delete</h3>
+            <p>Are you sure you want to delete this record?</p>
+            <div class="confirm-actions">
+            <button class="btn-yes" @click="goDelete(deleteId)">Yes, Delete</button>
+            <button class="btn-no" @click="showConfirm = false">Cancel</button>
+            </div>
         </div>
     </div>
 
@@ -66,7 +78,7 @@
                   <td>{{ product.status }}</td>
                   <td>{{ formatDate(product.created_at) }}</td>
                   <td class="action-btn">
-                      <button class="btn-delete" @click="goDelete(product.id)">Delete</button>
+                      <button class="btn-delete" @click="confirmDelete(product.id)">Delete</button>
                   </td>
                   </tr>
                   <tr v-if="filteredProducts.length === 0">
@@ -86,6 +98,9 @@
 <script>
 import { useDataStore } from '../../stores/dataStore';
 export default {
+  name: "TransactionRecord",
+  props: ['active_status'],
+  emits: ['checknotif', 'returnActiveStatus'],
   data() {
     return {
       searchQuery: "",
@@ -93,6 +108,8 @@ export default {
       showWarning: false,
       warningType: "", // 'success' or 'error'
       warningMessage: "",
+      showConfirm: false,
+      deleteId: null,
     };
   },
   computed: {
@@ -103,6 +120,10 @@ export default {
     }
   },
   methods: {
+    confirmDelete(id) {
+        this.deleteId = id;
+        this.showConfirm = true;
+    },
     async goDelete(id){
         try {
             const data = new FormData();
@@ -125,6 +146,8 @@ export default {
             this.warningType = 'error';
             this.warningMessage = 'An error occurred while deleting the record.';
         } finally {
+            // CLOSE THE CONFIRMATION POPUP
+            this.showConfirm = false;
             this.showWarning = true;
             setTimeout(() => {
             this.showWarning = false;
@@ -335,6 +358,77 @@ export default {
 
 .warning-body {
   font-size: 0.95rem;
+}
+
+/* Background overlay covering entire page */
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5); /* dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 80px;
+  z-index: 5000;
+}
+
+/* Confirmation box itself */
+.confirm-box {
+  background: white;
+  border-radius: 10px;
+  padding: 20px 25px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 400px;
+  text-align: center;
+  color: #252525;
+  animation: slideDown 0.25s ease-out;
+}
+
+/* Title and buttons */
+.confirm-box h3 {
+  margin-bottom: 8px;
+}
+
+.confirm-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* Buttons */
+.btn-yes {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-no {
+  background-color: #ccc;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.btn-yes:hover { background-color: #d9362c; }
+.btn-no:hover { background-color: #bbb; }
+
+/* Smooth slide-down animation */
+@keyframes slideDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 /* Responsive */
