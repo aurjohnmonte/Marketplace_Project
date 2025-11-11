@@ -68,6 +68,7 @@
                 :disabled="Object.keys(this.errors).length > 0"
                 >Login
             </button>
+            <router-link to="/admin" class="admin-btn form-btn">Login as Admin</router-link>
         </form>
     </div>
 </template>
@@ -176,6 +177,29 @@ export default {
 </script>
 
 <style scoped>
+.admin-btn{
+    background-color: transparent;
+    outline: none;
+    border: none;
+    color: #555;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: .75em;
+    font-weight: 500;
+    letter-spacing: 0.2px;
+    text-decoration: none;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all .25s ease;
+}
+
+.admin-btn:hover {
+    color: #333;
+}
+
+.admin-btn:active {
+    color: rgba(0, 0, 0, 0.05);
+}
+
 .form-success {
     display: flex;
     align-items: center;
