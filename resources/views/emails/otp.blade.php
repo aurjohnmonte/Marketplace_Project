@@ -17,6 +17,6 @@
     <p>Please enter this code in the verification screen. This code will expire shortly for your security.</p>
 
     <p>Best regards,<br>
-    TimberShoppee </p>
+    CRAFTIFY </p>
 </body>
 </html>

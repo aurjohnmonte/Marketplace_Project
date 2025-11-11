@@ -163,6 +163,9 @@ export default {
                 else if(res.data.message === 'user not found'){
                     this.errors.password = 'User not found!';
                 }
+                else if(res.data.message === 'Account has been deactivate from admin.'){
+                    this.errors.username = "Account has been deactivate from admin.";
+                }
                 else{
                     this.errors.password = "Incorrect Password!";
                 }

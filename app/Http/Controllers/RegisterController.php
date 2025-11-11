@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\OtpMail;
 use App\Models\account;
+use App\Models\Notification;
 use App\Models\Otp;
 use App\Models\Pendingaccounts;
 use App\Models\Pendingshop;
@@ -164,6 +165,32 @@ class RegisterController extends Controller
                         $account->delete();
                         return response()->json(['message'=>'successful']);
                     }
+
+                    //add notification for admin
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $user->id;
+                    $notif->text = "NEW SELLER ACCOUNT HAD BEEN REGISTERED. $user->firstname $user->lastname.";
+                    $notif->seen = 0;
+                    $notif->type = 'register';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                }
+                else{
+
+                    //add notification for admin
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $user->id;
+                    $notif->text = "NEW BUYER ACCOUNT HAD BEEN REGISTERED. $user->firstname $user->lastname.";
+                    $notif->seen = 0;
+                    $notif->type = 'register';
+                    $notif->favorite = 0;
+
+                    $notif->save();
                 }
 
                 $otp->delete();

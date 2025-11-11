@@ -7,7 +7,7 @@
             <label style="font-size: 12px; text-decoration: underline;" @click="$router.push({name: 'ViewAllNotification'}); $emit('goexit')">View all</label>
         </div><br>
         <div class="notify-content">
-            <div class="notify-item" v-for="notif in notifications" :key="notif" @click="goNavigate(notif)">
+            <div class="notify-item" v-for="notif in filterNotif" :key="notif" @click="goNavigate(notif)">
                 <div style="display: flex; flex-direction: row; flex-direction: row; align-items: center; gap: 5px;">
                   <div style="width: 5px; height: 5px; border-radius: 10px; background-color: red;" v-if="notif.seen === 0"></div>
                   <label class="notify-text">{{ notif.text }}</label>
@@ -28,6 +28,12 @@ export default {
 
         store: useDataStore(),
         notif: null,
+      }
+    },
+    computed: {
+      filterNotif(){
+
+        return this.notifications.filter(notif => notif.users.shop.user.is_deactivate === 0);
       }
     },
     methods: {

@@ -17,6 +17,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
+
+//add notification for admin
+    // $notif = new Notification();
+
+    // $notif->to_admin = 1;
+    // $notif->from_id = $request->id;
+    // $notif->product_id = $product->id;
+    // $notif->text = "NEW PRODUCT HAD BEEN ADDED.";
+    // $notif->seen = 0;
+    // $notif->type = 'product';
+    // $notif->favorite = 0;
+
+    // $notif->save();
+//end here
+
 class SellerController extends Controller
 {
     public function returnProfile_info(){
@@ -252,6 +267,20 @@ class SellerController extends Controller
             $shop->category = $req->categories;
 
             if($shop->save()){
+
+                //add notification for admin
+                    $seller = User::where('id', $shop->user_id)->first();
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $seller->id;
+                    $notif->text = "Shop $shop->name change his shop info.";
+                    $notif->seen = 0;
+                    $notif->type = 'product';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                //end here
                 return response()->json(['message'=>'successful', 'description' => $req->description, 'shop_name' => $req->shop_name, 'categories' => $req->categories]);
             }
 
@@ -301,6 +330,19 @@ class SellerController extends Controller
                 }
 
                 $message = 'successful';
+
+                //add notification for admin
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $req->id;
+                    $notif->text = "Seller $user->firstname $user->lastname change his profile info.";
+                    $notif->seen = 0;
+                    $notif->type = 'product';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                //end here
             }
 
             $user_info = User::returnProfileInfo($user->email);
@@ -388,7 +430,9 @@ class SellerController extends Controller
     public function returnUsers(){
         try{
 
-            $users = User::where('role', 'buyer')->get();
+            $users = User::where('role', 'buyer')
+                         ->where('is_deactivate', 0)
+                         ->get();
 
             return response()->json(['users' => $users]);
         }
@@ -440,6 +484,20 @@ class SellerController extends Controller
                     $message = $notify->addNotification('message', $data->seller_id, null, $data->user_id, null, $message->id);
 
                     $buyer = User::where('id', $data->user_id)->first();
+                    $seller = User::where('id', $data->seller_id)->first();
+
+                    //add notification for admin
+                        $notif = new Notification();
+
+                        $notif->to_admin = 1;
+                        $notif->from_id = $data->user_id;
+                        $notif->text = "NEW TRANSACTION RECORD HAD BEEN ADDED FROM SELLER $seller->name.";
+                        $notif->seen = 0;
+                        $notif->type = 'record';
+                        $notif->favorite = 0;
+
+                        $notif->save();
+                    //end here
 
                     if($buyer){
                         broadcast(new MessageEvent($buyer->name));
@@ -460,14 +518,19 @@ class SellerController extends Controller
     public function returnAllRecords(Request $req){
         try{
 
-            $records = Record::with('product')->where('seller_id', $req->id)->get();
+            $records = Record::with(['product', 'buyers'])
+                             ->whereHas('buyers', function($q){
+
+                                $q->where('is_deactivate', 0);
+                             })
+                             ->where('seller_id', $req->id)->get();
 
             Log::info('records', ['records' => $records]);
 
             return response()->json(['records' => $records]);
         }
         catch(\Exception $ex){
-            return response()->json(['message'=>$ex]);
+            return response()->json(['message'=>$ex->getMessage()]);
         }
     }
 

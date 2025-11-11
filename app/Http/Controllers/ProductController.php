@@ -13,6 +13,7 @@ use App\Models\Review;
 use App\Models\Reviewphoto;
 use App\Models\Reviewvideo;
 use App\Models\Shop;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -85,6 +86,22 @@ weight: ''
                 $notify->favorite = false;
 
                 if($notify->save()){
+
+                    //add notification for admin
+                    $seller = User::where('id', $request->id)->first();
+
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $seller->id;
+                    $notif->user_id = $seller->id;
+                    $notif->text = "NEW PRODUCT HAD BEEN ADDED BY $seller->firstname $seller->lastname ($seller->name).";
+                    $notif->seen = 0;
+                    $notif->type = 'product';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                    //end here
 
                     broadcast(new NotifyEvent($shop->user_id));
                     $products = Product::with(['shop', 'records', 'photos', 'reviews', 'videos'])->where('shop_id', $shop->id)->get();
@@ -186,6 +203,34 @@ weight: ''
             $product->price = $product_info->price;
 
             if($product->save()){
+
+                //add notification for admin
+
+                    //seller
+                    //this return a shop idk haha, i think it is because of join
+                    $seller = User::join('shops', 'users.id', '=', 'shops.user_id')
+                                  ->where('shops.id', '=', $product->shop_id)
+                                  ->first();
+
+                    Log::info('seller', ['seller' => $seller]);
+
+                    if(!$seller){
+
+                        return response()->json(['message' => 'no seller found'], 404);
+                    }
+
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $seller->user_id;
+                    $notif->text = "SELLER $seller->firstname $seller->lastname ($seller->name) EDIT HIS/HER PRODUCT $product->name ($product->status).";
+                    $notif->seen = 0;
+                    $notif->type = 'product';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                //end here
+
                 return response()->json(['message'=>'successful', 'photos' => $photos]);
             }
 
@@ -221,6 +266,12 @@ weight: ''
                 }
             }
 
+            if($notifications){
+                foreach($notifications as $notify){
+                    $notify->delete();
+                }
+            }
+
             if(!$records->isEmpty()){
 
                 foreach($records as $record){
@@ -236,12 +287,6 @@ weight: ''
                     if(!$message->save()){
                         return response()->json(['message'=>'error']);
                     }
-                }
-            }
-
-            if($notifications){
-                foreach($notifications as $notify){
-                    $notify->delete();
                 }
             }
 
@@ -270,6 +315,22 @@ weight: ''
             foreach($reviews as $review){
                 $review->delete();
             }
+
+            $seller = User::join('shops', 'users.id', '=', 'shops.user_id')
+                          ->where('shops.id', '=', $product->shop_id)
+                          ->first();
+
+            //add notification for admin
+                $notif = new Notification();
+                $notif->from_id = $seller->user_id;
+                $notif->to_admin = 1;
+                $notif->text = "PRODUCT $product->name HAS BEEN DELETED BY SELLER $seller->firstname $seller->lastname ($seller->name).";
+                $notif->seen = 0;
+                $notif->type = 'record';
+                $notif->favorite = 0;
+
+                $notif->save();
+            //end here
 
             $product->delete();
 

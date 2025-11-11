@@ -33,7 +33,51 @@ import ViewProduct from "../seller/notifications/ViewProduct.vue";
 import TransactionRecord from "../seller/pages/TransactionRecord.vue";
 import AddRecord from "../seller/pages/AddRecord.vue";
 
+//ADMIN SIDE
+import AdminDashboard from "../admin/pages/AdminDashboard.vue";
+import ManageAccount from "../admin/pages/ManageAccount.vue";
+import SellerProfile from "../admin/pages/SellerProfile.vue";
+import Admin_viewProduct from "../admin/pages/Admin_viewProduct.vue";
+import ManageReviews from "../admin/pages/ManageReviews.vue";
+import AdminMap from "../admin/pages/AdminMap.vue";
+import AdminNotificationPage from "../admin/pages/AdminNotificationPage.vue";
+
 const routes = [
+    {
+        path: "/admin/notifications",
+        name: "AdminNotificationPage",
+        component: AdminNotificationPage
+    },
+    {
+        path: "/admin/map",
+        name: "AdminMap",
+        component: AdminMap
+    },
+    {
+        path: "/admin/manage-reviews",
+        name: "ManageReviews",
+        component: ManageReviews
+    },
+    {
+        path: "/admin/view-product/:id",
+        name: "Admin_viewProduct",
+        component: Admin_viewProduct
+    },
+    {
+        path: "/admin/seller-profile/:id",
+        name: "SellerProfile",
+        component: SellerProfile
+    },
+    {
+        path: "/admin/manage-account",
+        name: "ManageAccount",
+        component: ManageAccount
+    },
+    {
+        path: "/admin/dashboard",
+        name: "AdminDashboard",
+        component: AdminDashboard
+    },
     {
         path: "/buyer/browse/shop/:id",
         name: "ShopView",

@@ -2,6 +2,7 @@
 
 use App\Events\ActiveEvent;
 use App\Events\MessageEvent;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BuyerController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
@@ -10,6 +11,8 @@ use App\Http\Controllers\SellerController;
 use App\Http\Controllers\ShopController;
 use App\Http\Middleware\BuyerCheck;
 use App\Mail\OtpMail;
+use App\Models\Admin;
+use App\Models\Adminotp;
 use App\Models\Otp;
 use App\Models\Pendingaccounts;
 use App\Models\Pendingshop;
@@ -18,6 +21,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
+
+//REMEMBER SOY IMOHA LOGIC, ANG ADMIN OTP MA DELETE TANAN IF MAKA SULOD SIYA SA ADMIN HOME. NOT A GOOD SOLUTION BUT WELL WELL WELL...
 
 Route::get('/', function () {
     Otp::query()->delete();
@@ -90,7 +95,7 @@ Route::middleware('buyercheck')->group(function() {
     Route::post("/buyer/search-shop", [BuyerController::class, "searchShops"]);
     //return shop profile info
     Route::post("/shop/return-info", [BuyerController::class, "returnShopProfile"]);
-    //return profile info
+    //return profile info/seller/return-users
     Route::post("/return/user-buyer/info", [BuyerController::class, "returnProfile_info"]);
     //return conversation messages
     Route::post("/send-message/from-buyer", [BuyerController::class, "messageSent"]);
@@ -399,3 +404,115 @@ Route::get('/logout', function(Request $request){
     return redirect()->route('home');
 });
 
+
+//ADMIN LOG IN
+Route::get('/admin/login', function() {
+
+    if(session()->has('admin_email')){
+        return redirect()->route('admin_home', 'home');
+    }
+    return view('admin_login');
+})->name('admin_login');
+
+Route::post('/admin-check', [AdminController::class, "admin_check_login"])->name('admin_check');
+
+
+// ADMIN
+Route::middleware('admin_check')->group(function () {
+
+    Route::get('/admin/{p}/{id?}', function() {
+
+        Adminotp::query()->delete();
+
+        return view('admin_home');
+    })->whereIn('p', [
+                        'home',
+                        'manage-account',
+                        'dashboard',
+                        'seller-profile',
+                        'view-product',
+                        'manage-reviews',
+                        'map',
+                        'notifications'
+                    ])->name('admin_home');
+
+    Route::get('/admin/logout', function(Request $req) {
+
+        $req->session()->flush();
+
+        return redirect()->route('admin_login');
+    });
+
+    //admin return all users (buyer and seller)
+    Route::get('/admin/users/return-all', [AdminController::class, "admin_return_allusers"]);
+    //return selected seller info
+    Route::post('/admin/return/seller-info', [AdminController::class, "returnSeller_info"]);
+    //admin edit user personal info
+    Route::post('/admin/edit/user-info', [AdminController::class, "admin_edit_UserInfo"]);
+    //admin edit shop info
+    Route::post('/admin/edit/shop-info', [AdminController::class, "admin_edit_Shop"]);
+    //admin return user names
+    Route::post('/admin/return-all/names', [AdminController::class, "admin_return_names"]);
+    //admin return a search-filtered reviews
+    Route::post('/admin/search-filter/reviews', [AdminController::class, "admin_return_reviews_filterSearch"]);
+    //admin return all reviews
+    Route::get('/admin/return-all/reviews', [AdminController::class, "admin_returnAll_reviews"]);
+    //admin delete review
+    Route::post('/admin/delete-review', [AdminController::class, "admin_delete_review"]);
+    //admin block product
+    Route::post('/admin/block-product', [AdminController::class, "admin_block_product"]);
+    //admin unblock product
+    Route::post('/admin/unblock-product', [AdminController::class, 'admin_unblock_product']);
+    //admin deactivate account
+    Route::post('/admin/deactivate-user', [AdminController::class, 'admin_deactivate_user']);
+    //admin activate account
+    Route::post('/admin/activate-user', [AdminController::class, "admin_activate_user"]);
+    //seller deletion account
+    Route::post('/admin/delete-seller/account', [AdminController::class, "admin_deleteSeller_account"]);
+    //buyer delete account
+    Route::post('/admin/delete-buyer/account', [AdminController::class, "admin_deleteBuyer_account"]);
+    //admin return shop
+    Route::get('/admin/return-all/shops', [AdminController::class, "returnShops"]);
+    //admin return info 
+    Route::get('/admin/return-info', [AdminController::class, "admin_returnInfo"]);
+    //admin edit info
+    Route::post('/admin/edit-info', [AdminController::class, "admin_editInfo"]);
+    //admin return all notif
+    Route::get('/admin/return-all/notifications', [AdminController::class, "admin_return_notif"]);
+    //admin delete notif
+    Route::post('/admin/delete-notif', [AdminController::class, "admin_delete_notif"]);
+    //admin delete all notif
+    Route::post('/admin/delete-all/notif', [AdminController::class, "admin_delete_all_notif"]);
+    //admin mark all read notif
+    Route::post('/admin/mark-all-read/notif', [AdminController::class, "admin_mark_all_read_notif"]);
+    //return data for dashboard
+    Route::get('/admin/return-data/dashboard', [AdminController::class, "admin_returnData_dashboard"]);
+});
+
+Route::post('/admin/verify-otp', function(Request $req){
+
+    $code = $req->input('code');
+    $email = $req->input('email');
+
+    Log::info('email', ['email' => $email]);
+
+    $admin = Admin::where('email', '=', $email)->first();
+
+    if(!$admin){
+        return response()->json(['message' => 'Admin email not found']);
+    }
+
+    $otp = Adminotp::where('otp', $code)
+                   ->where('admin_id', $admin->id)
+                   ->first();
+
+    if(!$otp){
+       return response()->json(['message' => 'OTP not found']); 
+    }
+
+    $req->session()->put('admin_email', [$admin->email]);
+
+    Adminotp::query()->delete();
+
+    return response()->json(['message' => 'success']);
+});

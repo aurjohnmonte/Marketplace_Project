@@ -69,7 +69,7 @@ export default {
 
             console.log('indices: ',this.all_indices);
 
-            return this.notifications;
+            return this.notifications.filter(notif => notif.users.shop.user.is_deactivate === 0);
         }
     },
     methods: {

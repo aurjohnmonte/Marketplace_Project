@@ -26,6 +26,11 @@ class UserloginMiddleware
         if($user){
             if(Hash::check($password, $user->password)){
 
+                if($user->deact_from_admin === 1){
+
+                    return response()->json(['message'=>'Account has been deactivate from admin.']);
+                }
+
                 $user->is_active = true;
                 
                 if($user->is_deactivate){

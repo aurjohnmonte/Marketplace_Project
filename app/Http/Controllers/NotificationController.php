@@ -18,11 +18,12 @@ class NotificationController extends Controller
         try{
             if($request->type === "buyer"){
                 $following_shops = Follower::select('user_id')->where('follower_id',$request->id)->get()->toArray();
-                $data = Notification::with(['users', 'users.shop', 'products.photos', 'products.shop', 'products.records', 'reviews', 'messages'])
+                $data = Notification::with(['users', 'users.shop', 'users.shop.user', 'products.photos', 'products.shop', 'products.records', 'reviews', 'messages'])
                                             ->where(function ($query) use($following_shops) {
                                                 
                                                 $query->where('notifications.type', '=', 'product')
-                                                      ->whereIn('notifications.from_id', $following_shops);
+                                                      ->whereIn('notifications.from_id', $following_shops)
+                                                      ->where('to_admin', 0);
                                             })
                                             ->orWhere('notifications.user_id', $request->id)
                                             ->orderBy('notifications.created_at', 'desc')
@@ -30,8 +31,9 @@ class NotificationController extends Controller
             }
             else{
                 // $following_shops = Follower::select('follower_id')->where('user_id',$request->id)->get()->toArray();
-                $notifications = Notification::with(['users','products.photos', 'products.shop', 'reviews', 'messages'])
+                $notifications = Notification::with(['users','products.photos', 'users.shop.user', 'products.shop', 'reviews', 'messages'])
                                             ->where('notifications.user_id', $request->id)
+                                            ->where('to_admin', 0)
                                             ->orderBy('notifications.created_at', 'desc')
                                             ->get();
                     

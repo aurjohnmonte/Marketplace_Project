@@ -36,7 +36,7 @@
         <img src="../../../images/kOnzy.gif"/>
     </div>
     <div class="buyer-browse-content" v-else>
-        <template v-if="products.length > 0">
+        <template v-if="products ? products.length > 0 : false">
           <div class="item-content" v-for="product in products" :key="product">
             <div class="option-icon">
                 <img src="../../../images/location.png" @click.stop="goLocation(parseFloat(product.shop.latitude), parseFloat(product.shop.longitude))">

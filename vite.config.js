@@ -15,11 +15,11 @@ export default defineConfig({
             vue: "vue/dist/vue.esm-bundler.js",
         }
     },
-    server: {
-        host: '0.0.0.0',  // Allows access from the network (not just localhost)
-        port: 8000,  // Default port Vite uses, you can change if needed
-        hmr: {
-            host: '192.168.1.3',  // Replace this with your local IPcmd
-        },
-    },
+    // server: {
+    //     host: '0.0.0.0',  // Allows access from the network (not just localhost)
+    //     port: 8000,  // Default port Vite uses, you can change if needed
+    //     hmr: {
+    //         host: '10.28.38.186',  // Replace this with your local IPcmd
+    //     },
+    // },
 });

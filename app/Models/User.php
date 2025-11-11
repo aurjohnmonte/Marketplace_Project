@@ -55,7 +55,8 @@ class User extends Authenticatable
 
             if($search_info->name === "Shop"){
                 $result = self::join('shops','shops.user_id','=','users.id')
-                              ->where('shops.name','like',"%$search_text%");
+                              ->where('shops.name','like',"%$search_text%")
+                              ->where('users.is_deactivate', 0);
 
                 if($search_info->filter === "Popular"){
                     $result = $result->orderBy("shops.overall_rate", 'desc')->limit(10)->get()->toArray();
@@ -134,5 +135,9 @@ class User extends Authenticatable
 
     public function shop(){
         return $this->hasOne(Shop::class, 'user_id');
+    }
+
+    public function reviews(){
+        return $this->hasMany(Review::class, 'from_id')->latest('created_at');
     }
 }

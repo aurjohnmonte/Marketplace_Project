@@ -13,6 +13,16 @@ class Review extends Model
         return $this->belongsTo(User::class, 'from_id');
     }
 
+    public function product(){
+
+        return $this->belongsTo(Product::class, 'product_id');
+    }
+
+    public function shop(){
+
+        return $this->belongsTo(Shop::class, 'shop_id');
+    }
+
     public function reviewphotos(){
         return $this->hasMany(Reviewphoto::class, 'review_id');
     }
@@ -45,6 +55,24 @@ class Review extends Model
         try{
 
             $review_info = json_decode($req->review_info);
+
+            //add notification for admin
+
+                $buyer = User::where('id', $req->from_id)->first();
+                $product = Product::where('id', $req->to_id)->first();
+                $shop = Shop::where('id', $req->shop_id)->first();
+
+                $notif = new Notification();
+
+                $notif->to_admin = 1;
+                $notif->from_id = $buyer->id;
+                $notif->text = "BUYER $buyer->firstname $buyer->lastname sent a review $product->name owned by $shop->name.";
+                $notif->seen = 0;
+                $notif->type = 'review';
+                $notif->favorite = 0;
+
+                $notif->save();
+            //end here
             
             $arr = ['shop', 'product'];
 

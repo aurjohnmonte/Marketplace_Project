@@ -158,7 +158,11 @@ class BuyerController extends Controller
 
             Log::info('id',['id'=>$shop_id]);
 
-            $shops = Shop::with('user')->whereIn('user_id',$shop_id)->get();
+            $shops = Shop::with('user')
+                         ->join('users', 'shops.user_id', '=', 'users.id')
+                         ->where('users.is_deactivate', 0)
+                         ->whereIn('user_id', $shop_id)
+                         ->get();
 
             $messages = Message::select('messages.from_id', 'messages.to_id', 'messages.updated_at', 'messages.messages')
                                 ->join("users as sender",'messages.from_id','=','sender.id')
@@ -236,7 +240,9 @@ class BuyerController extends Controller
 
     public function returnShops(){
         try{
-            $shops = Shop::all();
+            $shops = Shop::join('users', 'shops.user_id', '=', 'users.id')
+                         ->where('users.is_deactivate', 0)
+                         ->get();
 
             return response()->json(['shops'=>$shops]);
         }
@@ -262,8 +268,12 @@ class BuyerController extends Controller
         try{    
             $info = json_decode($request->shop_info);
             Log::info('filter',['filter'=>$info->filter]);
-            $query = Product::with(['photos','shop', 'records', 'reviews'])
+            $query = Product::with(['photos','shop', 'shop.user', 'records', 'reviews'])
                                ->where('name','like',"%$request->search_text%")
+                               ->whereHas('shop.user', function ($q){
+
+                                    $q->where('is_deactivate', 0);
+                               })
                                ->where(function($q) use($info) {
 
                                     if($info->category && $info->category !== ""){
@@ -348,8 +358,21 @@ class BuyerController extends Controller
 
         try{
 
-            $popular = Shop::with('reviews')->orderBy("overall_rate", "desc")->get();
-            $new = Shop::with('reviews')->orderBy("created_at", "desc")->get();
+            $popular = Shop::with('reviews', 'user')
+                           ->whereHas('user', function ($q){
+
+                                $q->where('is_deactivate', 0);
+                           })
+                           ->orderBy("overall_rate", "desc")
+                           ->get();
+
+            $new = Shop::with('reviews','user')
+                        ->whereHas('user', function ($q){
+
+                            $q->where('is_deactivate', 0);
+                        })
+                       ->orderBy("created_at", "desc")
+                       ->get();
 
             return response()->json(['popular'=>$popular, 'new'=>$new]);
         }
@@ -378,6 +401,26 @@ class BuyerController extends Controller
             $follower->follower_id = $request->id;
 
             if($follower->save()){
+
+                //add notification for admin
+
+                    $buyer = User::where('id', $request->id)->first();
+                    $shop = Shop::where('user_id', $request->user_id)->first();
+
+                    Log::info('buyer', ['buyer' => $buyer]);
+
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $buyer->id;
+                    $notif->text = "Buyer $buyer->firstname $buyer->lastname followed shop $shop->name.";
+                    $notif->seen = 0;
+                    $notif->type = 'follow';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                //end here
+
                 return response()->json(['message'=>'successful']);
             }
             return response()->json(['message'=>'error']);
@@ -477,6 +520,8 @@ class BuyerController extends Controller
         try{
 
             $follows = Follower::with('follows.shop')
+                               ->join('users', 'followers.user_id', '=', 'users.id')
+                               ->where('users.is_deactivate', 0)
                                ->where('follower_id',$req->id)
                                ->get();
             return response()->json(['message'=>$follows]);
@@ -537,6 +582,20 @@ class BuyerController extends Controller
             $user->nearby_km = $info->nearby_km;
 
             if($user->save()){
+
+                //add notification for admin
+                    $notif = new Notification();
+
+                    $notif->to_admin = 1;
+                    $notif->from_id = $user->id;
+                    $notif->text = "Buyer $user->name change his profile info.";
+                    $notif->seen = 0;
+                    $notif->type = 'profile';
+                    $notif->favorite = 0;
+
+                    $notif->save();
+                //end here
+
                 return response()->json(['message' => 'successful',
                                          'info'=> $info,
                                          'user' => $user]);
@@ -671,6 +730,23 @@ class BuyerController extends Controller
             if(!$follows){
                 return response()->json(['message' => 'Something went wrong. Please reload the page']);
             }
+
+            //add notification for admin
+
+                $buyer = User::where('id', $follows->follower_id)->first();
+                $shop = Shop::where('user_id', $follows->user_id)->first();
+
+                $notif = new Notification();
+
+                $notif->to_admin = 1;
+                $notif->from_id = $buyer->id;
+                $notif->text = "Buyer $buyer->firstname $buyer->lastname unfollowed shop $shop->name.";
+                $notif->seen = 0;
+                $notif->type = 'follow';
+                $notif->favorite = 0;
+
+                $notif->save();
+            //end here
 
             $follows->delete();
 

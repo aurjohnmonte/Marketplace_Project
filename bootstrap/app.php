@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\BuyerCheck;
+use App\Http\Middleware\CheckAdmin;
 use App\Http\Middleware\UserCheckMiddleware;
 use App\Http\Middleware\UserloginMiddleware;
 use Illuminate\Foundation\Application;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
                 "userlogin" => UserloginMiddleware::class,
                 "usercheck" => UserCheckMiddleware::class,
                 "buyercheck" => BuyerCheck::class,
+                'admin_check' => CheckAdmin::class,
             ]
         );
     })

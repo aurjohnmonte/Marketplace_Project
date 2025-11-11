@@ -344,6 +344,7 @@ export default {
       const res = await axios.get('/buyer/return/products');
       console.log(res.data.popular);
       console.log(res.data.new);
+      console.log(res.data.message);
       this.popular = res.data.popular;
       this.new_product = res.data.new;
 

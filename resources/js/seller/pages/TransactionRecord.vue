@@ -62,7 +62,7 @@
                 <th>Action</th>
                 </tr>
             </thead>
-            <tbody v-if="products.length > 0">
+            <tbody v-if="products ? products.length > 0 : false">
                 <tr
                 v-for="(product, indx) in filteredProducts"
                 :key="product.id"
@@ -176,6 +176,7 @@ export default {
       const res = await axios.post('/seller/return/all-records', data);
 
       console.log(res.data.records);
+      console.log(res.data.message);
 
       this.products = res.data.records;
 
